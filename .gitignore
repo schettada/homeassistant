@@ -1,0 +1,15 @@
+secrets.yaml
+*.log
+*.xml
+*.db
+*.sqlite
+.storage/
+OZW_Log.txt
+known_devices.yaml
+.cloud/
+.automatic/
+.ip_authenticated.yaml
+._.DS_Store
+.DS_Store
+zigbee2mqtt/log/
+*.log.*

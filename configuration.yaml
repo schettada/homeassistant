@@ -1,0 +1,32 @@
+homeassistant:
+  auth_providers:
+    - type: homeassistant
+    - type: legacy_api_password
+      api_password: !secret httppw
+
+http:
+  ssl_certificate: !secret ssl_crt
+  ssl_key: !secret ssl_key
+  ip_ban_enabled: true
+  login_attempts_threshold: 5
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 10.2.1.0/24
+
+default_config:
+
+recorder:
+  db_url: !secret mysql
+  purge_keep_days: 30
+  exclude:
+    domains:
+      - automation
+      - weblink
+      - group
+    entities:
+      - sun.sun
+      - binary_sensor.remote_ui
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
