@@ -1,3 +1,4 @@
+---
 homeassistant:
   auth_providers:
     - type: homeassistant
@@ -12,6 +13,9 @@ http:
   use_x_forwarded_for: true
   trusted_proxies:
     - 10.2.1.0/24
+
+frontend:
+  themes: !include_dir_merge_named themes
 
 default_config:
 
