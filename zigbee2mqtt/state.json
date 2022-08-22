@@ -22,7 +22,7 @@
         "occupancy": false,
         "illuminance": 0,
         "illuminance_lux": 0,
-        "temperature": 19.02,
+        "temperature": 19.16,
         "update": {
             "state": "idle"
         },
@@ -37,7 +37,7 @@
         "illuminance": 0,
         "illuminance_lux": 0,
         "linkquality": 127,
-        "temperature": 16.82,
+        "temperature": 16.96,
         "update": {
             "state": "idle"
         },

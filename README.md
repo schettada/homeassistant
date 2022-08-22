@@ -1,1 +1,1 @@
-# homeassistant
+[![Home Assistant CI](https://github.com/schettada/homeassistant/actions/workflows/home-assistant.yml/badge.svg)](https://github.com/schettada/homeassistant/actions/workflows/home-assistant.yml)

@@ -1,0 +1,36 @@
+---
+- platform: deepstack_face
+  ip_address: !secret deepstack_ip
+  port: 8098
+  api_key: !secret deepstack_api
+  timeout: 5
+  detect_only: false
+  save_file_folder: !secret deepstack_save_folder
+  save_timestamped_file: true
+  save_faces: true
+  save_faces_folder: !secret deepstack_face_folder
+  show_boxes: true
+  source:
+    - entity_id: camera.bedroom_person
+
+- platform: deepstack_object
+  ip_address: !secret deepstack_ip
+  port: 8098
+  api_key: !secret deepstack_api
+  timeout: 5
+  save_file_folder: !secret deepstack_save_folder
+  save_timestamped_file: true
+  always_save_latest_file: true
+  show_boxes: true
+  source:
+    - entity_id: camera.bedroom_person
+
+- platform: platerecognizer
+  api_token: !secret plate
+  regions:
+    - us
+  save_file_folder: !secret plate_folder
+  save_timestamped_file: true
+  always_save_latest_file: true
+  source:
+    - entity_id: camera.car
