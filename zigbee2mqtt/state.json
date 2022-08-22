@@ -1,0 +1,46 @@
+{
+    "0xb0ce18140300f802": {
+        "color_mode": "xy",
+        "update": {
+            "state": "idle"
+        },
+        "update_available": false,
+        "linkquality": 14
+    },
+    "0xb0ce181403011613": {
+        "color_mode": "xy",
+        "update": {
+            "state": "idle"
+        },
+        "update_available": false,
+        "linkquality": 29
+    },
+    "0x0017880109196488": {
+        "battery": 100,
+        "occupancy_timeout": 0,
+        "motion_sensitivity": "high",
+        "occupancy": false,
+        "illuminance": 0,
+        "illuminance_lux": 0,
+        "temperature": 19.02,
+        "update": {
+            "state": "idle"
+        },
+        "update_available": false,
+        "linkquality": 127
+    },
+    "0x0017880109197eb3": {
+        "battery": 100,
+        "occupancy_timeout": 0,
+        "motion_sensitivity": "high",
+        "occupancy": false,
+        "illuminance": 0,
+        "illuminance_lux": 0,
+        "linkquality": 127,
+        "temperature": 16.82,
+        "update": {
+            "state": "idle"
+        },
+        "update_available": false
+    }
+}
