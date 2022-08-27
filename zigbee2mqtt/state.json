@@ -34,7 +34,7 @@
         "occupancy": false,
         "illuminance": 0,
         "illuminance_lux": 0,
-        "temperature": 20,
+        "temperature": 19.44,
         "update": {
             "state": "idle"
         },
