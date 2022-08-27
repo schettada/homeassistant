@@ -1,0 +1,55 @@
+---
+
+# https://home-assistant.io/components/sensor.systemmonitor/
+- platform: systemmonitor
+  resources:
+    - type: disk_use_percent
+      arg: /
+    - type: memory_use_percent
+    - type: swap_use_percent
+    - type: processor_use
+    - type: throughput_network_in
+      arg: eno1
+    - type: throughput_network_out
+      arg: eno1
+    - type: last_boot
+    - type: ipv4_address
+      arg: eno1
+
+# https://www.home-assistant.io/components/sensor.command_line/
+- platform: command_line
+  name: CPU Temperature
+  command: "cat /sys/class/thermal/thermal_zone0/temp"
+  unit_of_measurement: "°C"
+  value_template: "{{ value | multiply(0.001) | round(1) }}"
+
+# https://www.home-assistant.io/components/template/
+- platform: template
+  sensors:
+    sensor_count:
+      friendly_name: "Number of Sensors"
+      value_template: "{{ states.sensor | count }}"
+    automation_count:
+      friendly_name: "Number of Automations"
+      value_template: "{{ states.automation | count }}"
+    script_count:
+      friendly_name: "Number of Scripts"
+      value_template: "{{ states.script | count }}"
+    switch_count:
+      friendly_name: "Number of Switches"
+      value_template: "{{ states.switch | count }}"
+    binary_sensor_count:
+      friendly_name: "Number of Binary Sensors"
+      value_template: "{{ states.binary_sensor | count }}"
+    lights_count:
+      friendly_name: "Number of Lights"
+      value_template: "{{ states.light | count }}"
+    tracker_count:
+      friendly_name: "Number of Network Devices"
+      value_template: "{{ states.device_tracker | count }}"
+    zwave_count:
+      friendly_name: "Number of Zwave Devices"
+      value_template: "{{ states.zwave | count }}"
+    zigbee_count:
+      friendly_name: "Number of Zigbee Devices"
+      value_template: "{{ states.zigbee | count }}"

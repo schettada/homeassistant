@@ -1,0 +1,76 @@
+notify_sooraj:
+  alias: Notify Sooraj
+  sequence:
+  - service: notify.mobile_app_iphone
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
+  mode: parallel
+  icon: mdi:bell-ring
+notify_arleepta:
+  alias: Notify Arleepta
+  sequence:
+  - service: notify.mobile_app_arleepta
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
+  mode: parallel
+  icon: mdi:bell-ring
+notify_alexa:
+  alias: Notify Alexa
+  sequence:
+  - service: notify.alexa_media
+    data:
+      message: '"{{ message }}"'
+      target: media_player.hub
+      data:
+        type: tts
+  mode: single
+  icon: mdi:bell-ring
+notify_all:
+  alias: Notify All
+  sequence:
+  - service: script.notify_sooraj
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
+  - service: script.notify_arleepta
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
+  - service: script.notify_alexa
+    data:
+      message: '{{ message }}'
+  - service: notify.nabucasa
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
+  mode: queued
+  icon: mdi:bell-ring
+notify_all_with_sms:
+  alias: Notify All With SMS
+  sequence:
+  - service: script.notify_sooraj
+    data:
+      message: '{{ message }}'
+  - service: script.notify_arleepta
+    data:
+      message: '{{ message }}'
+  - service: script.notify_alexa
+    data:
+      message: '{{ message }}'
+  - service: script.notify_sms
+    data:
+      message: '{{ message }}'
+  mode: single
+  icon: mdi:bell-ring
+notify_sms:
+  alias: Notify SMS
+  sequence:
+  - service: notify.sms
+    data:
+      message: '{{ message }}'
+      target:
+      - '+17207555488'
+  mode: single
+  icon: mdi:bell-ring

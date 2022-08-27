@@ -20,7 +20,38 @@ frontend:
 logger:
   default: info
 
-default_config:
+# default_config:
+bluetooth:
+cloud:
+config:
+counter:
+dhcp:
+energy:
+history:
+homeassistant_alerts:
+image:
+input_boolean:
+input_button:
+input_datetime:
+input_number:
+input_select:
+input_text:
+logbook:
+map:
+media_source:
+mobile_app:
+my:
+person:
+# stream:
+ssdp:
+sun:
+system_health:
+tag:
+timer:
+usb:
+webhook:
+zeroconf:
+zone:
 
 recorder:
   db_url: !secret mysql
@@ -35,5 +66,8 @@ recorder:
       - binary_sensor.remote_ui
 
 automation: !include automations.yaml
-script: !include scripts.yaml
 scene: !include scenes.yaml
+script: !include scripts.yaml
+sensor: !include sensors.yaml
+# image_processing: !include image_processing.yaml
+# camera: !include cameras.yaml

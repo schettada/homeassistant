@@ -1,1 +1,77 @@
-[]
+- id: '1661184159184'
+  alias: HA Start
+  description: ''
+  trigger:
+  - platform: homeassistant
+    event: start
+  condition: []
+  action:
+  - service: notify.mobile_app_iphone
+    data:
+      message: Portal is Online!
+      title: System Message
+  - service: notify.nabucasa
+    data:
+      message: Portal is Online!
+      title: System Message
+  mode: single
+- id: '1661184447686'
+  alias: HA Stop
+  description: ''
+  trigger:
+  - platform: homeassistant
+    event: shutdown
+  condition: []
+  action:
+  - service: notify.mobile_app_iphone
+    data:
+      message: Portal is Shutting Down!
+      title: System Message
+  - service: notify.nabucasa
+    data:
+      message: Portal is Shutting Down!
+      title: System Message
+  mode: single
+- id: '1661354669351'
+  alias: CenturyLink Status
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.pfsense_nabucasa_io_gateway_centurylink_pppoe_status
+    from: online
+    to: offline
+  condition: []
+  action:
+  - service: script.notify_all
+    data:
+      message: '{% if is_state(''sensor.pfsense_nabucasa_io_gateway_centurylink_pppoe_status'',
+        ''online'') %} CenturyLink Gateway is Online {% else %} CenturyLink Gateway
+        is Down {% endif %}'
+      title: Critical Message
+  mode: single
+- id: '1661355474241'
+  alias: Xfinity Status
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.pfsense_nabucasa_io_gateway_xfinity_dhcp_status
+    - sensor.pfsense_nabucasa_io_gateway_xfinity_dhcp6_status
+    from: online
+    to: unavailable
+  - platform: state
+    entity_id:
+    - sensor.pfsense_nabucasa_io_gateway_xfinity_dhcp_status
+    - sensor.pfsense_nabucasa_io_gateway_xfinity_dhcp6_status
+    from: unavailable
+    to: online
+  condition: []
+  action:
+  - service: script.notify_all
+    data:
+      message: '{% if is_state(''sensor.pfsense_nabucasa_io_gateway_xfinity_dhcp_status'',
+        ''online'') %} Xfinity Gateway is Online {% else %} Xfinity Gateway is Down
+        {% endif %}'
+      title: Critical Message
+  mode: single

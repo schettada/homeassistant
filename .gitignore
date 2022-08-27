@@ -13,3 +13,5 @@ known_devices.yaml
 .DS_Store
 zigbee2mqtt/log/
 *.log.*
+govee_learning.yaml
+ip_bans.yaml

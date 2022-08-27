@@ -1,1 +1,6 @@
-{}
+'1':
+  friendly_name: Driveway
+  devices:
+    - 0xb0ce181403011613/1
+    - 0xb0ce18140300f802/1
+    - 0xb0ce18140301d98d/1
