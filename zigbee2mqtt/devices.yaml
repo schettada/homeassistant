@@ -8,9 +8,15 @@
   friendly_name: Basement
 '0xb0ce18140301d98d':
   friendly_name: Driveway 3
-'0x680ae2fffee8ed49':
-  friendly_name: Basement 1
-'0x680ae2fffee3b7a0':
-  friendly_name: Basement 2
-'0x680ae2fffee3ab33':
-  friendly_name: Basement 3
+'0x00124b0025908789':
+  friendly_name: Router
+'0x00158d000847e3b9':
+  friendly_name: Deck
+'0x00158d000847821b':
+  friendly_name: 'Front Door '
+'0x00158d0008478254':
+  friendly_name: Garage Door
+'0x00158d000848313a':
+  friendly_name: Basement Door
+'0x00158d0008063fd8':
+  friendly_name: Walkout Door

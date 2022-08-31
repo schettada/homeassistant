@@ -4,7 +4,7 @@
     "version": 1,
     "source": "zigbee-herdsman@0.14.46",
     "internal": {
-      "date": "2022-08-26T23:20:19.480Z",
+      "date": "2022-08-31T17:26:22.270Z",
       "znpVersion": 1
     }
   },
@@ -25,7 +25,7 @@
   "network_key": {
     "key": "01030507090b0d0f00020406080a0c0d",
     "sequence_number": 0,
-    "frame_counter": 3124620
+    "frame_counter": 3170666
   },
   "devices": [
     {
@@ -181,9 +181,69 @@
     {
       "nwk_address": "5408",
       "ieee_address": "b0ce18140301d98d",
-      "is_child": true,
+      "is_child": false,
       "link_key": {
         "key": "bf5ce73f212749a4cfe2c7eaffd1d10a",
+        "rx_counter": 0,
+        "tx_counter": 0
+      }
+    },
+    {
+      "nwk_address": "62cb",
+      "ieee_address": "00124b0025908789",
+      "is_child": false,
+      "link_key": {
+        "key": "0c61ac103fcc0642b24179cec954a832",
+        "rx_counter": 0,
+        "tx_counter": 0
+      }
+    },
+    {
+      "nwk_address": "259c",
+      "ieee_address": "00158d000847e3b9",
+      "is_child": true,
+      "link_key": {
+        "key": "85d6788f14cf2ec650088e17babf90e6",
+        "rx_counter": 0,
+        "tx_counter": 0
+      }
+    },
+    {
+      "nwk_address": "91d0",
+      "ieee_address": "00158d000847821b",
+      "is_child": false,
+      "link_key": {
+        "key": "2405534a3b4bfcebd29dfd3a856b2935",
+        "rx_counter": 0,
+        "tx_counter": 0
+      }
+    },
+    {
+      "nwk_address": "f53b",
+      "ieee_address": "00158d0008478254",
+      "is_child": false,
+      "link_key": {
+        "key": "6b05534a3b4bfceb9d9dfd3a856b2935",
+        "rx_counter": 0,
+        "tx_counter": 0
+      }
+    },
+    {
+      "nwk_address": "6fed",
+      "ieee_address": "00158d000848313a",
+      "is_child": false,
+      "link_key": {
+        "key": "0f0ecf1c42b6d3e9d1f857b23208f33c",
+        "rx_counter": 0,
+        "tx_counter": 0
+      }
+    },
+    {
+      "nwk_address": "e377",
+      "ieee_address": "00158d0008063fd8",
+      "is_child": false,
+      "link_key": {
+        "key": "3e0333378799573b1ed6edc11f372785",
         "rx_counter": 0,
         "tx_counter": 0
       }

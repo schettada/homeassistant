@@ -47,30 +47,15 @@ notify_all:
       title: '{{ title }}'
   mode: queued
   icon: mdi:bell-ring
-notify_all_with_sms:
-  alias: Notify All With SMS
-  sequence:
-  - service: script.notify_sooraj
-    data:
-      message: '{{ message }}'
-  - service: script.notify_arleepta
-    data:
-      message: '{{ message }}'
-  - service: script.notify_alexa
-    data:
-      message: '{{ message }}'
-  - service: script.notify_sms
-    data:
-      message: '{{ message }}'
-  mode: single
-  icon: mdi:bell-ring
-notify_sms:
-  alias: Notify SMS
+critical_notification:
+  alias: Critical Notification
   sequence:
   - service: notify.sms
     data:
       message: '{{ message }}'
       target:
-      - '+17207555488'
+      - +1720-755-5488
+      - +1303-517-7090
+      - +1303-517-9860
   mode: single
   icon: mdi:bell-ring

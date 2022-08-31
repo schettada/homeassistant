@@ -66,6 +66,7 @@ recorder:
       - binary_sensor.remote_ui
 
 automation: !include automations.yaml
+# notify: !include notify.yaml
 scene: !include scenes.yaml
 script: !include scripts.yaml
 sensor: !include sensors.yaml

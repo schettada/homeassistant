@@ -75,3 +75,67 @@
         {% endif %}'
       title: Critical Message
   mode: single
+- id: '1661747369154'
+  alias: HA Start/Stop
+  description: ''
+  trigger:
+  - platform: homeassistant
+    event: start
+    id: hastart
+  - platform: homeassistant
+    event: shutdown
+    id: hastop
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: hastart
+      sequence:
+      - service: notify.mobile_app_iphone
+        data:
+          message: Portal is Online!
+          title: System Message
+    - conditions:
+      - condition: trigger
+        id: hastop
+      sequence:
+      - service: notify.mobile_app_iphone
+        data:
+          message: Portal is Shutting Down!
+          title: System Message
+    default: []
+  mode: single
+- id: '1661747700012'
+  alias: Driveway Lights On/Off
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunrise
+    offset: 0
+    id: sunrise
+  - platform: sun
+    event: sunset
+    offset: 0
+    id: sunset
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: sunrise
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          device_id: 96c37de04da9dc1bc706109b33c8214a
+    - conditions:
+      - condition: trigger
+        id: sunset
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          device_id: 96c37de04da9dc1bc706109b33c8214a
+    default: []
+  mode: single
