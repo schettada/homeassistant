@@ -20,3 +20,13 @@
   friendly_name: Basement Door
 '0x00158d0008063fd8':
   friendly_name: Walkout Door
+'0x00158d0008483159':
+  friendly_name: 'Basement Window '
+'0x00158d0008483134':
+  friendly_name: Loft Window
+'0x00158d000847824e':
+  friendly_name: Neeva Window 1
+'0x00158d0008064044':
+  friendly_name: Neeva Window 2
+'0x00158d0008481402':
+  friendly_name: Neeva Closet Window
