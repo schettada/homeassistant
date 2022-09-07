@@ -8,12 +8,13 @@ permit_join: false
 mqtt:
   base_topic: zigbee2mqtt
   server: mqtt://10.2.1.9:1883
-  user: zigbee
-  password: Musafir@1985
+  user: "!secret zbuser"
+  password: "!secret zbpass"
   client_id: zigbee2mqtt
   reject_unauthorized: true
 serial:
-  port: /dev/ttyUSB0
+  #  port: /dev/ttyUSB0
+  port: tcp://10.2.1.12:6638
 advanced:
   log_level: info
   pan_id: 6754

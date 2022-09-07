@@ -1,5 +1,4 @@
 ---
-
 # https://home-assistant.io/components/sensor.systemmonitor/
 - platform: systemmonitor
   resources:
@@ -22,6 +21,7 @@
   command: "cat /sys/class/thermal/thermal_zone0/temp"
   unit_of_measurement: "°C"
   value_template: "{{ value | multiply(0.001) | round(1) }}"
+  unique_id: cputemp
 
 # https://www.home-assistant.io/components/template/
 - platform: template
