@@ -27,6 +27,7 @@ config:
 counter:
 dhcp:
 energy:
+hardware:
 history:
 homeassistant_alerts:
 image:

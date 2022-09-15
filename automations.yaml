@@ -139,3 +139,36 @@
           device_id: 96c37de04da9dc1bc706109b33c8214a
     default: []
   mode: single
+- id: '1662958294904'
+  alias: Hlight On/Off
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunrise
+    offset: 0
+    id: sunrise
+  - platform: sun
+    event: sunset
+    offset: 0
+    id: sunset
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: sunrise
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.hlight1
+    - conditions:
+      - condition: trigger
+        id: sunset
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id: light.hlight1
+    default: []
+  mode: single

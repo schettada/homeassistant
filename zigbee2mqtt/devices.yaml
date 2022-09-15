@@ -32,3 +32,27 @@
   friendly_name: Neeva Window 2
 '0x00158d0008481402':
   friendly_name: Neeva Closet Window
+'0x00124b00259092fb':
+  friendly_name: Basement Router
+'0x84fd27fffe696daf':
+  friendly_name: 'Network Rack Smoke Detector '
+'0x00158d0008300f14':
+  friendly_name: 'Network Rack Temperature '
+'0x00158d0008065d2c':
+  friendly_name: 'Garage Temperature '
+'0x00158d0008065d35':
+  friendly_name: 'Great Room Temperature '
+'0x00158d0008300f31':
+  friendly_name: 'Sooraj Office Temperature '
+'0x00158d0008065d2d':
+  friendly_name: 'Bedroom Temperature '
+'0x00158d0008300ef6':
+  friendly_name: 'Loft Temperature '
+'0x00158d0008063dd6':
+  friendly_name: 'Arleepta Office Temperature '
+'0x00158d0008065c4a':
+  friendly_name: 'Neeva Temperature '
+'0x00158d00083037f0':
+  friendly_name: 'Guest Temperature '
+'0x00158d0008307341':
+  friendly_name: 'Deck Temperature '
