@@ -92,7 +92,7 @@
       - condition: trigger
         id: hastart
       sequence:
-      - service: notify.mobile_app_iphone
+      - service: notify.mobile_app_sooraj
         data:
           message: Portal is Online!
           title: System Message
@@ -100,7 +100,7 @@
       - condition: trigger
         id: hastop
       sequence:
-      - service: notify.mobile_app_iphone
+      - service: notify.mobile_app_sooraj
         data:
           message: Portal is Shutting Down!
           title: System Message
@@ -171,4 +171,51 @@
         target:
           entity_id: light.hlight1
     default: []
+  mode: single
+- id: '1663217810869'
+  alias: Doors & Windows Open/Close
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.basement_door_contact
+    - binary_sensor.deck_contact
+    - binary_sensor.front_door_contact
+    - binary_sensor.garage_door_contact
+    - binary_sensor.basement_window_contact
+    - binary_sensor.loft_window_contact
+    - binary_sensor.walkout_door_contact
+    - binary_sensor.neeva_windows
+    to: 'on'
+    id: doorwindowopen
+  - platform: state
+    entity_id:
+    - binary_sensor.basement_door_contact
+    - binary_sensor.deck_contact
+    - binary_sensor.front_door_contact
+    - binary_sensor.garage_door_contact
+    - binary_sensor.basement_window_contact
+    - binary_sensor.loft_window_contact
+    - binary_sensor.walkout_door_contact
+    - binary_sensor.neeva_windows
+    to: 'off'
+    id: doorwindowclose
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: doorwindowopen
+      sequence:
+      - service: script.notify_all
+        data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is Open'
+    - conditions:
+      - condition: trigger
+        id: doorwindowclose
+      sequence:
+      - service: script.notify_all
+        data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is Closed'
+          title: Security Message
   mode: single

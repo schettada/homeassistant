@@ -1,12 +1,13 @@
 notify_sooraj:
   alias: Notify Sooraj
   sequence:
-  - service: notify.mobile_app_iphone
+  - service: notify.mobile_app_sooraj
     data:
       message: '{{ message }}'
       title: '{{ title }}'
   mode: parallel
   icon: mdi:bell-ring
+  max: 10
 notify_arleepta:
   alias: Notify Arleepta
   sequence:
@@ -16,13 +17,16 @@ notify_arleepta:
       title: '{{ title }}'
   mode: parallel
   icon: mdi:bell-ring
+  max: 10
 notify_alexa:
   alias: Notify Alexa
   sequence:
   - service: notify.alexa_media
     data:
       message: '"{{ message }}"'
-      target: media_player.hub
+      target:
+      - media_player.hub
+      - media_player.eshow8
       data:
         type: tts
   mode: single
