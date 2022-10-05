@@ -1,0 +1,61 @@
+notify_sooraj:
+  alias: Notify Sooraj
+  sequence:
+  - service: notify.mobile_app_iphone
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
+  mode: parallel
+  icon: mdi:bell-ring
+notify_arleepta:
+  alias: Notify Arleepta
+  sequence:
+  - service: notify.mobile_app_arleepta
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
+  mode: parallel
+  icon: mdi:bell-ring
+notify_alexa:
+  alias: Notify Alexa
+  sequence:
+  - service: notify.alexa_media
+    data:
+      message: '"{{ message }}"'
+      target: media_player.hub
+      data:
+        type: tts
+  mode: single
+  icon: mdi:bell-ring
+notify_all:
+  alias: Notify All
+  sequence:
+  - service: script.notify_sooraj
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
+  - service: script.notify_arleepta
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
+  - service: script.notify_alexa
+    data:
+      message: '{{ message }}'
+  - service: notify.nabucasa
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
+  mode: queued
+  icon: mdi:bell-ring
+critical_notification:
+  alias: Critical Notification
+  sequence:
+  - service: notify.sms
+    data:
+      message: '{{ message }}'
+      target:
+      - +1720-755-5488
+      - +1303-517-7090
+      - +1303-517-9860
+  mode: single
+  icon: mdi:bell-ring

@@ -1,0 +1,4 @@
+---
+- name: sms
+  platform: message_bird
+  api_key: !secret mbapi
