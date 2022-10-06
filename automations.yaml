@@ -1,37 +1,3 @@
-- id: '1661184159184'
-  alias: HA Start
-  description: ''
-  trigger:
-  - platform: homeassistant
-    event: start
-  condition: []
-  action:
-  - service: notify.mobile_app_iphone
-    data:
-      message: Portal is Online!
-      title: System Message
-  - service: notify.nabucasa
-    data:
-      message: Portal is Online!
-      title: System Message
-  mode: single
-- id: '1661184447686'
-  alias: HA Stop
-  description: ''
-  trigger:
-  - platform: homeassistant
-    event: shutdown
-  condition: []
-  action:
-  - service: notify.mobile_app_iphone
-    data:
-      message: Portal is Shutting Down!
-      title: System Message
-  - service: notify.nabucasa
-    data:
-      message: Portal is Shutting Down!
-      title: System Message
-  mode: single
 - id: '1661354669351'
   alias: CenturyLink Status
   description: ''
@@ -92,7 +58,7 @@
       - condition: trigger
         id: hastart
       sequence:
-      - service: notify.mobile_app_iphone
+      - service: notify.mobile_app_sooraj
         data:
           message: Portal is Online!
           title: System Message
@@ -100,7 +66,7 @@
       - condition: trigger
         id: hastop
       sequence:
-      - service: notify.mobile_app_iphone
+      - service: notify.mobile_app_sooraj
         data:
           message: Portal is Shutting Down!
           title: System Message
@@ -138,4 +104,389 @@
         target:
           device_id: 96c37de04da9dc1bc706109b33c8214a
     default: []
+  mode: single
+- id: '1662958294904'
+  alias: Hlight On/Off
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunrise
+    offset: 0
+    id: sunrise
+  - platform: sun
+    event: sunset
+    offset: 0
+    id: sunset
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: sunrise
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.hlight1
+    - conditions:
+      - condition: trigger
+        id: sunset
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id: light.hlight1
+    default: []
+  mode: single
+- id: '1663217810869'
+  alias: Doors & Windows Open/Close
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.basement_door_contact
+    - binary_sensor.deck_contact
+    - binary_sensor.front_door_contact
+    - binary_sensor.garage_door_contact
+    - binary_sensor.basement_window_contact
+    - binary_sensor.loft_window_contact
+    - binary_sensor.walkout_door_contact
+    - binary_sensor.neeva_windows
+    to: 'on'
+    id: doorwindowopen
+  - platform: state
+    entity_id:
+    - binary_sensor.basement_door_contact
+    - binary_sensor.deck_contact
+    - binary_sensor.front_door_contact
+    - binary_sensor.garage_door_contact
+    - binary_sensor.basement_window_contact
+    - binary_sensor.loft_window_contact
+    - binary_sensor.walkout_door_contact
+    - binary_sensor.neeva_windows
+    to: 'off'
+    id: doorwindowclose
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: doorwindowopen
+      sequence:
+      - service: script.notify_all
+        data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is Open'
+    - conditions:
+      - condition: trigger
+        id: doorwindowclose
+      sequence:
+      - service: script.notify_all
+        data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is Closed'
+          title: Security Message
+  mode: single
+- id: '1663995445012'
+  alias: Alarmo
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - alarm_control_panel.master
+    to: armed_home
+    id: armed_home
+  - platform: state
+    entity_id:
+    - alarm_control_panel.master
+    to: armed_night
+    id: armed_night
+  - platform: state
+    entity_id:
+    - alarm_control_panel.master
+    to: armed_away
+    id: armed_away
+  - platform: state
+    entity_id:
+    - alarm_control_panel.master
+    to: disarmed
+    id: disarmed
+  - platform: state
+    entity_id:
+    - alarm_control_panel.master
+    to: arming
+    id: arming
+  - platform: state
+    entity_id:
+    - alarm_control_panel.master
+    to: pending
+    id: pending
+  - platform: state
+    entity_id:
+    - alarm_control_panel.master
+    to: triggered
+    id: triggered
+  - platform: event
+    event_type: alarmo_failed_to_arm
+    id: failed
+  - platform: event
+    event_type: alarmo_command_success
+    id: success
+  - platform: mqtt
+    topic: zigbee2mqtt/keypad
+    id: keypad
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: armed_home
+      sequence:
+      - service: mqtt.publish
+        data:
+          topic: zigbee2mqtt/keypad/set
+          payload: '{     "arm_mode": {         "mode": "arm_day_zones"     } }'
+    - conditions:
+      - condition: trigger
+        id: armed_night
+      sequence:
+      - service: mqtt.publish
+        data:
+          topic: zigbee2mqtt/keypad/set
+          payload: '{     "arm_mode": {         "mode": "arm_night_zones"     } }'
+    - conditions:
+      - condition: trigger
+        id: armed_away
+      sequence:
+      - service: mqtt.publish
+        data:
+          topic: zigbee2mqtt/keypad/set
+          payload: '{     "arm_mode": {         "mode": "arm_all_zones"     } }'
+    - conditions:
+      - condition: trigger
+        id: disarmed
+      sequence:
+      - service: mqtt.publish
+        data:
+          topic: zigbee2mqtt/keypad/set
+          payload: '{     "arm_mode": {         "mode": "disarm"     } }'
+    - conditions:
+      - condition: trigger
+        id: arming
+      sequence:
+      - service: mqtt.publish
+        data:
+          topic: zigbee2mqtt/keypad/set
+          payload: '{     "arm_mode": {         "mode": "exit_delay"     } }'
+    - conditions:
+      - condition: trigger
+        id: pending
+      sequence:
+      - service: mqtt.publish
+        data:
+          topic: zigbee2mqtt/keypad/set
+          payload: '{     "arm_mode": {         "mode": "entry_delay"     } }'
+    - conditions:
+      - condition: trigger
+        id: triggered
+      sequence:
+      - service: mqtt.publish
+        data:
+          topic: zigbee2mqtt/keypad/set
+          payload: '{     "arm_mode": {         "mode": "in_alarm"     } }'
+    - conditions:
+      - condition: trigger
+        id: failed
+      sequence:
+      - choose:
+        - conditions:
+          - condition: template
+            value_template: '{{ trigger.event.data.reason == ''invalid_code'' }}'
+          sequence:
+          - service: mqtt.publish
+            data:
+              payload: '{     "arm_mode": {         "transaction": {{ trigger.event.data.context_id                         }},         "mode":
+                "invalid_code"     } }'
+              topic: zigbee2mqtt/keypad/set
+        - conditions:
+          - condition: template
+            value_template: '{{ trigger.event.data.reason == ''open_sensors'' }}'
+          sequence:
+          - service: mqtt.publish
+            data:
+              payload: '{     "arm_mode": {         "transaction": {{ trigger.event.data.context_id                         }},         "mode":
+                "not_ready"     } }'
+              topic: zigbee2mqtt/keypad/set
+        - conditions:
+          - condition: template
+            value_template: '{{ trigger.event.data.reason == ''not_allowed'' }}'
+          - condition: template
+            value_template: '{{ trigger.event.data.reason == ''disarm'' }}'
+          sequence:
+          - service: mqtt.publish
+            data:
+              payload: '{     "arm_mode": {         "transaction": {{ trigger.event.data.context_id                         }},         "mode":
+                "already_disarmed"     } }'
+              topic: zigbee2mqtt/keypad/set
+    - conditions:
+      - condition: trigger
+        id: success
+      sequence:
+      - choose:
+        - conditions:
+          - condition: template
+            value_template: '{{ trigger.event.data.action == ''arm'' }}'
+          - condition: template
+            value_template: '{{ trigger.event.data.context_id != null }}'
+          - condition: template
+            value_template: '{{ trigger.event.data.mode == ''away'' }}'
+          sequence:
+          - service: mqtt.publish
+            data:
+              topic: zigbee2mqtt/keypad/set
+              payload: '{     "arm_mode": {         "transaction": {{ trigger.event.data.context_id
+                }},         "mode": "arm_all_zones"     } }'
+        - conditions:
+          - condition: template
+            value_template: '{{ trigger.event.data.action == ''arm'' }}'
+          - condition: template
+            value_template: '{{ trigger.event.data.context_id != null }}'
+          - condition: template
+            value_template: '{{ trigger.event.data.mode == ''home'' }}'
+          sequence:
+          - service: mqtt.publish
+            data:
+              topic: zigbee2mqtt/keypad/set
+              payload: '{     "arm_mode": {         "transaction": {{ trigger.event.data.context_id
+                }},         "mode": "arm_day_zones"     } }'
+        - conditions:
+          - condition: template
+            value_template: '{{ trigger.event.data.action == ''arm'' }}'
+          - condition: template
+            value_template: '{{ trigger.event.data.context_id != null }}'
+          - condition: template
+            value_template: '{{ trigger.event.data.mode == ''night'' }}'
+          sequence:
+          - service: mqtt.publish
+            data:
+              topic: zigbee2mqtt/keypad/set
+              payload: '{     "arm_mode": {         "transaction": {{ trigger.event.data.context_id
+                }},         "mode": "arm_night_zones"     } }'
+        - conditions:
+          - condition: template
+            value_template: '{{ trigger.event.data.action == ''disarm'' }}'
+          - condition: template
+            value_template: '{{ trigger.event.data.context_id != null }}'
+          sequence:
+          - service: mqtt.publish
+            data:
+              topic: zigbee2mqtt/keypad/set
+              payload: '{     "arm_mode": {         "transaction": {{ trigger.event.data.context_id
+                }},         "mode": "disarm"     } }'
+    - conditions:
+      - condition: trigger
+        id: keypad
+      sequence:
+      - choose:
+        - conditions:
+          - condition: template
+            value_template: '{{ trigger.payload_json.action == "disarm"  }}'
+          sequence:
+          - service: alarmo.disarm
+            data:
+              entity_id: alarm_control_panel.master
+              code: '{{ trigger.payload_json.action_code }}'
+              context_id: '{{ trigger.payload_json.action_transaction }}'
+        - conditions:
+          - condition: template
+            value_template: '{{ trigger.payload_json.action == "arm_all_zones"  }}'
+          sequence:
+          - service: alarmo.arm
+            data:
+              entity_id: alarm_control_panel.master
+              mode: away
+              code: '{{ trigger.payload_json.action_code }}'
+              context_id: '{{ trigger.payload_json.action_transaction }}'
+        - conditions:
+          - condition: template
+            value_template: '{{ trigger.payload_json.action == "arm_day_zones"  }}'
+          sequence:
+          - service: alarmo.arm
+            data:
+              entity_id: alarm_control_panel.master
+              mode: home
+              code: '{{ trigger.payload_json.action_code }}'
+              context_id: '{{ trigger.payload_json.action_transaction }}'
+        - conditions:
+          - condition: template
+            value_template: '{{ trigger.payload_json.action == "arm_night_zones"  }}'
+          sequence:
+          - service: alarmo.arm
+            data:
+              entity_id: alarm_control_panel.master
+              mode: night
+              code: '{{ trigger.payload_json.action_code }}'
+              context_id: '{{ trigger.payload_json.action_transaction }}'
+  mode: parallel
+  max: 10
+- id: '1664594503267'
+  alias: Auto Arm Security
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - person.arleepta
+    - person.sooraj_chettada
+    to: not_home
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: alarm_control_panel.master
+      state: disarmed
+    - condition: state
+      entity_id: person.arleepta
+      state: not_home
+    - condition: state
+      entity_id: person.sooraj_chettada
+      state: not_home
+  action:
+  - service: alarmo.arm
+    data:
+      entity_id: alarm_control_panel.master
+      code: '5891'
+      mode: away
+      force: true
+      skip_delay: true
+  mode: single
+- id: '1664596178769'
+  alias: Garage open for 15 mins
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - cover.garage_1
+    to: open
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+    id: garage1
+  - platform: state
+    entity_id:
+    - cover.garage_2
+    to: open
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+    id: garage2
+  condition: []
+  action:
+  - service: script.notify_all
+    data:
+      message: '{{ trigger.to_state.attributes.friendly_name }} is open for 15 mins'
+      title: Security Message
   mode: single

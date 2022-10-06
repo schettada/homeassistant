@@ -26,7 +26,8 @@ cloud:
 config:
 counter:
 dhcp:
-energy:
+# energy:
+hardware:
 history:
 homeassistant_alerts:
 image:
