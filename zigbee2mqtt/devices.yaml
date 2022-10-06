@@ -56,3 +56,5 @@
   friendly_name: 'Guest Temperature '
 '0x00158d0008307341':
   friendly_name: 'Deck Temperature '
+'0x000d6f0013e693f9':
+  friendly_name: keypad
