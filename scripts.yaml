@@ -21,14 +21,19 @@ notify_arleepta:
 notify_alexa:
   alias: Notify Alexa
   sequence:
-  - service: notify.alexa_media
-    data:
-      message: '"{{ message }}"'
-      target:
-      - media_player.hub
-      - media_player.eshow8
-      data:
-        type: tts
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
+      sequence:
+      - service: notify.alexa_media
+        data:
+          message: '"{{ message }}"'
+          target:
+          - media_player.eshow8
+          data:
+            type: tts
   mode: single
   icon: mdi:bell-ring
 notify_all:
