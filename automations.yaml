@@ -510,7 +510,7 @@
       - service: switch.turn_on
         data: {}
         target:
-          entity_id: switch.playroom_light
+          entity_id: switch.halloween
     - conditions:
       - condition: trigger
         id: night
@@ -518,5 +518,5 @@
       - service: switch.turn_off
         data: {}
         target:
-          entity_id: switch.playroom_light
+          entity_id: switch.halloween
   mode: single
