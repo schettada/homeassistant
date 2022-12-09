@@ -50,12 +50,9 @@ notify_all:
   - service: script.notify_alexa
     data:
       message: '{{ message }}'
-  - service: notify.nabucasa
-    data:
-      message: '{{ message }}'
-      title: '{{ title }}'
   mode: queued
   icon: mdi:bell-ring
+  max: 10
 critical_notification:
   alias: Critical Notification
   sequence:
