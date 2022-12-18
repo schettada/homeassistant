@@ -1,5 +1,3 @@
-[![Home Assistant CI](https://github.com/schettada/homeassistant/actions/workflows/home-assistant.yml/badge.svg)](https://github.com/schettada/homeassistant/actions/workflows/home-assistant.yml)
-
 ![Project Maintenance][maintenance-shield]
 [![License][license-shield]](LICENSE.md)
 
@@ -15,7 +13,7 @@
 
 MIT License
 
-Copyright (c) 2018-2022 Franck Nijhof
+Copyright (c) 2020-2022 Sooraj Chettada
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
