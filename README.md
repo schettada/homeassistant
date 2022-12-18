@@ -1,5 +1,5 @@
 ![Project Maintenance][maintenance-shield]
-[![License][license-shield]](LICENSE.md)
+[![License][license-shield]](LICENSE)
 
 [![GitHub Actions][actions-shield]][actions]
 [![GitHub Activity][commits-shield]][commits]
