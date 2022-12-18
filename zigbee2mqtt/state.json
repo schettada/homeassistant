@@ -28,7 +28,7 @@
         "illuminance": 0,
         "illuminance_lux": 0,
         "linkquality": 87,
-        "temperature": 18.52,
+        "temperature": 17.24,
         "update": {
             "state": "idle",
             "installed_version": "6.1.1.27575"
@@ -60,7 +60,7 @@
         "power_outage_count": 22
     },
     "0x00124b0025908789": {
-        "linkquality": 109
+        "linkquality": 105
     },
     "0xb0ce18140300f802": {
         "update": {
@@ -209,8 +209,8 @@
         "power_outage_count": 5
     },
     "0x00158d0008065d2d": {
-        "temperature": 18.32,
-        "humidity": 23.45,
+        "temperature": 18.08,
+        "humidity": 23.49,
         "pressure": 810.4,
         "linkquality": 83,
         "voltage": 2985,
@@ -236,8 +236,8 @@
         "power_outage_count": 5
     },
     "0x00158d0008065c4a": {
-        "temperature": 19.4,
-        "humidity": 21.16,
+        "temperature": 18.8,
+        "humidity": 21.47,
         "pressure": 810.4,
         "linkquality": 87,
         "voltage": 3015,
@@ -245,8 +245,8 @@
         "power_outage_count": 5
     },
     "0x00158d00083037f0": {
-        "temperature": 18.53,
-        "humidity": 21.77,
+        "temperature": 18.19,
+        "humidity": 21.88,
         "pressure": 810.7,
         "linkquality": 83,
         "voltage": 3005,
@@ -254,8 +254,8 @@
         "power_outage_count": 5
     },
     "0x00158d0008307341": {
-        "temperature": -6.32,
-        "humidity": 37.97,
+        "temperature": -6.61,
+        "humidity": 38.65,
         "pressure": 812,
         "linkquality": 109,
         "voltage": 2935,
