@@ -1,5 +1,0 @@
----
-username: !secret evuser
-password: !secret evpass
-country: us
-continent: na
