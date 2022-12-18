@@ -1,5 +1,5 @@
 ![Project Maintenance][maintenance-shield]
-[![License][license-shield]](LICENSE)
+[![License][license-shield]](license)
 
 [![GitHub Actions][actions-shield]][actions]
 [![GitHub Activity][commits-shield]][commits]
@@ -47,3 +47,4 @@ SOFTWARE.
 [stars-shield]: https://img.shields.io/github/stars/schettada/homeassistant.svg?style=social&label=Stars
 [forks-shield]: https://img.shields.io/github/forks/schettada/homeassistant.svg?style=social&label=Forks
 [watchers-shield]: https://img.shields.io/github/watchers/schettada/homeassistant.svg?style=social&label=Watchers
+[license]: https://github.com/schettada/homeassistant/blob/master/LICENSE
