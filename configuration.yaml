@@ -72,5 +72,5 @@ scene: !include scenes.yaml
 script: !include scripts.yaml
 sensor: !include sensors.yaml
 # ecovacs: !include ecovacs.yaml
-# image_processing: !include image_processing.yaml
-# camera: !include cameras.yaml
+image_processing: !include image_processing.yaml
+camera: !include cameras.yaml
