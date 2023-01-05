@@ -1,7 +1,7 @@
 ---
 - platform: deepstack_face
   ip_address: !secret deepstack_ip
-  port: 8085
+  port: 8082
   api_key: !secret deepstack_api
   timeout: 5
   detect_only: false
@@ -11,11 +11,11 @@
   save_faces_folder: !secret deepstack_face_folder
   show_boxes: true
   source:
-    - entity_id: camera.driveway
+    - entity_id: camera.front_door_main
 
 - platform: deepstack_object
   ip_address: !secret deepstack_ip
-  port: 8085
+  port: 8082
   api_key: !secret deepstack_api
   timeout: 5
   save_file_folder: !secret deepstack_save_folder
