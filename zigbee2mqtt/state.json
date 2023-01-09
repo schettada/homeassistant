@@ -26,8 +26,8 @@
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 14040,
-        "illuminance_lux": 25,
+        "illuminance": 13867,
+        "illuminance_lux": 24,
         "linkquality": 87,
         "temperature": 16.68,
         "update": {
@@ -178,9 +178,9 @@
         "linkquality": 112
     },
     "0x00158d0008300f14": {
-        "temperature": 19.58,
-        "humidity": 20.01,
-        "pressure": 812,
+        "temperature": 19.55,
+        "humidity": 20.09,
+        "pressure": 811.7,
         "linkquality": 87,
         "voltage": 3015,
         "battery": 100,
@@ -241,9 +241,9 @@
         "power_outage_count": 5
     },
     "0x00158d0008065c4a": {
-        "temperature": 19.75,
-        "humidity": 23.43,
-        "pressure": 810.9,
+        "temperature": 19.61,
+        "humidity": 23.45,
+        "pressure": 810.8,
         "linkquality": 87,
         "voltage": 3015,
         "battery": 100,
