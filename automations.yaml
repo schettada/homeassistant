@@ -4,14 +4,14 @@
   trigger:
   - platform: state
     entity_id:
-    - sensor.pfsense_nabucasa_io_gateway_centurylink_pppoe_status
+    - sensor.pfsense_gateway_centurylink_pppoe_status
     from: online
     to: offline
   condition: []
   action:
   - service: script.notify_all
     data:
-      message: '{% if is_state(''sensor.pfsense_nabucasa_io_gateway_centurylink_pppoe_status'',
+      message: '{% if is_state(''sensor.pfsense_gateway_centurylink_pppoe_status'',
         ''online'') %} CenturyLink Gateway is Online {% else %} CenturyLink Gateway
         is Down {% endif %}'
       title: Critical Message
@@ -22,14 +22,14 @@
   trigger:
   - platform: state
     entity_id:
-    - sensor.pfsense_nabucasa_io_gateway_xfinity_dhcp_status
-    - sensor.pfsense_nabucasa_io_gateway_xfinity_dhcp6_status
+    - sensor.pfsense_gateway_xfinity_dhcp_status
+    - sensor.pfsense_gateway_xfinity_dhcp6_status
     from: online
     to: unavailable
   - platform: state
     entity_id:
-    - sensor.pfsense_nabucasa_io_gateway_xfinity_dhcp_status
-    - sensor.pfsense_nabucasa_io_gateway_xfinity_dhcp6_status
+    - sensor.pfsense_gateway_xfinity_dhcp_status
+    - sensor.pfsense_gateway_xfinity_dhcp6_status
     from: unavailable
     to: online
   condition: []
