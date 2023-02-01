@@ -1,21 +1,3 @@
-- id: '1661354669351'
-  alias: CenturyLink Status
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.pfsense_gateway_centurylink_pppoe_status
-    from: online
-    to: offline
-  condition: []
-  action:
-  - service: script.notify_all
-    data:
-      message: '{% if is_state(''sensor.pfsense_gateway_centurylink_pppoe_status'',
-        ''online'') %} CenturyLink Gateway is Online {% else %} CenturyLink Gateway
-        is Down {% endif %}'
-      title: Critical Message
-  mode: single
 - id: '1661355474241'
   alias: Xfinity Status
   description: ''
@@ -23,22 +5,19 @@
   - platform: state
     entity_id:
     - sensor.pfsense_gateway_xfinity_dhcp_status
-    - sensor.pfsense_gateway_xfinity_dhcp6_status
     from: online
     to: unavailable
   - platform: state
     entity_id:
     - sensor.pfsense_gateway_xfinity_dhcp_status
-    - sensor.pfsense_gateway_xfinity_dhcp6_status
     from: unavailable
     to: online
   condition: []
   action:
   - service: script.notify_all
     data:
-      message: '{% if is_state(''sensor.pfsense_nabucasa_io_gateway_xfinity_dhcp_status'',
-        ''online'') %} Xfinity Gateway is Online {% else %} Xfinity Gateway is Down
-        {% endif %}'
+      message: '{% if is_state(''sensor.pfsense_gateway_xfinity_dhcp_status'', ''online'')
+        %} Xfinity Gateway is Online {% else %} Xfinity Gateway is Down {% endif %}'
       title: Critical Message
   mode: single
 - id: '1661747369154'
@@ -487,4 +466,27 @@
         data: {}
         target:
           entity_id: switch.christmas_tree
+  mode: single
+- id: '1675219130040'
+  alias: CenturyLink Status
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.pfsense_gateway_centurylink_pppoe_status
+    from: online
+    to: unavailable
+  - platform: state
+    entity_id:
+    - sensor.pfsense_gateway_centurylink_pppoe_status
+    from: unavailable
+    to: online
+  condition: []
+  action:
+  - service: script.notify_all
+    data:
+      message: '{% if is_state(''sensor.pfsense_gateway_centurylink_pppoe_status'',
+        ''online'') %} CenturyLink Gateway is Online {% else %} CenturyLink Gateway
+        is Down {% endif %}'
+      title: Critical Message
   mode: single
