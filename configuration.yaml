@@ -14,19 +14,18 @@ http:
   trusted_proxies:
     - 10.2.1.0/24
 
-frontend:
-  themes: !include_dir_merge_named themes
-
-logger:
-  default: info
-
 # default_config:
+automation: !include automations.yaml
+backup:
 bluetooth:
 cloud:
 config:
+conversation:
 counter:
 dhcp:
 # energy:
+frontend:
+  themes: !include_dir_merge_named themes
 hardware:
 history:
 homeassistant_alerts:
@@ -38,13 +37,18 @@ input_number:
 input_select:
 input_text:
 logbook:
+logger:
+  default: info
 map:
 media_source:
 mobile_app:
 my:
 person:
-# stream:
+schedule:
+scene: !include scenes.yaml
+script: !include scripts.yaml
 ssdp:
+# stream:
 sun:
 system_health:
 tag:
@@ -66,10 +70,7 @@ recorder:
       - sun.sun
       - binary_sensor.remote_ui
 
-automation: !include automations.yaml
 # notify: !include notify.yaml
-scene: !include scenes.yaml
-script: !include scripts.yaml
 sensor: !include sensors.yaml
 image_processing: !include image_processing.yaml
 camera: !include cameras.yaml
