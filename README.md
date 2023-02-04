@@ -42,7 +42,7 @@ SOFTWARE.
 [home-assistant]: https://home-assistant.io
 [issue]: https://github.com/schettada/homeassistant/issues
 [license-shield]: https://img.shields.io/github/license/schettada/homeassistant.svg
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2022.svg
+[maintenance-shield]: https://img.shields.io/maintenance/yes/2023
 [last-commit-shield]: https://img.shields.io/github/last-commit/schettada/homeassistant.svg
 [stars-shield]: https://img.shields.io/github/stars/schettada/homeassistant.svg?style=social&label=Stars
 [forks-shield]: https://img.shields.io/github/forks/schettada/homeassistant.svg?style=social&label=Forks
