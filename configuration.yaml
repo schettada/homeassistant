@@ -16,7 +16,7 @@ http:
 
 # default_config:
 automation: !include automations.yaml
-backup:
+# backup:
 bluetooth:
 cloud:
 config:
