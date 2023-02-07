@@ -490,3 +490,20 @@
         is Down {% endif %}'
       title: Critical Message
   mode: single
+- id: '1675698809002'
+  alias: 'Test proximity '
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: proximity.home
+    below: 1
+  condition:
+  - condition: state
+    entity_id: proximity.home
+    attribute: dir_of_travel
+    state: towards
+  action:
+  - service: notify.mobile_app_sooraj
+    data:
+      message: Sooraj is almost home
+  mode: single
