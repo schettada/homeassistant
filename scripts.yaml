@@ -1,7 +1,7 @@
 notify_sooraj:
   alias: Notify Sooraj
   sequence:
-  - service: notify.mobile_app_sooraj
+  - service: notify.mobile_app_sj
     data:
       message: '{{ message }}'
       title: '{{ title }}'

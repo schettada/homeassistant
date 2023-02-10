@@ -4,8 +4,6 @@
   friendly_name: Basement
 '0x00158d000847e3b9':
   friendly_name: Deck
-'0x00158d0008478254':
-  friendly_name: Garage Door
 '0x00158d000848313a':
   friendly_name: Basement Door
 '0x00158d0008063fd8':
@@ -58,3 +56,7 @@
   friendly_name: 'Deck Temperature '
 '0x000d6f0013e693f9':
   friendly_name: keypad
+'0x00158d0008478254':
+  friendly_name: Garage Door
+'0xdc8e95fffe3ed0cd':
+  friendly_name: Rack Light

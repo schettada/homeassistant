@@ -37,18 +37,18 @@
       - condition: trigger
         id: hastart
       sequence:
-      - service: notify.mobile_app_sooraj
+      - service: notify.mobile_app_sj
         data:
-          message: Portal is Online!
-          title: System Message
+          message: Home-Assistant Online!
+          title: Critical Message
     - conditions:
       - condition: trigger
         id: hastop
       sequence:
-      - service: notify.mobile_app_sooraj
+      - service: notify.mobile_app_sj
         data:
-          message: Portal is Shutting Down!
-          title: System Message
+          message: Home-Assistant Rebooting!
+          title: Critical Message
     default: []
   mode: single
 - id: '1661747700012'
