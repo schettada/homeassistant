@@ -1,4 +1,5 @@
-external_converters: []
+external_converters:
+  - T2105.js
 devices:
   - devices.yaml
 groups:
@@ -7,8 +8,8 @@ homeassistant: true
 permit_join: false
 mqtt:
   base_topic: zigbee2mqtt
-  user: '!secret zbuser'
-  password: '!secret zbpass'
+  user: "!secret zbuser"
+  password: "!secret zbpass"
   client_id: zigbee2mqtt
   reject_unauthorized: true
   server: mqtt://core-mosquitto:1883
