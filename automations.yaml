@@ -522,3 +522,64 @@
     target:
       device_id: abb44e139e83eb2414e59654c64ee273
   mode: single
+- id: '1677820971605'
+  alias: Garage Door Lock
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - person.arleepta
+    - person.sooraj_chettada
+    to: not_home
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: person.sooraj_chettada
+      state: not_home
+    - condition: state
+      entity_id: person.arleepta
+      state: not_home
+    - condition: state
+      entity_id: lock.garage_door_lock
+      state: unlocked
+  action:
+  - service: lock.lock
+    data: {}
+    target:
+      entity_id: lock.garage_door_lock
+  - service: script.notify_all
+    data:
+      message: Garage Door is Locked
+      title: Security Message
+  mode: single
+- id: '1677821339165'
+  alias: Garage Door Unlock
+  description: ''
+  trigger:
+  - platform: zone
+    entity_id: person.arleepta
+    zone: zone.home
+    event: enter
+  - platform: zone
+    entity_id: person.sooraj_chettada
+    zone: zone.home
+    event: enter
+  condition:
+  - condition: state
+    entity_id: lock.garage_door_lock
+    state: locked
+  action:
+  - service: lock.unlock
+    data: {}
+    target:
+      entity_id: lock.garage_door_lock
+  - service: script.notify_all
+    data:
+      message: Garage Door is Unlocked
+      title: Security Message
+  mode: single
