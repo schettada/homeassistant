@@ -1,5 +1,4 @@
-external_converters:
-  - T2105.js
+external_converters: []
 devices:
   - devices.yaml
 groups:

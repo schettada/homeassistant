@@ -1,20 +1,24 @@
 """Spook - Not your homie."""
 from __future__ import annotations
 
-import voluptuous as vol
+from typing import TYPE_CHECKING
 
+import voluptuous as vol
 from homeassistant.components.homeassistant import DOMAIN
-from homeassistant.core import ServiceCall
-from homeassistant.helpers import config_validation as cv, entity_registry as er
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import entity_registry as er
 
 from . import AbstractSpookAdminService
+
+if TYPE_CHECKING:
+    from homeassistant.core import ServiceCall
 
 
 class SpookService(AbstractSpookAdminService):
     """Home Assistant Core integration service to enable an entity."""
 
     domain = DOMAIN
-    service = "disable_entity"
+    service = "enable_entity"
     schema = {vol.Required("entity_id"): vol.All(cv.ensure_list, [cv.string])}
 
     async def async_handle_service(self, call: ServiceCall) -> None:
