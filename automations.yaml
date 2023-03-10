@@ -436,37 +436,6 @@
       message: '{{ trigger.to_state.attributes.friendly_name }} is open for 15 mins'
       title: Security Message
   mode: single
-- id: '1669784745409'
-  alias: Christmas Tree On/Off
-  description: ''
-  trigger:
-  - platform: sun
-    event: sunset
-    offset: 0
-    id: sunset
-  - platform: time
-    at: '23:00:00'
-    id: sleep
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: sunset
-      sequence:
-      - service: switch.turn_on
-        data: {}
-        target:
-          entity_id: switch.christmas_tree
-    - conditions:
-      - condition: trigger
-        id: sleep
-      sequence:
-      - service: switch.turn_off
-        data: {}
-        target:
-          entity_id: switch.christmas_tree
-  mode: single
 - id: '1675219130040'
   alias: CenturyLink Status
   description: ''
@@ -489,23 +458,6 @@
         ''online'') %} CenturyLink Gateway is Online {% else %} CenturyLink Gateway
         is Down {% endif %}'
       title: Critical Message
-  mode: single
-- id: '1675698809002'
-  alias: 'Test proximity '
-  description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id: proximity.home
-    below: 1
-  condition:
-  - condition: state
-    entity_id: proximity.home
-    attribute: dir_of_travel
-    state: towards
-  action:
-  - service: notify.mobile_app_sj
-    data:
-      message: Sooraj is almost home
   mode: single
 - id: '1677274589664'
   alias: Rack Light On/Off
