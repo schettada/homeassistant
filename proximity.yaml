@@ -2,14 +2,12 @@
 home:
   zone: home
   devices:
-    - device_tracker.arleepta
-    - device_tracker.sooraj
+    - device_tracker.jeep
   tolerance: 10
   unit_of_measurement: mi
 school:
   zone: school
   devices:
-    - device_tracker.arleepta
-    - device_tracker.sooraj
+    - device_tracker.jeep
   tolerance: 10
   unit_of_measurement: mi
