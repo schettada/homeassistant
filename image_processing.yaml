@@ -19,8 +19,8 @@
   scale: 0.75
   save_file_format: png
   save_file_folder: /config/www/amazon-rekognition/
-  save_timestamped_file: True
-  always_save_latest_file: True
+  save_timestamped_file: true
+  always_save_latest_file: true
   source:
     - entity_id: camera.driveway
 
@@ -44,10 +44,11 @@
   scale: 0.75
   save_file_format: png
   save_file_folder: /config/www/amazon-rekognition/
-  save_timestamped_file: True
-  always_save_latest_file: True
+  save_timestamped_file: true
+  always_save_latest_file: true
   source:
     - entity_id: camera.front_door_main
+    
 # - platform: platerecognizer
 #   api_token: !secret plate
 #   regions:
