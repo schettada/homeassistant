@@ -48,7 +48,7 @@
   always_save_latest_file: true
   source:
     - entity_id: camera.front_door_main
-    
+
 # - platform: platerecognizer
 #   api_token: !secret plate
 #   regions:
