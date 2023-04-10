@@ -35,25 +35,25 @@
 '0x84fd27fffe696daf':
   friendly_name: 'Network Rack Smoke Detector '
 '0x00158d0008300f14':
-  friendly_name: 'Network Rack Temperature '
+  friendly_name: Network Rack Sensor
 '0x00158d0008065d2c':
-  friendly_name: 'Garage Temperature '
+  friendly_name: Garage Sensor
 '0x00158d0008065d35':
-  friendly_name: 'Great Room Temperature '
+  friendly_name: Great Room Sensor
 '0x00158d0008300f31':
-  friendly_name: 'Sooraj Office Temperature '
+  friendly_name: Study Sensor
 '0x00158d0008065d2d':
-  friendly_name: 'Bedroom Temperature '
+  friendly_name: Bedroom Sensor
 '0x00158d0008300ef6':
-  friendly_name: 'Loft Temperature '
+  friendly_name: 'Loft Sensor '
 '0x00158d0008063dd6':
-  friendly_name: 'Arleepta Office Temperature '
+  friendly_name: 'Arleepta Office Sensor '
 '0x00158d0008065c4a':
-  friendly_name: 'Neeva Temperature '
+  friendly_name: 'Neeva Sensor '
 '0x00158d00083037f0':
-  friendly_name: 'Guest Temperature '
+  friendly_name: Guest Room Sensor
 '0x00158d0008307341':
-  friendly_name: 'Deck Temperature '
+  friendly_name: 'Deck Sensor '
 '0x000d6f0013e693f9':
   friendly_name: keypad
 '0x00158d0008478254':
