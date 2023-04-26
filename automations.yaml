@@ -130,6 +130,8 @@
         data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Closed'
           title: Security Message
+  - service: script.door_alert
+    data: {}
   mode: single
 - id: '1663995445012'
   alias: Alarmo
@@ -534,4 +536,22 @@
     data:
       message: Garage Door is Unlocked
       title: Security Message
+  mode: single
+- id: '1681345612250'
+  alias: Front Door Bell
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.front_door_button_pressed
+    to: 'on'
+    from: 'off'
+  condition: []
+  action:
+  - service: script.notify_phones
+    data:
+      message: Someone is at front door
+      title: Security Message
+  - service: script.door_bell
+    data: {}
   mode: single
