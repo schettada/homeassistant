@@ -104,9 +104,11 @@ notify_phones:
     data:
       message: '{{ message }}'
       title: '{{ title }}'
+      data: '{{ data }}'
   - service: notify.mobile_app_arleepta
     data:
       message: '{{ message }}'
       title: '{{ title }}'
+      data: '{{ data }}'
   mode: single
   icon: mdi:cellphone-message

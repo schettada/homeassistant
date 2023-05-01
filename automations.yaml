@@ -548,10 +548,38 @@
     from: 'off'
   condition: []
   action:
+  - service: script.door_bell
+    data: {}
   - service: script.notify_phones
     data:
       message: Someone is at front door
       title: Security Message
-  - service: script.door_bell
-    data: {}
+      data:
+        entity_id: camera.front_door_sub
+  mode: single
+- id: '1682657923456'
+  alias: test autom
+  description: ''
+  trigger: []
+  condition: []
+  action:
+  - service: notify.mobile_app_sj
+    data:
+      message: Camera
+      data:
+        entity_id: camera.front_door_sub
+  mode: single
+- id: '1682966620634'
+  alias: Rachio State Change
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.rachio
+  condition: []
+  action:
+  - service: script.notify_sooraj
+    data:
+      title: System Message
+      message: Rachio is {{ states('binary_sensor.rachio') }}
   mode: single
