@@ -39,7 +39,7 @@
       sequence:
       - service: notify.mobile_app_sj
         data:
-          message: Home-Assistant Online!
+          message: Home Assistant Online!
           title: Critical Message
     - conditions:
       - condition: trigger
@@ -47,7 +47,7 @@
       sequence:
       - service: notify.mobile_app_sj
         data:
-          message: Home-Assistant Rebooting!
+          message: Home Assistant Rebooting!
           title: Critical Message
     default: []
   mode: single
@@ -433,10 +433,25 @@
     id: garage2
   condition: []
   action:
-  - service: script.notify_all
-    data:
-      message: '{{ trigger.to_state.attributes.friendly_name }} is open for 15 mins'
-      title: Security Message
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: garage1
+      sequence:
+      - service: script.notify_all
+        data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is open for 15
+            mins'
+          title: Security Message
+    - conditions:
+      - condition: trigger
+        id: garage2
+      sequence:
+      - service: script.notify_all
+        data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is open for 15
+            mins'
+          title: Security Message
   mode: single
 - id: '1675219130040'
   alias: CenturyLink Status
@@ -569,17 +584,20 @@
       data:
         entity_id: camera.front_door_sub
   mode: single
-- id: '1682966620634'
-  alias: Rachio State Change
+- id: '1684099499855'
+  alias: People Detection
   description: ''
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.rachio
+    - binary_sensor.driveway_motion
+    to: 'on'
+    from: 'off'
   condition: []
   action:
-  - service: script.notify_sooraj
+  - service: notify.mobile_app_sj
     data:
-      title: System Message
-      message: Rachio is {{ states('binary_sensor.rachio') }}
+      message: Someone is outside!
+      data:
+        entity_id: camera.driveway_snapshots
   mode: single
