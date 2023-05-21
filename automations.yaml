@@ -590,9 +590,9 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.driveway_motion
-    to: 'on'
+    - binary_sensor.driveway_person
     from: 'off'
+    to: 'on'
   condition: []
   action:
   - service: notify.mobile_app_sj
@@ -600,4 +600,83 @@
       message: Someone is outside!
       data:
         entity_id: camera.driveway_snapshots
+  mode: single
+- id: '1684638873996'
+  alias: Porch Light On/Off
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunset
+    offset: 0
+    id: sunset
+  - platform: time
+    at: '22:00:00'
+    id: night
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: night
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.porch_light
+    - conditions:
+      - condition: trigger
+        id: sunset
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id: light.porch_light
+    default: []
+  mode: single
+- id: '1684639035497'
+  alias: Lights On
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunset
+    offset: 0
+  condition: []
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id:
+      - light.porch_light
+      - light.driveway
+  mode: single
+- id: '1684639231696'
+  alias: Lights Off
+  description: ''
+  trigger:
+  - platform: time
+    at: '22:00:00'
+    id: night
+  - platform: sun
+    event: sunrise
+    offset: 0
+    id: sunrise
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: sunrise
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.garage_light
+    - conditions:
+      - condition: trigger
+        id: night
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.porch_light
   mode: single
