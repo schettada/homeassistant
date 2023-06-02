@@ -17,3 +17,6 @@ govee_learning.yaml
 ip_bans.yaml
 zigbee2mqtt/state.json
 zigbee2mqtt/secret.yaml
+www/nv.png
+pyscript/*.py
+shell/*.sh

@@ -1,7 +1,7 @@
 notify_sooraj:
   alias: Notify Sooraj
   sequence:
-  - service: notify.mobile_app_sooraj
+  - service: notify.mobile_app_sj
     data:
       message: '{{ message }}'
       title: '{{ title }}'
@@ -65,3 +65,50 @@ critical_notification:
       - +1303-517-9860
   mode: single
   icon: mdi:bell-ring
+door_bell:
+  alias: door bell
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_type: sound
+      media_content_id: amzn_sfx_doorbell_chime_01
+    target:
+      entity_id:
+      - media_player.basement_echo_dot
+      - media_player.great_room_echo_show_8
+      - media_player.loft_echo_show_5
+      - media_player.study_echo_dot
+      - media_player.bedroom_echo_dot
+  mode: single
+  icon: mdi:bell-ring-outline
+door_alert:
+  alias: Door Alert
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: clock_01
+      media_content_type: sound
+    target:
+      entity_id:
+      - media_player.basement_echo_dot
+      - media_player.bedroom_echo_dot
+      - media_player.great_room_echo_show_8
+      - media_player.loft_echo_show_5
+      - media_player.study_echo_dot
+  mode: single
+  icon: mdi:door-open
+notify_phones:
+  alias: Notify Phones
+  sequence:
+  - service: notify.mobile_app_sj
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
+      data: '{{ data }}'
+  - service: notify.mobile_app_arleepta
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
+      data: '{{ data }}'
+  mode: single
+  icon: mdi:cellphone-message

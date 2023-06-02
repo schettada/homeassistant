@@ -37,18 +37,18 @@
       - condition: trigger
         id: hastart
       sequence:
-      - service: notify.mobile_app_sooraj
+      - service: notify.mobile_app_sj
         data:
-          message: Portal is Online!
-          title: System Message
+          message: Home Assistant Online!
+          title: Critical Message
     - conditions:
       - condition: trigger
         id: hastop
       sequence:
-      - service: notify.mobile_app_sooraj
+      - service: notify.mobile_app_sj
         data:
-          message: Portal is Shutting Down!
-          title: System Message
+          message: Home Assistant Rebooting!
+          title: Critical Message
     default: []
   mode: single
 - id: '1661747700012'
@@ -130,6 +130,8 @@
         data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Closed'
           title: Security Message
+  - service: script.door_alert
+    data: {}
   mode: single
 - id: '1663995445012'
   alias: Alarmo
@@ -431,41 +433,25 @@
     id: garage2
   condition: []
   action:
-  - service: script.notify_all
-    data:
-      message: '{{ trigger.to_state.attributes.friendly_name }} is open for 15 mins'
-      title: Security Message
-  mode: single
-- id: '1669784745409'
-  alias: Christmas Tree On/Off
-  description: ''
-  trigger:
-  - platform: sun
-    event: sunset
-    offset: 0
-    id: sunset
-  - platform: time
-    at: '23:00:00'
-    id: sleep
-  condition: []
-  action:
   - choose:
     - conditions:
       - condition: trigger
-        id: sunset
+        id: garage1
       sequence:
-      - service: switch.turn_on
-        data: {}
-        target:
-          entity_id: switch.christmas_tree
+      - service: script.notify_all
+        data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is open for 15
+            mins'
+          title: Security Message
     - conditions:
       - condition: trigger
-        id: sleep
+        id: garage2
       sequence:
-      - service: switch.turn_off
-        data: {}
-        target:
-          entity_id: switch.christmas_tree
+      - service: script.notify_all
+        data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is open for 15
+            mins'
+          title: Security Message
   mode: single
 - id: '1675219130040'
   alias: CenturyLink Status
@@ -489,4 +475,208 @@
         ''online'') %} CenturyLink Gateway is Online {% else %} CenturyLink Gateway
         is Down {% endif %}'
       title: Critical Message
+  mode: single
+- id: '1677274589664'
+  alias: Rack Light On/Off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.rack_light_switch_action
+    to: single
+  condition: []
+  action:
+  - service: light.toggle
+    data: {}
+    target:
+      device_id: abb44e139e83eb2414e59654c64ee273
+  mode: single
+- id: '1677820971605'
+  alias: Garage Door Lock
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - person.arleepta
+    - person.sooraj_chettada
+    to: not_home
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: person.sooraj_chettada
+      state: not_home
+    - condition: state
+      entity_id: person.arleepta
+      state: not_home
+    - condition: state
+      entity_id: lock.garage_door_lock
+      state: unlocked
+  action:
+  - service: lock.lock
+    data: {}
+    target:
+      entity_id: lock.garage_door_lock
+  - service: script.notify_all
+    data:
+      message: Garage Door is Locked
+      title: Security Message
+  mode: single
+- id: '1677821339165'
+  alias: Garage Door Unlock
+  description: ''
+  trigger:
+  - platform: zone
+    entity_id: person.arleepta
+    zone: zone.home
+    event: enter
+  - platform: zone
+    entity_id: person.sooraj_chettada
+    zone: zone.home
+    event: enter
+  condition:
+  - condition: state
+    entity_id: lock.garage_door_lock
+    state: locked
+  action:
+  - service: lock.unlock
+    data: {}
+    target:
+      entity_id: lock.garage_door_lock
+  - service: script.notify_all
+    data:
+      message: Garage Door is Unlocked
+      title: Security Message
+  mode: single
+- id: '1681345612250'
+  alias: Front Door Bell
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.front_door_button_pressed
+    to: 'on'
+    from: 'off'
+  condition: []
+  action:
+  - service: script.door_bell
+    data: {}
+  - service: script.notify_phones
+    data:
+      message: Someone is at front door
+      title: Security Message
+      data:
+        entity_id: camera.front_door_sub
+  mode: single
+- id: '1682657923456'
+  alias: test autom
+  description: ''
+  trigger: []
+  condition: []
+  action:
+  - service: notify.mobile_app_sj
+    data:
+      message: Camera
+      data:
+        entity_id: camera.front_door_sub
+  mode: single
+- id: '1684099499855'
+  alias: People Detection
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.driveway_person
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: notify.mobile_app_sj
+    data:
+      message: Someone is outside!
+      data:
+        entity_id: camera.driveway_snapshots
+  mode: single
+- id: '1684638873996'
+  alias: Porch Light On/Off
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunset
+    offset: 0
+    id: sunset
+  - platform: time
+    at: '22:00:00'
+    id: night
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: night
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.porch_light
+    - conditions:
+      - condition: trigger
+        id: sunset
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id: light.porch_light
+    default: []
+  mode: single
+- id: '1684639035497'
+  alias: Lights On
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunset
+    offset: 0
+  condition: []
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id:
+      - light.porch_light
+      - light.driveway
+  mode: single
+- id: '1684639231696'
+  alias: Lights Off
+  description: ''
+  trigger:
+  - platform: time
+    at: '22:00:00'
+    id: night
+  - platform: sun
+    event: sunrise
+    offset: 0
+    id: sunrise
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: sunrise
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.driveway
+    - conditions:
+      - condition: trigger
+        id: night
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.porch_light
   mode: single

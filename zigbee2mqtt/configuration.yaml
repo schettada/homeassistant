@@ -7,11 +7,11 @@ homeassistant: true
 permit_join: false
 mqtt:
   base_topic: zigbee2mqtt
-  #  server: mqtt://mqtt.nabucasa.io:1883
   user: "!secret zbuser"
   password: "!secret zbpass"
   client_id: zigbee2mqtt
   reject_unauthorized: true
+  server: mqtt://core-mosquitto:1883
 serial:
   port: tcp://10.2.1.12:6638
 advanced:
