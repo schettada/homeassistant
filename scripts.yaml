@@ -21,13 +21,23 @@ notify_arleepta:
 notify_all:
   alias: Notify All
   sequence:
-  - service: script.notify_phones
-    data:
-      message: '{{ message }}'
-      title: '{{ title }}'
-  - service: script.alexa_announcement
-    data:
-      message: '{{ message }}'
+  - if:
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+    then:
+    - service: script.alexa_announcement
+      data:
+        message: '{{ message }}'
+    - service: script.notify_phones
+      data:
+        message: '{{ message }}'
+        title: '{{ title }}'
+    else:
+    - service: script.notify_phones
+      data:
+        message: '{{ message }}'
+        title: '{{ title }}'
   mode: queued
   icon: mdi:bell-ring
   max: 10
@@ -91,19 +101,13 @@ notify_phones:
 alexa_announcement:
   alias: Alexa Announcement
   sequence:
-  - choose:
-    - conditions:
-      - condition: state
-        entity_id: input_boolean.guest_mode
-        state: 'off'
-      sequence:
-      - service: notify.alexa_media
-        data:
-          target:
-          - media_player.loft_echo_show_5
-          - media_player.great_room_echo_show_8
-          - media_player.basement_echo_dot
-          - media_player.bedroom_echo_dot
-          message: '"{{ message }}"'
+  - service: notify.alexa_media
+    data:
+      target:
+      - media_player.loft_echo_show_5
+      - media_player.great_room_echo_show_8
+      - media_player.basement_echo_dot
+      - media_player.bedroom_echo_dot
+      message: '"{{ message }}"'
   mode: single
   icon: mdi:bell-ring

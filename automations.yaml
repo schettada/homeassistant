@@ -81,6 +81,8 @@
     id: doorwindowclose
   condition: []
   action:
+  - service: script.door_alert
+    data: {}
   - choose:
     - conditions:
       - condition: trigger
@@ -97,8 +99,6 @@
         data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Closed'
           title: Security Message
-  - service: script.door_alert
-    data: {}
   mode: single
 - id: '1663995445012'
   alias: Alarmo
@@ -530,7 +530,10 @@
     from: 'off'
   condition: []
   action:
-  - service: script.notify_all
+  - service: script.alexa_announcement
+    data:
+      message: Someone is at front door
+  - service: script.notify_phones
     data:
       message: Someone is at front door
   mode: single
