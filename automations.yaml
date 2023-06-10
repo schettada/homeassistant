@@ -51,39 +51,6 @@
           title: Critical Message
     default: []
   mode: single
-- id: '1661747700012'
-  alias: Driveway Lights On/Off
-  description: ''
-  trigger:
-  - platform: sun
-    event: sunrise
-    offset: 0
-    id: sunrise
-  - platform: sun
-    event: sunset
-    offset: 0
-    id: sunset
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: sunrise
-      sequence:
-      - service: light.turn_off
-        data: {}
-        target:
-          device_id: 96c37de04da9dc1bc706109b33c8214a
-    - conditions:
-      - condition: trigger
-        id: sunset
-      sequence:
-      - service: light.turn_on
-        data: {}
-        target:
-          device_id: 96c37de04da9dc1bc706109b33c8214a
-    default: []
-  mode: single
 - id: '1663217810869'
   alias: Doors & Windows Open/Close
   description: ''
@@ -521,7 +488,7 @@
     data: {}
     target:
       entity_id: lock.garage_door_lock
-  - service: script.notify_all
+  - service: script.notify_phones
     data:
       message: Garage Door is Locked
       title: Security Message
@@ -547,7 +514,7 @@
     data: {}
     target:
       entity_id: lock.garage_door_lock
-  - service: script.notify_all
+  - service: script.notify_phones
     data:
       message: Garage Door is Unlocked
       title: Security Message
@@ -563,14 +530,9 @@
     from: 'off'
   condition: []
   action:
-  - service: script.door_bell
-    data: {}
-  - service: script.notify_phones
+  - service: script.notify_all
     data:
       message: Someone is at front door
-      title: Security Message
-      data:
-        entity_id: camera.front_door_sub
   mode: single
 - id: '1682657923456'
   alias: test autom
@@ -600,38 +562,6 @@
       message: Someone is outside!
       data:
         entity_id: camera.driveway_snapshots
-  mode: single
-- id: '1684638873996'
-  alias: Porch Light On/Off
-  description: ''
-  trigger:
-  - platform: sun
-    event: sunset
-    offset: 0
-    id: sunset
-  - platform: time
-    at: '22:00:00'
-    id: night
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: night
-      sequence:
-      - service: light.turn_off
-        data: {}
-        target:
-          entity_id: light.porch_light
-    - conditions:
-      - condition: trigger
-        id: sunset
-      sequence:
-      - service: light.turn_on
-        data: {}
-        target:
-          entity_id: light.porch_light
-    default: []
   mode: single
 - id: '1684639035497'
   alias: Lights On
