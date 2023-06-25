@@ -536,6 +536,8 @@
   - service: script.notify_phones
     data:
       message: Someone is at front door
+  - service: script.door_bell
+    data: {}
   mode: single
 - id: '1682657923456'
   alias: test autom
@@ -612,4 +614,120 @@
         data: {}
         target:
           entity_id: light.porch_light
+  mode: single
+- id: '1686972244347'
+  alias: Basement Stair Light
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.basement_door_contact
+    from: 'off'
+    to: 'on'
+    id: open
+  - platform: state
+    entity_id:
+    - binary_sensor.basement_door_contact
+    from: 'on'
+    to: 'off'
+    id: close
+  - platform: state
+    entity_id:
+    - binary_sensor.basement_door_contact
+    from: 'off'
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+    id: openlong
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: open
+      - condition: state
+        entity_id: light.basement_stair_light
+        state: 'off'
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id: light.basement_stair_light
+    - conditions:
+      - condition: trigger
+        id: close
+      - condition: state
+        entity_id: light.basement_stair_light
+        state: 'on'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.basement_stair_light
+    - conditions:
+      - condition: trigger
+        id: openlong
+      - condition: state
+        entity_id: light.basement_light
+        state: 'on'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.basement_stair_light
+  mode: single
+- id: '1687214759360'
+  alias: Garage Lights
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.garage_door_contact
+    from: 'off'
+    to: 'on'
+    id: open
+  - platform: state
+    entity_id:
+    - binary_sensor.garage_door_contact
+    from: 'on'
+    to: 'off'
+    id: close
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: cover.garage_1
+      state: closed
+    - condition: state
+      entity_id: cover.garage_2
+      state: closed
+    - condition: sun
+      after: sunset
+      before: sunrise
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: open
+      - condition: state
+        entity_id: light.garage_light
+        state: 'off'
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id: light.garage_light
+    - conditions:
+      - condition: trigger
+        id: close
+      - condition: state
+        entity_id: light.garage_light
+        state: 'on'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.garage_light
   mode: single
