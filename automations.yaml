@@ -583,6 +583,7 @@
       entity_id:
       - light.porch_light
       - light.driveway
+      - light.stair_light
   mode: single
 - id: '1684639231696'
   alias: Lights Off
@@ -730,4 +731,44 @@
         data: {}
         target:
           entity_id: light.garage_light
+  mode: single
+- id: '1690577161675'
+  alias: Water the pots
+  description: ''
+  trigger:
+  - platform: time
+    at: 06:00:00
+  - platform: time
+    at: '20:00:00'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.rachio
+    state: 'on'
+  - condition: state
+    entity_id: binary_sensor.rachio_rain_sensor
+    state: 'off'
+  action:
+  - service: script.water_the_plants
+    data: {}
+  mode: single
+- id: '1690577897483'
+  alias: Leak Sensor Notification
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.kitchen_sink_water_leak
+    - binary_sensor.sump_pump_water_leak
+    - binary_sensor.basement_drain_water_leak
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  condition: []
+  action:
+  - service: script.notify_all
+    data:
+      message: '{{ trigger.to_state.attributes.friendly_name }} detected'
+      title: Critical Message
   mode: single
