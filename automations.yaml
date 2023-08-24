@@ -51,39 +51,6 @@
           title: Critical Message
     default: []
   mode: single
-- id: '1661747700012'
-  alias: Driveway Lights On/Off
-  description: ''
-  trigger:
-  - platform: sun
-    event: sunrise
-    offset: 0
-    id: sunrise
-  - platform: sun
-    event: sunset
-    offset: 0
-    id: sunset
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: sunrise
-      sequence:
-      - service: light.turn_off
-        data: {}
-        target:
-          device_id: 96c37de04da9dc1bc706109b33c8214a
-    - conditions:
-      - condition: trigger
-        id: sunset
-      sequence:
-      - service: light.turn_on
-        data: {}
-        target:
-          device_id: 96c37de04da9dc1bc706109b33c8214a
-    default: []
-  mode: single
 - id: '1663217810869'
   alias: Doors & Windows Open/Close
   description: ''
@@ -114,6 +81,8 @@
     id: doorwindowclose
   condition: []
   action:
+  - service: script.door_alert
+    data: {}
   - choose:
     - conditions:
       - condition: trigger
@@ -130,8 +99,6 @@
         data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Closed'
           title: Security Message
-  - service: script.door_alert
-    data: {}
   mode: single
 - id: '1663995445012'
   alias: Alarmo
@@ -521,7 +488,7 @@
     data: {}
     target:
       entity_id: lock.garage_door_lock
-  - service: script.notify_all
+  - service: script.notify_phones
     data:
       message: Garage Door is Locked
       title: Security Message
@@ -547,7 +514,7 @@
     data: {}
     target:
       entity_id: lock.garage_door_lock
-  - service: script.notify_all
+  - service: script.notify_phones
     data:
       message: Garage Door is Unlocked
       title: Security Message
@@ -563,14 +530,14 @@
     from: 'off'
   condition: []
   action:
-  - service: script.door_bell
-    data: {}
+  - service: script.alexa_announcement
+    data:
+      message: Someone is at front door
   - service: script.notify_phones
     data:
       message: Someone is at front door
-      title: Security Message
-      data:
-        entity_id: camera.front_door_sub
+  - service: script.door_bell
+    data: {}
   mode: single
 - id: '1682657923456'
   alias: test autom
@@ -601,38 +568,6 @@
       data:
         entity_id: camera.driveway_snapshots
   mode: single
-- id: '1684638873996'
-  alias: Porch Light On/Off
-  description: ''
-  trigger:
-  - platform: sun
-    event: sunset
-    offset: 0
-    id: sunset
-  - platform: time
-    at: '22:00:00'
-    id: night
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: night
-      sequence:
-      - service: light.turn_off
-        data: {}
-        target:
-          entity_id: light.porch_light
-    - conditions:
-      - condition: trigger
-        id: sunset
-      sequence:
-      - service: light.turn_on
-        data: {}
-        target:
-          entity_id: light.porch_light
-    default: []
-  mode: single
 - id: '1684639035497'
   alias: Lights On
   description: ''
@@ -648,6 +583,7 @@
       entity_id:
       - light.porch_light
       - light.driveway
+      - light.stair_light
   mode: single
 - id: '1684639231696'
   alias: Lights Off
@@ -679,4 +615,160 @@
         data: {}
         target:
           entity_id: light.porch_light
+  mode: single
+- id: '1686972244347'
+  alias: Basement Stair Light
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.basement_door_contact
+    from: 'off'
+    to: 'on'
+    id: open
+  - platform: state
+    entity_id:
+    - binary_sensor.basement_door_contact
+    from: 'on'
+    to: 'off'
+    id: close
+  - platform: state
+    entity_id:
+    - binary_sensor.basement_door_contact
+    from: 'off'
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+    id: openlong
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: open
+      - condition: state
+        entity_id: light.basement_stair_light
+        state: 'off'
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id: light.basement_stair_light
+    - conditions:
+      - condition: trigger
+        id: close
+      - condition: state
+        entity_id: light.basement_stair_light
+        state: 'on'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.basement_stair_light
+    - conditions:
+      - condition: trigger
+        id: openlong
+      - condition: state
+        entity_id: light.basement_light
+        state: 'on'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.basement_stair_light
+  mode: single
+- id: '1687214759360'
+  alias: Garage Lights
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.garage_door_contact
+    from: 'off'
+    to: 'on'
+    id: open
+  - platform: state
+    entity_id:
+    - binary_sensor.garage_door_contact
+    from: 'on'
+    to: 'off'
+    id: close
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: cover.garage_1
+      state: closed
+    - condition: state
+      entity_id: cover.garage_2
+      state: closed
+    - condition: sun
+      after: sunset
+      before: sunrise
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: open
+      - condition: state
+        entity_id: light.garage_light
+        state: 'off'
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id: light.garage_light
+    - conditions:
+      - condition: trigger
+        id: close
+      - condition: state
+        entity_id: light.garage_light
+        state: 'on'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.garage_light
+  mode: single
+- id: '1690577161675'
+  alias: Water the pots
+  description: ''
+  trigger:
+  - platform: time
+    at: 06:00:00
+  - platform: time
+    at: '20:00:00'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.rachio
+    state: 'on'
+  - condition: state
+    entity_id: binary_sensor.rachio_rain_sensor
+    state: 'off'
+  action:
+  - service: script.water_the_plants
+    data: {}
+  mode: single
+- id: '1690577897483'
+  alias: Leak Sensor Notification
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.kitchen_sink_water_leak
+    - binary_sensor.sump_pump_water_leak
+    - binary_sensor.basement_drain_water_leak
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  condition: []
+  action:
+  - service: script.notify_all
+    data:
+      message: '{{ trigger.to_state.attributes.friendly_name }} detected'
+      title: Critical Message
   mode: single

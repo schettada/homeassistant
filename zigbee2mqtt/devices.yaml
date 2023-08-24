@@ -2,10 +2,6 @@
   friendly_name: Basement Stairs
 '0x0017880109197eb3':
   friendly_name: Basement
-'0x00158d000847e3b9':
-  friendly_name: Deck
-'0x00158d000848313a':
-  friendly_name: Basement Door
 '0x00158d0008063fd8':
   friendly_name: Walkout Door
 '0x00158d0008483159':
@@ -64,3 +60,13 @@
   friendly_name: Garage Door Lock
 '0x00158d0008478254':
   friendly_name: Garage Door
+'0x00158d000847e3b9':
+  friendly_name: Deck
+'0x00158d0009421708':
+  friendly_name: Kitchen Sink
+'0x00158d000945364e':
+  friendly_name: Sump Pump
+'0x00158d000941fdab':
+  friendly_name: Basement Drain
+'0x00158d000848313a':
+  friendly_name: Basement Door
