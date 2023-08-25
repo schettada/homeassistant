@@ -584,6 +584,7 @@
       - light.porch_light
       - light.driveway
       - light.stair_light
+      - light.kitchen_light
   mode: single
 - id: '1684639231696'
   alias: Lights Off
