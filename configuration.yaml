@@ -75,4 +75,5 @@ sensor: !include sensors.yaml
 image_processing: !include image_processing.yaml
 camera: !include cameras.yaml
 proximity: !include proximity.yaml
+rest_command: !include rest.yaml
 prometheus:
