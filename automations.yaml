@@ -696,6 +696,10 @@
     from: 'on'
     to: 'off'
     id: close
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
   condition:
   - condition: and
     conditions:

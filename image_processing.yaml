@@ -22,7 +22,7 @@
   save_timestamped_file: true
   always_save_latest_file: true
   source:
-    - entity_id: camera.driveway
+    - entity_id: camera.driveway_snapshots_main
 
 - platform: amazon_rekognition
   aws_access_key_id: !secret rekogkey
@@ -47,7 +47,7 @@
   save_timestamped_file: true
   always_save_latest_file: true
   source:
-    - entity_id: camera.front_door_main
+    - entity_id: camera.front_door_snapshots_main
 # - platform: platerecognizer
 #   api_token: !secret plate
 #   regions:
