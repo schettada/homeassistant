@@ -792,3 +792,52 @@
     data:
       message: '{{ trigger.json.event_type }}'
   mode: single
+- id: '1695659067265'
+  alias: test driveway
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - image_processing.rekognition_driveway_snapshots_main
+    attribute: targets_found
+  condition: []
+  action:
+  - service: notify.mobile_app_sj
+    data:
+      message: Check Driveway
+      data:
+        url: https://read.remetric.tech/local/amazon-rekognition/rekognition_driveway_snapshots_main_latest.png
+  mode: single
+- id: '1695659517232'
+  alias: test front
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - image_processing.rekognition_front_door_snapshots_main
+    attribute: targets_found
+  condition: []
+  action:
+  - service: notify.mobile_app_sj
+    data:
+      message: Check front
+      data:
+        url: https://read.remetric.tech/local/amazon-rekognition/rekognition_front_door_snapshots_main_latest.png
+  mode: single
+- id: '1695659691585'
+  alias: person detection
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.front_door_person
+    - binary_sensor.driveway_person
+  condition: []
+  action:
+  - service: image_processing.scan
+    data: {}
+    target:
+      entity_id:
+      - image_processing.rekognition_driveway_snapshots_main
+      - image_processing.rekognition_front_door_snapshots_main
+  mode: single
