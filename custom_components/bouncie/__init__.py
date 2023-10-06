@@ -7,7 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_SCAN_INTERVAL, Platform
 from homeassistant.core import Config, HomeAssistant
 
-from .const import DOMAIN, LOGGER
+from .const import DOMAIN, LOGGER, VEHICLE_MODEL_KEY
 from .coordinator import BouncieDataUpdateCoordinator
 
 PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.DEVICE_TRACKER]
@@ -50,4 +50,23 @@ def patch_missing_data(vehicle_info):
             "status": "Not available",
             "lastUpdated": "Not available",
         }
+    if "mil" not in vehicle_info["stats"]:
+        vehicle_info["stats"]["mil"] = {
+            "milOn": "Not available",
+            "lastUpdated": "Not available",
+        }
+    if "location" not in vehicle_info["stats"]:
+        vehicle_info["stats"]["location"] = {
+            "address": "Not available",
+        }
+    if "fuelLevel" not in vehicle_info["stats"]:
+        vehicle_info["stats"]["fuelLevel"] = -1
+    if "nickName" not in vehicle_info:
+        vehicle_info["nickName"] = (
+            str(vehicle_info[VEHICLE_MODEL_KEY]["year"])
+            + " "
+            + str(vehicle_info[VEHICLE_MODEL_KEY]["make"])
+            + " "
+            + str(vehicle_info[VEHICLE_MODEL_KEY]["name"])
+        )
     return vehicle_info
