@@ -41,11 +41,19 @@
         data:
           message: Home Assistant Online!
           title: Critical Message
+      - service: notify.mobile_app_mini
+        data:
+          message: Home Assistant Online!
+          title: Critical Message
     - conditions:
       - condition: trigger
         id: hastop
       sequence:
       - service: notify.mobile_app_sj
+        data:
+          message: Home Assistant Rebooting!
+          title: Critical Message
+      - service: notify.mobile_app_mini
         data:
           message: Home Assistant Rebooting!
           title: Critical Message
