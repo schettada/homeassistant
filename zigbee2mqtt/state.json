@@ -34,7 +34,7 @@
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 8619,
+        "illuminance": 8132,
         "illuminance_lux": 7,
         "linkquality": 131,
         "temperature": 16.96,
@@ -128,7 +128,7 @@
     "0x00158d000847821b": {
         "voltage": 3055,
         "battery": 100,
-        "device_temperature": 28,
+        "device_temperature": 26,
         "power_outage_count": 6,
         "contact": true,
         "linkquality": 120
@@ -202,9 +202,9 @@
         "power_outage_count": 13867
     },
     "0x00158d0008065d2c": {
-        "temperature": 20.5,
-        "humidity": 17.82,
-        "pressure": 821.2,
+        "temperature": 21.06,
+        "humidity": 18.22,
+        "pressure": 821.1,
         "linkquality": 120,
         "voltage": 2975,
         "battery": 83,
