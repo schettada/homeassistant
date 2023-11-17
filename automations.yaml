@@ -384,50 +384,6 @@
       force: true
       skip_delay: true
   mode: single
-- id: '1664596178769'
-  alias: Garage open for 15 mins
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - cover.garage_1
-    to: open
-    for:
-      hours: 0
-      minutes: 15
-      seconds: 0
-    id: garage1
-  - platform: state
-    entity_id:
-    - cover.garage_2
-    to: open
-    for:
-      hours: 0
-      minutes: 15
-      seconds: 0
-    id: garage2
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: garage1
-      sequence:
-      - service: script.notify_all
-        data:
-          message: '{{ trigger.to_state.attributes.friendly_name }} is open for 15
-            mins'
-          title: Security Message
-    - conditions:
-      - condition: trigger
-        id: garage2
-      sequence:
-      - service: script.notify_all
-        data:
-          message: '{{ trigger.to_state.attributes.friendly_name }} is open for 15
-            mins'
-          title: Security Message
-  mode: single
 - id: '1675219130040'
   alias: CenturyLink Status
   description: ''
@@ -547,18 +503,6 @@
   - service: script.door_bell
     data: {}
   mode: single
-- id: '1682657923456'
-  alias: test autom
-  description: ''
-  trigger: []
-  condition: []
-  action:
-  - service: notify.mobile_app_sj
-    data:
-      message: Camera
-      data:
-        entity_id: camera.front_door_sub
-  mode: single
 - id: '1684099499855'
   alias: People Detection
   description: ''
@@ -590,9 +534,9 @@
     target:
       entity_id:
       - light.porch_light
-      - light.driveway
       - light.stair_light
       - light.kitchen_light
+      - light.driveway_light
   mode: single
 - id: '1684639231696'
   alias: Lights Off
@@ -615,7 +559,7 @@
       - service: light.turn_off
         data: {}
         target:
-          entity_id: light.driveway
+          entity_id: light.driveway_light
     - conditions:
       - condition: trigger
         id: night
@@ -690,63 +634,6 @@
         data: {}
         target:
           entity_id: light.basement_stair_light
-  mode: single
-- id: '1687214759360'
-  alias: Garage Lights
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.garage_door_contact
-    from: 'off'
-    to: 'on'
-    id: open
-  - platform: state
-    entity_id:
-    - binary_sensor.garage_door_contact
-    from: 'on'
-    to: 'off'
-    id: close
-    for:
-      hours: 0
-      minutes: 15
-      seconds: 0
-  condition:
-  - condition: and
-    conditions:
-    - condition: state
-      entity_id: cover.garage_1
-      state: closed
-    - condition: state
-      entity_id: cover.garage_2
-      state: closed
-    - condition: sun
-      after: sunset
-      before: sunrise
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: open
-      - condition: state
-        entity_id: light.garage_light
-        state: 'off'
-      sequence:
-      - service: light.turn_on
-        data: {}
-        target:
-          entity_id: light.garage_light
-    - conditions:
-      - condition: trigger
-        id: close
-      - condition: state
-        entity_id: light.garage_light
-        state: 'on'
-      sequence:
-      - service: light.turn_off
-        data: {}
-        target:
-          entity_id: light.garage_light
   mode: single
 - id: '1690577161675'
   alias: Water the pots
