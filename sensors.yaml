@@ -52,3 +52,9 @@
 #     zigbee_count:
 #       friendly_name: "Number of Zigbee Devices"
 #       value_template: "{{ states.zigbee | count }}"
+
+- platform: time_date
+  display_options:
+    - date
+    - time
+    - date_time

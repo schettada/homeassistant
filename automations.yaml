@@ -41,11 +41,19 @@
         data:
           message: Home Assistant Online!
           title: Critical Message
+      - service: notify.mobile_app_mini
+        data:
+          message: Home Assistant Online!
+          title: Critical Message
     - conditions:
       - condition: trigger
         id: hastop
       sequence:
       - service: notify.mobile_app_sj
+        data:
+          message: Home Assistant Rebooting!
+          title: Critical Message
+      - service: notify.mobile_app_mini
         data:
           message: Home Assistant Rebooting!
           title: Critical Message
@@ -615,7 +623,10 @@
       - service: light.turn_off
         data: {}
         target:
-          entity_id: light.porch_light
+          entity_id:
+          - light.porch_light
+          - light.kitchen_light
+          - light.stair_light
   mode: single
 - id: '1686972244347'
   alias: Basement Stair Light
