@@ -116,7 +116,7 @@ water_the_plants:
   sequence:
   - service: rachio.start_multiple_zone_schedule
     data:
-      duration: 3
+      duration: 2
     target:
       entity_id: switch.trees_bushes
   icon: mdi:sprinkler-variant
