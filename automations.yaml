@@ -533,7 +533,6 @@
     data: {}
     target:
       entity_id:
-      - light.porch_light
       - light.stair_light
       - light.kitchen_light
       - light.driveway_light
@@ -559,7 +558,8 @@
       - service: light.turn_off
         data: {}
         target:
-          entity_id: light.driveway_light
+          entity_id:
+          - light.driveway_light
     - conditions:
       - condition: trigger
         id: night
@@ -738,4 +738,37 @@
       entity_id:
       - image_processing.rekognition_driveway_snapshots_main
       - image_processing.rekognition_front_door_snapshots_main
+  mode: single
+- id: '1701445717513'
+  alias: Christmas Lights
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunset
+    offset: 0
+    id: set
+  - platform: time
+    at: 04:00:00
+    id: 'off'
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - set
+      sequence:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id: light.tp_link_smart_plug_048d_od1
+    - conditions:
+      - condition: trigger
+        id:
+        - 'off'
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.tp_link_smart_plug_048d_od1
   mode: single
