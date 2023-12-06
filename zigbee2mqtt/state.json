@@ -6,7 +6,7 @@
         "occupancy": false,
         "illuminance": 0,
         "illuminance_lux": 0,
-        "temperature": 20,
+        "temperature": 18.03,
         "update": {
             "state": "idle",
             "installed_version": 1107323831,
@@ -20,10 +20,10 @@
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 0,
-        "illuminance_lux": 0,
+        "illuminance": 8812,
+        "illuminance_lux": 8,
         "linkquality": 61,
-        "temperature": 17.95,
+        "temperature": 16.68,
         "update": {
             "state": "idle",
             "installed_version": 1107323831,
@@ -36,16 +36,16 @@
         "linkquality": 131,
         "voltage": 3015,
         "battery": 100,
-        "device_temperature": 18,
+        "device_temperature": 35,
         "power_outage_count": 22
     },
     "0x00124b0025908789": {
-        "linkquality": 134
+        "linkquality": 131
     },
     "0x00158d000847821b": {
         "voltage": 3055,
         "battery": 100,
-        "device_temperature": 13,
+        "device_temperature": 29,
         "power_outage_count": 6,
         "contact": true,
         "linkquality": 105
@@ -53,7 +53,7 @@
     "0x00158d0008063fd8": {
         "voltage": 2985,
         "battery": 90,
-        "device_temperature": 21,
+        "device_temperature": 23,
         "power_outage_count": 10,
         "contact": true,
         "linkquality": 51
@@ -61,18 +61,18 @@
     "0x00158d0008483159": {
         "voltage": 2975,
         "battery": 83,
-        "device_temperature": 21,
+        "device_temperature": 23,
         "power_outage_count": 21,
         "contact": true,
         "linkquality": 43
     },
     "0x00124b002590928c": {
-        "linkquality": 112
+        "linkquality": 109
     },
     "0x00158d000847824e": {
         "voltage": 3015,
         "battery": 100,
-        "device_temperature": 11,
+        "device_temperature": 34,
         "power_outage_count": 18,
         "contact": true,
         "linkquality": 61
@@ -80,21 +80,21 @@
     "0x00158d0008064044": {
         "voltage": 2985,
         "battery": 90,
-        "device_temperature": 17,
+        "device_temperature": 38,
         "power_outage_count": 19,
         "contact": true,
         "linkquality": 134
     },
     "0x00158d0008481402": {
-        "voltage": 3015,
+        "voltage": 3025,
         "battery": 100,
-        "device_temperature": 10,
+        "device_temperature": 38,
         "power_outage_count": 19,
         "contact": true,
         "linkquality": 131
     },
     "0x00124b00259092fb": {
-        "linkquality": 120
+        "linkquality": 112
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
@@ -119,13 +119,13 @@
         "power_outage_count": 13867
     },
     "0x00158d0008065d2c": {
-        "temperature": 10.35,
-        "humidity": 39.36,
-        "pressure": 813.5,
+        "temperature": 18.67,
+        "humidity": 32.88,
+        "pressure": 816,
         "linkquality": 131,
-        "voltage": 2965,
-        "battery": 77,
-        "power_outage_count": 99
+        "voltage": 2955,
+        "battery": 70,
+        "power_outage_count": 110
     },
     "0x00158d0008065d35": {
         "temperature": 18.65,
@@ -146,9 +146,9 @@
         "power_outage_count": 296
     },
     "0x00158d0008065d2d": {
-        "temperature": 19.93,
-        "humidity": 35.68,
-        "pressure": 811.6,
+        "temperature": 19.83,
+        "humidity": 33.43,
+        "pressure": 815.1,
         "linkquality": 131,
         "voltage": 2975,
         "battery": 83,
@@ -207,7 +207,7 @@
         "battery_low": false,
         "contact": true,
         "linkquality": 109,
-        "temperature": 20
+        "temperature": 19
     },
     "0xdc8e95fffe3ed0cd": {
         "state": "OFF",
@@ -225,7 +225,7 @@
         "linkquality": 134,
         "voltage": 3045,
         "battery": 100,
-        "device_temperature": 30,
+        "device_temperature": 28,
         "power_outage_count": 21
     },
     "0x002446fffd09435b": {
@@ -237,7 +237,7 @@
     "0x00158d000847e3b9": {
         "voltage": 3005,
         "battery": 100,
-        "device_temperature": 18,
+        "device_temperature": 21,
         "power_outage_count": 21,
         "contact": true,
         "linkquality": 109
@@ -266,7 +266,7 @@
         "water_leak": false,
         "tamper": false,
         "battery_low": false,
-        "voltage": 3005,
+        "voltage": 3015,
         "battery": 100,
         "device_temperature": 21,
         "power_outage_count": 9,
