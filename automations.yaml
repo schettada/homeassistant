@@ -761,7 +761,10 @@
       - service: light.turn_on
         data: {}
         target:
-          entity_id: light.tp_link_smart_plug_048d_od1
+          entity_id:
+          - light.tp_link_smart_plug_048d_od1
+          - light.neeva_christmas_tree
+          - light.living_christmas_tree
     - conditions:
       - condition: trigger
         id:
@@ -770,5 +773,8 @@
       - service: light.turn_off
         data: {}
         target:
-          entity_id: light.tp_link_smart_plug_048d_od1
+          entity_id:
+          - light.tp_link_smart_plug_048d_od1
+          - light.neeva_christmas_tree
+          - light.living_christmas_tree
   mode: single
