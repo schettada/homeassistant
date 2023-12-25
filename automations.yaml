@@ -114,37 +114,37 @@
   trigger:
   - platform: state
     entity_id:
-    - alarm_control_panel.master
+    - alarm_control_panel.home
     to: armed_home
     id: armed_home
   - platform: state
     entity_id:
-    - alarm_control_panel.master
+    - alarm_control_panel.home
     to: armed_night
     id: armed_night
   - platform: state
     entity_id:
-    - alarm_control_panel.master
+    - alarm_control_panel.home
     to: armed_away
     id: armed_away
   - platform: state
     entity_id:
-    - alarm_control_panel.master
+    - alarm_control_panel.home
     to: disarmed
     id: disarmed
   - platform: state
     entity_id:
-    - alarm_control_panel.master
+    - alarm_control_panel.home
     to: arming
     id: arming
   - platform: state
     entity_id:
-    - alarm_control_panel.master
+    - alarm_control_panel.home
     to: pending
     id: pending
   - platform: state
     entity_id:
-    - alarm_control_panel.master
+    - alarm_control_panel.home
     to: triggered
     id: triggered
   - platform: event
@@ -315,7 +315,7 @@
           sequence:
           - service: alarmo.disarm
             data:
-              entity_id: alarm_control_panel.master
+              entity_id: alarm_control_panel.home
               code: '{{ trigger.payload_json.action_code }}'
               context_id: '{{ trigger.payload_json.action_transaction }}'
         - conditions:
@@ -324,7 +324,7 @@
           sequence:
           - service: alarmo.arm
             data:
-              entity_id: alarm_control_panel.master
+              entity_id: alarm_control_panel.home
               mode: away
               code: '{{ trigger.payload_json.action_code }}'
               context_id: '{{ trigger.payload_json.action_transaction }}'
@@ -334,7 +334,7 @@
           sequence:
           - service: alarmo.arm
             data:
-              entity_id: alarm_control_panel.master
+              entity_id: alarm_control_panel.home
               mode: home
               code: '{{ trigger.payload_json.action_code }}'
               context_id: '{{ trigger.payload_json.action_transaction }}'
@@ -344,7 +344,7 @@
           sequence:
           - service: alarmo.arm
             data:
-              entity_id: alarm_control_panel.master
+              entity_id: alarm_control_panel.home
               mode: night
               code: '{{ trigger.payload_json.action_code }}'
               context_id: '{{ trigger.payload_json.action_transaction }}'
@@ -367,7 +367,7 @@
   - condition: and
     conditions:
     - condition: state
-      entity_id: alarm_control_panel.master
+      entity_id: alarm_control_panel.home
       state: disarmed
     - condition: state
       entity_id: person.arleepta
@@ -378,11 +378,11 @@
   action:
   - service: alarmo.arm
     data:
-      entity_id: alarm_control_panel.master
-      code: '5891'
+      code: '1985'
       mode: away
       force: true
       skip_delay: true
+      entity_id: alarm_control_panel.home
   mode: single
 - id: '1675219130040'
   alias: CenturyLink Status
@@ -762,9 +762,7 @@
         data: {}
         target:
           entity_id:
-          - light.tp_link_smart_plug_048d_od1
-          - light.neeva_christmas_tree
-          - light.living_christmas_tree
+          - light.christmas_lights
     - conditions:
       - condition: trigger
         id:
@@ -773,8 +771,57 @@
       - service: light.turn_off
         data: {}
         target:
-          entity_id:
-          - light.tp_link_smart_plug_048d_od1
-          - light.neeva_christmas_tree
-          - light.living_christmas_tree
+          entity_id: light.christmas_lights
   mode: single
+- id: '1702406910255'
+  alias: Garage Status
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - cover.ratgdov25i_18fe0b_door
+    - cover.ratgdov25i_18fe0a_door
+    from: closed
+    to: opening
+    id: open
+    enabled: true
+  - platform: state
+    entity_id:
+    - cover.ratgdov25i_18fe0b_door
+    - cover.ratgdov25i_18fe0a_door
+    from: open
+    to: closing
+    id: close
+    enabled: true
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - open
+      sequence:
+      - service: script.notify_all
+        data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is {{ trigger.to_state.state
+            }}'
+    - conditions:
+      - condition: trigger
+        id:
+        - close
+      sequence:
+      - service: script.notify_all
+        data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is {{ trigger.to_state.state
+            }}'
+    enabled: true
+  mode: single
+- id: '1703200063445'
+  alias: Alarmo New
+  description: ''
+  use_blueprint:
+    path: e2m32/zigbee2mqtt-control-alarmo-via-keypad-night-zones.yaml
+    input:
+      state_topic: zigbee2mqtt/keypad
+      set_topic: zigbee2mqtt/keypad/set
+      entity: alarm_control_panel.home
