@@ -29,9 +29,8 @@ from homeassistant.const import (
     ATTR_BATTERY_LEVEL,
     CONF_DESCRIPTION,
     PERCENTAGE,
-    TIME_HOURS,
-    TIME_MINUTES,
     EntityCategory,
+    UnitOfTime,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -42,7 +41,7 @@ from .controller import DeebotController
 from .entity import DeebotEntity, DeebotEntityDescription, EventT
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class DeebotSensorEntityDescription(
     SensorEntityDescription,  # type: ignore
     DeebotEntityDescription,
@@ -94,7 +93,7 @@ ENTITY_DESCRIPTIONS: tuple[DeebotSensorEntityDescription, ...] = (
         value_fn=lambda e: round(e.time / 60) if e.time else None,
         translation_key="stats_time",
         icon="mdi:timer-outline",
-        native_unit_of_measurement=TIME_MINUTES,
+        native_unit_of_measurement=UnitOfTime.MINUTES,
         entity_registry_enabled_default=False,
     ),
     DeebotSensorEntityDescription[StatsEvent](
@@ -122,7 +121,7 @@ ENTITY_DESCRIPTIONS: tuple[DeebotSensorEntityDescription, ...] = (
         key="stats_total_time",
         translation_key="stats_total_time",
         icon="mdi:timer-outline",
-        native_unit_of_measurement=TIME_HOURS,
+        native_unit_of_measurement=UnitOfTime.HOURS,
         entity_registry_enabled_default=False,
         state_class=SensorStateClass.TOTAL_INCREASING,
     ),
@@ -174,18 +173,13 @@ ENTITY_DESCRIPTIONS: tuple[DeebotSensorEntityDescription, ...] = (
 )
 
 
-@dataclass
-class DeebotLifeSpanSensorMixin:
-    """Deebot life span sensor mixin."""
-
-    component: LifeSpan
-
-
-@dataclass
+@dataclass(kw_only=True, frozen=True)
 class DeebotLifeSpanSensorEntityDescription(
-    SensorEntityDescription, DeebotLifeSpanSensorMixin  # type: ignore
+    SensorEntityDescription,  # type: ignore
 ):
     """Class describing Deebot sensor entity."""
+
+    component: LifeSpan
 
 
 LIFE_SPAN_DESCRIPTIONS: tuple[DeebotLifeSpanSensorEntityDescription, ...] = (
@@ -282,9 +276,7 @@ class DeebotSensor(
                 self._attr_extra_state_attributes = attr_fn(event)
             self.async_write_ha_state()
 
-        self.async_on_remove(
-            self._device.events.subscribe(self._capability.event, on_event)
-        )
+        self._subscribe(self._capability.event, on_event)
 
 
 T = TypeVar("T", bound=Event)
@@ -308,9 +300,7 @@ class LifeSpanSensor(
                 }
                 self.async_write_ha_state()
 
-        self.async_on_remove(
-            self._device.events.subscribe(self._capability.event, on_event)
-        )
+        self._subscribe(self._capability.event, on_event)
 
 
 class LastErrorSensor(
@@ -339,9 +329,7 @@ class LastErrorSensor(
 
             self.async_write_ha_state()
 
-        self.async_on_remove(
-            self._device.events.subscribe(self._capability.event, on_event)
-        )
+        self._subscribe(self._capability.event, on_event)
 
 
 class LastCleaningSensor(
@@ -376,6 +364,4 @@ class LastCleaningSensor(
 
                 self.async_write_ha_state()
 
-        self.async_on_remove(
-            self._device.events.subscribe(self._capability.event, on_event)
-        )
+        self._subscribe(self._capability.event, on_event)

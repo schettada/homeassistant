@@ -1,5 +1,4 @@
 """Support for Deebot image entities."""
-import base64
 from collections.abc import MutableMapping, Sequence
 from typing import Any
 
@@ -46,6 +45,7 @@ class DeebotMap(
     """Deebot map."""
 
     _attr_should_poll = True
+    _attr_content_type = "image/svg+xml"
 
     def __init__(self, hass: HomeAssistant, device: Device, capability: CapabilityMap):
         super().__init__(
@@ -61,14 +61,15 @@ class DeebotMap(
         self._attr_extra_state_attributes: MutableMapping[str, Any] = {}
 
     def image(self) -> bytes | None:
-        """Return bytes of image."""
-        return base64.decodebytes(self._device.map.get_base64_map())
+        """Return bytes of image or None."""
+        if svg := self._device.map.get_svg_map():
+            return svg.encode()
+
+        return None
 
     async def async_added_to_hass(self) -> None:
         """Set up the event listeners now that hass is ready."""
         await super().async_added_to_hass()
-
-        self._device.map.enable()
 
         async def on_info(event: CachedMapInfoEvent) -> None:
             self._attr_extra_state_attributes["map_name"] = event.name
@@ -77,14 +78,19 @@ class DeebotMap(
             self._attr_image_last_updated = event.when
             self.async_write_ha_state()
 
-        subscriptions = [
-            self._device.events.subscribe(self._capability.chached_info.event, on_info),
-            self._device.events.subscribe(self._capability.changed.event, on_changed),
-        ]
+        self._subscribe(self._capability.chached_info.event, on_info)
+        self._subscribe(self._capability.changed.event, on_changed)
 
         def on_remove() -> None:
-            for unsubscribe in subscriptions:
-                unsubscribe()
             self._device.map.disable()
 
         self.async_on_remove(on_remove)
+        self._device.map.enable()
+
+    async def async_update(self) -> None:
+        """Update the entity.
+
+        Only used by the generic entity update service.
+        """
+        await super().async_update()
+        self._device.map.refresh()
