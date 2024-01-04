@@ -81,6 +81,15 @@
           "medium": "medium",
           "ultrahigh": "ultrahigh"
         }
+      },
+      "work_mode": {
+        "name": "Work mode",
+        "state": {
+          "mop": "Mop",
+          "mop_after_vacuum": "Mop after vacuum",
+          "vacuum": "Vacuum",
+          "vacuum_and_mop": "Vacuum & mop"
+        }
       }
     },
     "sensor": {
@@ -119,6 +128,15 @@
       },
       "stats_type": {
         "name": "Stats type"
+      },
+      "wifi_ip": {
+        "name": "Ip"
+      },
+      "wifi_rssi": {
+        "name": "Wifi rssi"
+      },
+      "wifi_ssid": {
+        "name": "Wifi ssid"
       }
     },
     "switch": {

@@ -22,39 +22,18 @@
   unit_of_measurement: "°C"
   value_template: "{{ value | multiply(0.001) | round(1) }}"
   unique_id: cputemp
-# https://www.home-assistant.io/components/template/
-# - platform: template
-#   sensors:
-#     sensor_count:
-#       friendly_name: "Number of Sensors"
-#       value_template: "{{ states.sensor | count }}"
-#     automation_count:
-#       friendly_name: "Number of Automations"
-#       value_template: "{{ states.automation | count }}"
-#     script_count:
-#       friendly_name: "Number of Scripts"
-#       value_template: "{{ states.script | count }}"
-#     switch_count:
-#       friendly_name: "Number of Switches"
-#       value_template: "{{ states.switch | count }}"
-#     binary_sensor_count:
-#       friendly_name: "Number of Binary Sensors"
-#       value_template: "{{ states.binary_sensor | count }}"
-#     lights_count:
-#       friendly_name: "Number of Lights"
-#       value_template: "{{ states.light | count }}"
-#     tracker_count:
-#       friendly_name: "Number of Network Devices"
-#       value_template: "{{ states.device_tracker | count }}"
-#     zwave_count:
-#       friendly_name: "Number of Zwave Devices"
-#       value_template: "{{ states.zwave | count }}"
-#     zigbee_count:
-#       friendly_name: "Number of Zigbee Devices"
-#       value_template: "{{ states.zigbee | count }}"
 
 - platform: time_date
   display_options:
     - date
     - time
     - date_time
+
+# # https://www.home-assistant.io/integrations/mqtt_room/
+# - platform: mqtt_room
+#   device_id: iBeacon:fda50693-a4e2-4fb1-afcf-c6eb07647825-10065-26049
+#   name: "Jeep"
+#   state_topic: "espresense/devices/iBeacon:fda50693-a4e2-4fb1-afcf-c6eb07647825-10065-26049"
+#   unique_id: 001d439a010a
+#   timeout: 10
+#   away_timeout: 100
