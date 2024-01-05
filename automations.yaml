@@ -748,3 +748,23 @@
             }} for 15 mins.'
     enabled: true
   mode: single
+- id: '1704390098395'
+  alias: Check All Door Status
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /15
+  condition:
+  - condition: state
+    entity_id: binary_sensor.front_door_contact
+    state: 'on'
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+  action:
+  - service: script.notify_all
+    data:
+      message: Front Door is Open for more than 15 Minutes
+      title: Security Message
+  mode: single
