@@ -41,19 +41,11 @@
         data:
           message: Home Assistant Online!
           title: Critical Message
-      - service: notify.mobile_app_mini
-        data:
-          message: Home Assistant Online!
-          title: Critical Message
     - conditions:
       - condition: trigger
         id: hastop
       sequence:
       - service: notify.mobile_app_sj
-        data:
-          message: Home Assistant Rebooting!
-          title: Critical Message
-      - service: notify.mobile_app_mini
         data:
           message: Home Assistant Rebooting!
           title: Critical Message
@@ -656,8 +648,8 @@
   - platform: state
     entity_id:
     - binary_sensor.kitchen_sink_water_leak
-    - binary_sensor.sump_pump_water_leak
     - binary_sensor.basement_drain_water_leak
+    - binary_sensor.recirculation_pump_water_leak
     to: 'on'
     for:
       hours: 0
@@ -767,4 +759,23 @@
     data:
       message: Front Door is Open for more than 15 Minutes
       title: Security Message
+  mode: single
+- id: '1704928174660'
+  alias: Turn On Study Lights
+  description: ''
+  trigger:
+  - type: motion
+    platform: device
+    device_id: 8eb24ac06958179d41b9e54f44553268
+    entity_id: f3b2a5ea13aad341b431767c21bad3ce
+    domain: binary_sensor
+  condition:
+  - condition: sun
+    after: sunset
+    before: sunrise
+  action:
+  - type: turn_on
+    device_id: 6a5d154f77b702aa5ae9d1de3c9fde66
+    entity_id: 1b4801694dd4cbad0dddb9e2b1740672
+    domain: light
   mode: single

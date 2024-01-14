@@ -2,8 +2,8 @@
 homeassistant:
   auth_providers:
     - type: homeassistant
-    - type: legacy_api_password
-      api_password: !secret httppw
+    # - type: legacy_api_password
+    #   api_password: !secret httppw
 
 http:
   ssl_certificate: !secret ssl_crt
