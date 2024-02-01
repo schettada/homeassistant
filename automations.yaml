@@ -761,7 +761,7 @@
       title: Security Message
   mode: single
 - id: '1704928174660'
-  alias: Turn On Study Lights
+  alias: Study Lights On/Off
   description: ''
   trigger:
   - type: motion
