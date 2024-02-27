@@ -1,0 +1,14 @@
+substitutions:
+  name: tubeszb-cc2652-poe-2022
+packages:
+  tubezb.cc2652-poe-2022: github://tube0013/tube_gateways/models/current/tubeszb-cc2652-poe-2022/firmware/esphome/tubeszb-cc2652-poe-2022_v2.yaml
+esphome:
+  name: ${name}
+  name_add_mac_suffix: false
+api:
+  encryption:
+    key: TTIyQVzgwb4pkr1D8ZVKxSqlTzSN5iDWQuWGhyRMxxI=
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time 

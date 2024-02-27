@@ -68,3 +68,5 @@
   friendly_name: Attic Light
 '0x8c6fb9fffe262da7':
   friendly_name: Study Motion Sensor
+'0x00158d000abd5f8e':
+  friendly_name: Sump Pump Leak Sensor
