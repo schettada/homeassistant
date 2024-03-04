@@ -1,0 +1,95 @@
+esphome:
+  name: parking-sensor
+  friendly_name: Parking Sensor
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "HhaRLbGFzPPAb4bfQbTdr2CpLQTQ99vHu6mN7Jj5ew4="
+
+ota:
+  password: "6d73943b0ed8b5600070aea311e7808a"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Parking-Sensor Fallback Hotspot"
+    password: "ktnuGowkrm3Y"
+
+captive_portal:
+
+light:
+  - platform: neopixelbus
+    variant: WS2812
+    pin: GPIO16
+    num_leds: 8
+    type: GRB
+    name: "Parking Light"
+    id: parking_light
+    restore_mode: ALWAYS_OFF
+
+sensor:
+  - platform: ultrasonic
+    trigger_pin: GPIO19
+    echo_pin: GPIO18
+    name: "Parking Distance"
+    id: parking_distance
+    pulse_time: 20us
+    timeout: 4.0m
+    update_interval: 0.25s
+    on_value: 
+      then:
+        - if: 
+            # Show Red when too far into garage
+            condition:
+              sensor.in_range:
+                id: parking_distance
+                above: 0.00
+                below: 0.50
+            then:
+              light.turn_on:
+                id: parking_light
+                brightness: 100%
+                red: 100%
+                green: 0%
+                blue: 0%
+        - if: 
+            # Show Green when in right spot
+            condition:
+              sensor.in_range:
+                id: parking_distance
+                above: 1.00
+                below: 2.00
+            then:
+              light.turn_on:
+                id: parking_light
+                brightness: 100%
+                red: 0%
+                green: 100%
+                blue: 0%
+        - if: 
+            # show yellow if getting close to correct spot 
+            condition:
+              sensor.in_range:
+                id: parking_distance
+                above: 0.50
+                below: 1.00
+            then:
+              light.turn_on:
+                id: parking_light
+                brightness: 100%
+                # yellow
+                red: 100%
+                green: 100%
+                blue: 0%
