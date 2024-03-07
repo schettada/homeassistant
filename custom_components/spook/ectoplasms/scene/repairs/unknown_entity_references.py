@@ -1,13 +1,17 @@
 """Spook - Not your homie."""
 from __future__ import annotations
 
-from homeassistant.components.homeassistant import scene
+from typing import TYPE_CHECKING
+
 from homeassistant.const import EVENT_COMPONENT_LOADED
-from homeassistant.core import valid_entity_id
 from homeassistant.helpers import entity_registry as er
 
 from ....const import LOGGER
 from ....repairs import AbstractSpookRepair
+from ....util import async_filter_known_entity_ids
+
+if TYPE_CHECKING:
+    from homeassistant.components.homeassistant import scene
 
 
 class SpookRepair(AbstractSpookRepair):
@@ -18,30 +22,28 @@ class SpookRepair(AbstractSpookRepair):
     inspect_events = {
         EVENT_COMPONENT_LOADED,
         er.EVENT_ENTITY_REGISTRY_UPDATED,
-        scene.EVENT_SCENE_RELOADED,
-        "event_group_reloaded",
-        "event_integration_reloaded",
-        "event_mqtt_reloaded",
     }
+    inspect_on_reload = True
+
+    automatically_clean_up_issues = True
 
     async def async_inspect(self) -> None:
         """Trigger a inspection."""
         LOGGER.debug("Spook is inspecting: %s", self.repair)
 
-        entity_ids = {
-            entity.entity_id for entity in self.entity_registry.entities.values()
-        }.union(self.hass.states.async_entity_ids())
+        # Check if Home Assistant scenes are loaded
+        if "homeassistant_scene" not in self.hass.data:
+            return
 
         scenes: list[scene.HomeAssistantScene] = self.hass.data[
             "homeassistant_scene"
         ].entities.values()
 
         for entity in scenes:
-            if unknown_entities := {
-                entity_id
-                for entity_id in entity.scene_config.states
-                if (entity_id not in entity_ids and valid_entity_id(entity_id))
-            }:
+            self.possible_issue_ids.add(entity.entity_id)
+            if unknown_entities := async_filter_known_entity_ids(
+                self.hass, entity_ids=entity.scene_config.states
+            ):
                 self.async_create_issue(
                     issue_id=entity.entity_id,
                     translation_placeholders={
@@ -59,5 +61,3 @@ class SpookRepair(AbstractSpookRepair):
                     entity.entity_id,
                     ", ".join(unknown_entities),
                 )
-            else:
-                self.async_delete_issue(entity.entity_id)

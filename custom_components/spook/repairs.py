@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, final
 
 from homeassistant.components.homeassistant import SERVICE_HOMEASSISTANT_RESTART
 from homeassistant.components.repairs import ConfirmRepairFlow, RepairsFlow
+from homeassistant.config_entries import SIGNAL_CONFIG_ENTRY_CHANGED, ConfigEntry
 from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers import (
     area_registry as ar,
@@ -17,6 +18,7 @@ from homeassistant.helpers import (
     issue_registry as ir,
 )
 from homeassistant.helpers.debounce import Debouncer
+from homeassistant.helpers.dispatcher import async_dispatcher_connect
 
 from .const import DOMAIN, LOGGER
 
@@ -38,6 +40,8 @@ class AbstractSpookRepairBase(ABC):
     device_registry: dr.DeviceRegistry
     entity_registry: er.EntityRegistry
 
+    issue_ids: set[str]
+
     def __init__(self, hass: HomeAssistant) -> None:
         """Initialize the service."""
         self.hass = hass
@@ -45,6 +49,7 @@ class AbstractSpookRepairBase(ABC):
         self.area_registry = ar.async_get(hass)
         self.device_registry = dr.async_get(hass)
         self.entity_registry = er.async_get(hass)
+        self.issue_ids = set()
 
     @final
     @callback
@@ -63,6 +68,7 @@ class AbstractSpookRepairBase(ABC):
         translation_placeholders: dict[str, str] | None = None,
     ) -> None:
         """Create an issue."""
+        self.issue_ids.add(issue_id)
         ir.async_create_issue(
             self.hass,
             breaks_in_ha_version=breaks_in_ha_version,
@@ -85,6 +91,7 @@ class AbstractSpookRepairBase(ABC):
         issue_id: str,
     ) -> None:
         """Remove an issue."""
+        self.issue_ids.discard(issue_id)
         ir.async_delete_issue(
             self.hass,
             domain=DOMAIN,
@@ -101,10 +108,10 @@ class AbstractSpookRepairBase(ABC):
         """Trigger a repair check."""
         raise NotImplementedError
 
-    @abstractmethod
     async def async_deactivate(self) -> None:
         """Unregister the repair."""
-        raise NotImplementedError
+        for issue_id in self.issue_ids:
+            self.async_delete_issue(issue_id)
 
 
 class AbstractSpookRepair(AbstractSpookRepairBase):
@@ -112,14 +119,21 @@ class AbstractSpookRepair(AbstractSpookRepairBase):
 
     inspect_events: set[str] | None = None
     inspect_debouncer: Debouncer
+    inspect_config_entry_changed: bool | str = False
+    inspect_on_reload: bool | str = False
+
+    automatically_clean_up_issues: bool = False
+    possible_issue_ids: set[str]
+
     _event_subs: set[Callable[[], None]]
 
     def __init__(self, hass: HomeAssistant) -> None:
         """Initialize the repair."""
         super().__init__(hass)
         self._event_subs = set()
+        self.possible_issue_ids = set()
 
-    async def async_activate(self) -> None:
+    async def async_activate(self) -> None:  # noqa: C901
         """Handle the activating a repair."""
 
         async def _async_inspect() -> None:
@@ -127,7 +141,17 @@ class AbstractSpookRepair(AbstractSpookRepairBase):
             if self.hass.is_stopping:
                 return
 
+            if self.automatically_clean_up_issues:
+                # Reset registered issues. If they are still valid, they will be
+                # re-registered during the inspection.
+                self.issue_ids.clear()
+
             await self.async_inspect()
+
+            if self.automatically_clean_up_issues:
+                # Remove issues that are no longer valid
+                for issue_id in self.issue_ids - self.possible_issue_ids:
+                    self.async_delete_issue(issue_id)
 
         # Debouncer to prevent multiple inspections / inspections fired quickly
         # after each other.
@@ -154,10 +178,55 @@ class AbstractSpookRepair(AbstractSpookRepairBase):
                 self.hass.bus.async_listen(event, _async_call_inspect_debouncer),
             )
 
+        if self.inspect_on_reload:
+
+            @callback
+            def _filter_event(event: Event) -> bool:
+                """Filter for reload events."""
+                service = event.data.get("service")
+                if service is None:
+                    return False
+                if service == "reload_all":
+                    return True
+                if service != "reload":
+                    return False
+                if self.inspect_on_reload is True:
+                    return True
+                if self.inspect_on_reload == event.data.get("domain"):
+                    return True
+                return False
+
+            self.hass.bus.async_listen(
+                "call_service",
+                _async_call_inspect_debouncer,
+                event_filter=_filter_event,
+            )
+
+        if self.inspect_config_entry_changed:
+
+            async def _async_config_entry_changed(
+                _hass: HomeAssistant,
+                entry: ConfigEntry,
+            ) -> None:
+                """Handle options update."""
+                if (
+                    self.inspect_config_entry_changed is not True
+                    and entry.domain != self.inspect_config_entry_changed
+                ):
+                    return
+                await self.inspect_debouncer.async_call()
+
+            async_dispatcher_connect(
+                self.hass,
+                SIGNAL_CONFIG_ENTRY_CHANGED,
+                _async_config_entry_changed,
+            )
+
     async def async_deactivate(self) -> None:
         """Unregister the repair."""
         for sub in self._event_subs:
             sub()
+        await super().async_deactivate()
 
 
 class AbstractSpookSingleShotRepairs(AbstractSpookRepairBase, ABC):
@@ -171,6 +240,7 @@ class AbstractSpookSingleShotRepairs(AbstractSpookRepairBase, ABC):
     @final
     async def async_deactivate(self) -> None:
         """Unregister the repair."""
+        await super().async_deactivate()
 
 
 @dataclass

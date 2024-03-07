@@ -1,0 +1,62 @@
+esphome:
+  name: salt-tank-level-sensor
+  friendly_name: Salt Tank Level Sensor
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "1xkrap24o2ugOA/AMeySktPFeFgN/rrtezH11oy2RWs="
+
+ota:
+  password: "86e8399ff971734354fac6b98b75aa3e"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Salt-Tank-Level-Sensor"
+    password: "1VyeJ1epu13V"
+
+captive_portal:
+
+web_server:
+  port: 80
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time 
+
+button:
+ - platform: restart
+   name: restart
+
+ # The actual distance sensor
+sensor:
+  - platform: ultrasonic
+    trigger_pin: GPIO17
+    echo_pin: GPIO16
+    name: "Salt Level"
+    update_interval: 30s
+  # trigger pin active for: (default 10us)  
+  # pulse_time: 20us
+  # distance in meter to timeout  
+    timeout: 3m
+    filters:
+    - filter_out: nan
+    - median:
+        window_size: 3
+  #       send_every: 1
+        send_first_at: 1
+  #    - calibrate_linear:
+  #       - 0.23 -> 1.86
+  #       - 2.41 -> 0.0

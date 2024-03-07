@@ -1,49 +1,49 @@
 '0x0017880109196488':
-  friendly_name: Basement Stairs
+  friendly_name: Basement Stairs Multi Sensor
 '0x0017880109197eb3':
-  friendly_name: Basement
+  friendly_name: Basement Multi Sensor
 '0x00158d0008063fd8':
-  friendly_name: Walkout Door
+  friendly_name: Walkout Door Sensor
 '0x00158d0008483159':
-  friendly_name: 'Basement Window '
+  friendly_name: Basement Window Sensor
 '0x00158d0008483134':
-  friendly_name: Loft Window
+  friendly_name: Loft Window Sensor
 '0x00124b0025908789':
   friendly_name: Garage Router
 '0x00158d000847821b':
-  friendly_name: Front Door
+  friendly_name: Front Door Sensor
 '0x00124b002590928c':
   friendly_name: 'Second Floor Router '
 '0x00158d000847824e':
-  friendly_name: Neeva Window 1
+  friendly_name: Neeva Window 1 Sensor
 '0x00158d0008064044':
-  friendly_name: Neeva Window 2
+  friendly_name: Neeva Window 2 Sensor
 '0x00158d0008481402':
-  friendly_name: Neeva Closet Window
+  friendly_name: Neeva Closet Window Sensor
 '0x00124b00259092fb':
   friendly_name: Basement Router
 '0x84fd27fffe696daf':
   friendly_name: 'Network Rack Smoke Detector '
 '0x00158d0008300f14':
-  friendly_name: Network Rack Sensor
+  friendly_name: Network Rack Multi Sensor
 '0x00158d0008065d2c':
-  friendly_name: Garage Sensor
+  friendly_name: Garage Multi Sensor
 '0x00158d0008065d35':
-  friendly_name: Great Room Sensor
+  friendly_name: Great Room Multi Sensor
 '0x00158d0008300f31':
-  friendly_name: Study Sensor
+  friendly_name: Study Multi Sensor
 '0x00158d0008065d2d':
-  friendly_name: Bedroom Sensor
+  friendly_name: Bedroom Multi Sensor
 '0x00158d0008300ef6':
-  friendly_name: 'Loft Sensor '
+  friendly_name: 'Loft Multi Sensor '
 '0x00158d0008063dd6':
-  friendly_name: 'Arleepta Office Sensor '
+  friendly_name: 'Arleepta Office Multi Sensor '
 '0x00158d0008065c4a':
-  friendly_name: 'Neeva Sensor '
+  friendly_name: 'Neeva Bedroom Multi Sensor '
 '0x00158d00083037f0':
-  friendly_name: Guest Room Sensor
+  friendly_name: Guest Room Multi Sensor
 '0x00158d0008307341':
-  friendly_name: 'Deck Sensor '
+  friendly_name: 'Deck Multi Sensor '
 '0x000d6f0013e693f9':
   friendly_name: keypad
 '0xdc8e95fffe3ed0cd':
@@ -53,16 +53,20 @@
 '0x002446fffd09435b':
   friendly_name: Garage Door Lock
 '0x00158d000847e3b9':
-  friendly_name: Deck
+  friendly_name: Deck Sliding Door Sensor
 '0x00158d0009421708':
-  friendly_name: Kitchen Sink
+  friendly_name: Kitchen Sink Leak Sensor
 '0x00158d000945364e':
-  friendly_name: Sump Pump
+  friendly_name: Recirculation Pump Leak Sensor
 '0x00158d000941fdab':
-  friendly_name: Basement Drain
+  friendly_name: Basement Drain Leak Sensor
 '0x00158d000848313a':
-  friendly_name: Basement Door
+  friendly_name: Basement Door Sensor
 '0x00158d0008478254':
-  friendly_name: Garage Door
+  friendly_name: Garage Door Sensor
 '0xb0ce1814030101aa':
   friendly_name: Attic Light
+'0x8c6fb9fffe262da7':
+  friendly_name: Study Motion Sensor
+'0x00158d000abd5f8e':
+  friendly_name: Sump Pump Leak Sensor

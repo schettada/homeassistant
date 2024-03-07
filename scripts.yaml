@@ -5,10 +5,6 @@ notify_sooraj:
     data:
       message: '{{ message }}'
       title: '{{ title }}'
-  - service: notify.mobile_app_mini
-    data:
-      message: '{{ message }}'
-      title: '{{ title }}'
   mode: parallel
   icon: mdi:bell-ring
   max: 10
@@ -97,10 +93,6 @@ notify_phones:
       message: '{{ message }}'
       title: '{{ title }}'
   - service: notify.mobile_app_arleepta
-    data:
-      message: '{{ message }}'
-      title: '{{ title }}'
-  - service: notify.mobile_app_mini
     data:
       message: '{{ message }}'
       title: '{{ title }}'
