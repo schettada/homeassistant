@@ -153,8 +153,8 @@
         "power_outage_count": 296
     },
     "0x00158d0008065d2d": {
-        "temperature": 19.59,
-        "humidity": 36.34,
+        "temperature": 20.4,
+        "humidity": 36.38,
         "pressure": 806.4,
         "linkquality": 116,
         "voltage": 2895,
@@ -335,7 +335,7 @@
         },
         "update_available": false,
         "linkquality": 91,
-        "occupancy": true
+        "occupancy": false
     },
     "0x00158d000abd5f8e": {
         "voltage": 3015,
