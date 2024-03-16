@@ -60,15 +60,19 @@ zone:
 
 recorder:
   db_url: !secret mysql
-  purge_keep_days: 30
+  purge_keep_days: 15
   exclude:
     domains:
       - automation
-      - weblink
       - group
-    entities:
-      - sun.sun
-      - binary_sensor.remote_ui
+      - climate
+      - camera
+      - remote
+      - sun
+      - weather
+      - update
+      - image
+      - image_processing
 
 # notify: !include notify.yaml
 sensor: !include sensors.yaml
