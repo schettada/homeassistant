@@ -933,3 +933,26 @@
           message: '{{ trigger.to_state.attributes.friendly_name }} is Jammed'
           title: Security Message
   mode: single
+- id: '1711769380993'
+  alias: Night Check
+  description: ''
+  trigger:
+  - platform: time
+    at: '22:30:00'
+  condition: []
+  action:
+  - service: script.notify_phones
+    data:
+      message: There are {{expand(state_attr('light.all_lights', 'entity_id'))| selectattr('state','eq','on')|map(attribute='entity_id')|list|count}}
+        light(s) On! - {{expand(state_attr('light.all_lights', 'entity_id'))| selectattr('state','eq','on')|map(attribute='entity_id')|list}}
+  - service: script.notify_phones
+    data:
+      message: There are {{expand(state_attr('binary_sensor.doors_windows', 'entity_id'))|
+        selectattr('state','eq','on')|map(attribute='entity_id')|list|count}} door(s)/Window(s)
+        Open! - {{expand(state_attr('binary_sensor.doors_windows', 'entity_id'))|
+        selectattr('state','eq','on')|map(attribute='entity_id')|list}}
+  - service: script.notify_phones
+    data:
+      message: There are {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','on')|map(attribute='entity_id')|list|count}}
+        door(s) Unlocked! - {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','on')|map(attribute='entity_id')|list}}
+  mode: single
