@@ -39,7 +39,7 @@ input_text:
 logbook:
 logger:
   default: info
-map:
+# map:
 media_source:
 mobile_app:
 my:
