@@ -20,8 +20,8 @@
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 6334,
-        "illuminance_lux": 4,
+        "illuminance": 6656,
+        "illuminance_lux": 5,
         "linkquality": 120,
         "temperature": 17.39,
         "update": {
@@ -264,7 +264,7 @@
     "0x00158d000945364e": {
         "voltage": 3025,
         "battery": 100,
-        "device_temperature": 27,
+        "device_temperature": 28,
         "power_outage_count": 25,
         "water_leak": false,
         "tamper": false,
@@ -326,8 +326,8 @@
     },
     "0x8c6fb9fffe262da7": {
         "battery": 100,
-        "illuminance": 9542,
-        "illuminance_lux": 9,
+        "illuminance": 10000,
+        "illuminance_lux": 10,
         "update": {
             "state": "idle",
             "installed_version": 16777303,

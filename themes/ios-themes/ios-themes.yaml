@@ -50,7 +50,7 @@ ios-light-mode-blue-red-alternative:
   ha-card-border-radius: 20px
   ha-card-background: rgba(245, 245, 245, 0.4)
   paper-card-background-color: var(--ha-card-background)
-  rgb-card-background-color: rgb(245, 245, 245) # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
+  rgb-card-background-color: rgb(245, 245, 245)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
   ha-card-border-width: 0  # https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/82#event-7732695357
   # Toggles
   paper-toggle-button-checked-button-color: "#484848"
@@ -139,7 +139,7 @@ ios-light-mode-blue-red:
   ha-card-border-radius: 20px
   ha-card-background: rgba(245, 245, 245, 0.4)
   paper-card-background-color: var(--ha-card-background)
-  rgb-card-background-color: rgb(245, 245, 245) # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
+  rgb-card-background-color: rgb(245, 245, 245)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
   ha-card-border-width: 0  # https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/82#event-7732695357
   # Toggles
   paper-toggle-button-checked-button-color: "#484848"
@@ -228,7 +228,7 @@ ios-dark-mode-blue-red-alternative:
   ha-card-border-radius: 20px
   ha-card-background: rgba(10, 10, 10, 0.4)
   paper-card-background-color: var(--ha-card-background)
-  rgb-card-background-color: rgb(10, 10, 10) # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
+  rgb-card-background-color: rgb(10, 10, 10)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
   ha-card-border-width: 0  # https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/82#event-7732695357
   # Toggles
   paper-toggle-button-checked-button-color: "#484848"
@@ -317,7 +317,7 @@ ios-dark-mode-blue-red:
   ha-card-border-radius: 20px
   ha-card-background: rgba(10, 10, 10, 0.4)
   paper-card-background-color: var(--ha-card-background)
-  rgb-card-background-color: rgb(10, 10, 10) # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
+  rgb-card-background-color: rgb(10, 10, 10)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
   ha-card-border-width: 0  # https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/82#event-7732695357
   # Toggles
   paper-toggle-button-checked-button-color: "#484848"
@@ -406,7 +406,7 @@ ios-light-mode-dark-blue-alternative:
   ha-card-border-radius: 20px
   ha-card-background: rgba(245, 245, 245, 0.4)
   paper-card-background-color: var(--ha-card-background)
-  rgb-card-background-color: rgb(245, 245, 245) # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
+  rgb-card-background-color: rgb(245, 245, 245)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
   ha-card-border-width: 0  # https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/82#event-7732695357
   # Toggles
   paper-toggle-button-checked-button-color: "#484848"
@@ -495,7 +495,7 @@ ios-light-mode-dark-blue:
   ha-card-border-radius: 20px
   ha-card-background: rgba(245, 245, 245, 0.4)
   paper-card-background-color: var(--ha-card-background)
-  rgb-card-background-color: rgb(245, 245, 245) # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
+  rgb-card-background-color: rgb(245, 245, 245)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
   ha-card-border-width: 0  # https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/82#event-7732695357
   # Toggles
   paper-toggle-button-checked-button-color: "#484848"
@@ -584,7 +584,7 @@ ios-dark-mode-dark-blue-alternative:
   ha-card-border-radius: 20px
   ha-card-background: rgba(10, 10, 10, 0.4)
   paper-card-background-color: var(--ha-card-background)
-  rgb-card-background-color: rgb(10, 10, 10) # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
+  rgb-card-background-color: rgb(10, 10, 10)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
   ha-card-border-width: 0  # https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/82#event-7732695357
   # Toggles
   paper-toggle-button-checked-button-color: "#484848"
@@ -673,7 +673,7 @@ ios-dark-mode-dark-blue:
   ha-card-border-radius: 20px
   ha-card-background: rgba(10, 10, 10, 0.4)
   paper-card-background-color: var(--ha-card-background)
-  rgb-card-background-color: rgb(10, 10, 10) # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
+  rgb-card-background-color: rgb(10, 10, 10)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
   ha-card-border-width: 0  # https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/82#event-7732695357
   # Toggles
   paper-toggle-button-checked-button-color: "#484848"
@@ -762,7 +762,7 @@ ios-light-mode-dark-green-alternative:
   ha-card-border-radius: 20px
   ha-card-background: rgba(245, 245, 245, 0.4)
   paper-card-background-color: var(--ha-card-background)
-  rgb-card-background-color: rgb(245, 245, 245) # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
+  rgb-card-background-color: rgb(245, 245, 245)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
   ha-card-border-width: 0  # https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/82#event-7732695357
   # Toggles
   paper-toggle-button-checked-button-color: "#484848"
@@ -851,7 +851,7 @@ ios-light-mode-dark-green:
   ha-card-border-radius: 20px
   ha-card-background: rgba(245, 245, 245, 0.4)
   paper-card-background-color: var(--ha-card-background)
-  rgb-card-background-color: rgb(245, 245, 245) # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
+  rgb-card-background-color: rgb(245, 245, 245)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/60
   ha-card-border-width: 0  # https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/82#event-7732695357
   # Toggles
   paper-toggle-button-checked-button-color: "#484848"
