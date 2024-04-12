@@ -20,7 +20,7 @@
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 6758,
+        "illuminance": 7051,
         "illuminance_lux": 5,
         "linkquality": 120,
         "temperature": 17.39,
@@ -232,7 +232,7 @@
         "linkquality": 149,
         "voltage": 3035,
         "battery": 100,
-        "device_temperature": 26,
+        "device_temperature": 27,
         "power_outage_count": 28
     },
     "0x002446fffd09435b": {
@@ -244,7 +244,7 @@
     "0x00158d000847e3b9": {
         "voltage": 3015,
         "battery": 100,
-        "device_temperature": 21,
+        "device_temperature": 22,
         "power_outage_count": 21,
         "contact": true,
         "linkquality": 120,
@@ -299,7 +299,7 @@
         "power_outage_count": 541,
         "contact": true,
         "linkquality": 91,
-        "trigger_count": 4
+        "trigger_count": 0
     },
     "0xb0ce1814030101aa": {
         "color_mode": "color_temp",
