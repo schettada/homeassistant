@@ -6,7 +6,7 @@
         "occupancy": false,
         "illuminance": 0,
         "illuminance_lux": 0,
-        "temperature": 19.3,
+        "temperature": 18.87,
         "update": {
             "state": "idle",
             "installed_version": 1107323831,
@@ -20,7 +20,7 @@
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 6656,
+        "illuminance": 6758,
         "illuminance_lux": 5,
         "linkquality": 120,
         "temperature": 17.39,
