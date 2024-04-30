@@ -944,17 +944,17 @@
   - service: script.notify_phones
     data:
       message: There are {{expand(state_attr('light.all_lights', 'entity_id'))| selectattr('state','eq','on')|map(attribute='entity_id')|list|count}}
-        light(s) On! - {{expand(state_attr('light.all_lights', 'entity_id'))| selectattr('state','eq','on')|map(attribute='entity_id')|list}}
+        light(s) On! - {{expand(state_attr('light.all_lights', 'entity_id'))| selectattr('state','eq','on')|map(attribute='name')|list}}
   - service: script.notify_phones
     data:
       message: There are {{expand(state_attr('binary_sensor.doors_windows', 'entity_id'))|
         selectattr('state','eq','on')|map(attribute='entity_id')|list|count}} door(s)/Window(s)
         Open! - {{expand(state_attr('binary_sensor.doors_windows', 'entity_id'))|
-        selectattr('state','eq','on')|map(attribute='entity_id')|list}}
+        selectattr('state','eq','on')|map(attribute='name')|list}}
   - service: script.notify_phones
     data:
       message: There are {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','on')|map(attribute='entity_id')|list|count}}
-        door(s) Unlocked! - {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','on')|map(attribute='entity_id')|list}}
+        door(s) Unlocked! - {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','on')|map(attribute='name')|list}}
   mode: single
 - id: '1714447816906'
   alias: Door Lock/Unlock Status
