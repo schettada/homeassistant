@@ -70,3 +70,5 @@
   friendly_name: Study Motion Sensor
 '0x00158d000abd5f8e':
   friendly_name: Sump Pump Leak Sensor
+'0x804b50fffe59140f':
+  friendly_name: '0x804b50fffe59140f'
