@@ -587,25 +587,6 @@
         target:
           entity_id: light.basement_stair_light
   mode: single
-- id: '1690577161675'
-  alias: Water the pots
-  description: ''
-  trigger:
-  - platform: time
-    at: 06:00:00
-  - platform: time
-    at: '20:00:00'
-  condition:
-  - condition: state
-    entity_id: binary_sensor.rachio
-    state: 'on'
-  - condition: state
-    entity_id: binary_sensor.rachio_rain_sensor
-    state: 'off'
-  action:
-  - service: script.water_the_plants
-    data: {}
-  mode: single
 - id: '1690577897483'
   alias: Leak Sensor Notification
   description: ''
@@ -892,4 +873,23 @@
         data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Jammed'
           title: Security Message
+  mode: single
+- id: '1717282715460'
+  alias: Water The Flowers
+  description: ''
+  trigger:
+  - platform: time
+    at: 07:00:00
+  - platform: time
+    at: '19:00:00'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.rachio_connectivity
+    state: 'on'
+  - condition: state
+    entity_id: binary_sensor.rachio_rain
+    state: 'off'
+  action:
+  - service: script.water_the_flowers
+    data: {}
   mode: single
