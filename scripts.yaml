@@ -111,13 +111,3 @@ alexa_announcement:
       message: '"{{ message }}"'
   mode: single
   icon: mdi:bell-ring
-water_the_flowers:
-  alias: Water The Flowers
-  sequence:
-  - service: rachio.start_multiple_zone_schedule
-    data:
-      duration: 2
-    target:
-      entity_id: switch.flower_bed
-  icon: mdi:sprinkler-variant
-  mode: single

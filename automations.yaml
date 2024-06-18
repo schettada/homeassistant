@@ -1,25 +1,3 @@
-- id: '1661355474241'
-  alias: Xfinity Status
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.pfsense_gateway_xfinity_dhcp_status
-    from: online
-    to: unavailable
-  - platform: state
-    entity_id:
-    - sensor.pfsense_gateway_xfinity_dhcp_status
-    from: unavailable
-    to: online
-  condition: []
-  action:
-  - service: script.notify_all
-    data:
-      message: '{% if is_state(''sensor.pfsense_gateway_xfinity_dhcp_status'', ''online'')
-        %} Xfinity Gateway is Online {% else %} Xfinity Gateway is Down {% endif %}'
-      title: Critical Message
-  mode: single
 - id: '1661747369154'
   alias: HA Start/Stop
   description: ''
@@ -380,29 +358,6 @@
     entity_id: 191d58b23eef085ccf6f38511077e5cd
     type: lock
   mode: single
-- id: '1675219130040'
-  alias: CenturyLink Status
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.pfsense_gateway_centurylink_pppoe_status
-    from: online
-    to: unavailable
-  - platform: state
-    entity_id:
-    - sensor.pfsense_gateway_centurylink_pppoe_status
-    from: unavailable
-    to: online
-  condition: []
-  action:
-  - service: script.notify_all
-    data:
-      message: '{% if is_state(''sensor.pfsense_gateway_centurylink_pppoe_status'',
-        ''online'') %} CenturyLink Gateway is Online {% else %} CenturyLink Gateway
-        is Down {% endif %}'
-      title: Critical Message
-  mode: single
 - id: '1677274589664'
   alias: Rack Light On/Off
   description: ''
@@ -648,7 +603,7 @@
     - cover.ratgdov25i_18fe0b_door
     - cover.ratgdov25i_18fe0a_door
     id: longopen
-    enabled: true
+    enabled: false
     to: open
     for:
       hours: 0
@@ -692,19 +647,37 @@
   trigger:
   - platform: time_pattern
     minutes: /15
-  condition:
-  - condition: state
-    entity_id: binary_sensor.front_door_sensor_contact
-    state: 'on'
-    for:
-      hours: 0
-      minutes: 15
-      seconds: 0
+  condition: []
   action:
-  - service: script.notify_all
-    data:
-      message: Front Door is Open for more than 15 Minutes
-      title: Security Message
+  - sequence:
+    - if:
+      - condition: state
+        entity_id: binary_sensor.front_door_sensor_contact
+        state: 'on'
+        for:
+          hours: 0
+          minutes: 15
+          seconds: 0
+      then:
+      - service: script.notify_all
+        data:
+          message: Front Door is Open for {{ relative_time(states.binary_sensor.front_door_sensor_contact.last_changed)
+            }}
+          title: Security Message
+    - if:
+      - condition: state
+        entity_id: binary_sensor.garage_door_sensor_contact
+        state: 'on'
+        for:
+          hours: 0
+          minutes: 15
+          seconds: 0
+      then:
+      - service: script.notify_all
+        data:
+          message: Garage Door is Open for {{ relative_time(states.binary_sensor.garage_door_sensor_contact.last_changed)
+            }}
+          title: Security Message
   mode: single
 - id: '1704928174660'
   alias: Study Lights On/Off
@@ -874,22 +847,41 @@
           message: '{{ trigger.to_state.attributes.friendly_name }} is Jammed'
           title: Security Message
   mode: single
-- id: '1717282715460'
-  alias: Water The Flowers
+- id: '1718425424769'
+  alias: Auto Disarm Security
   description: ''
   trigger:
-  - platform: time
-    at: 07:00:00
-  - platform: time
-    at: '19:00:00'
-  condition:
-  - condition: state
-    entity_id: binary_sensor.rachio_connectivity
-    state: 'on'
-  - condition: state
-    entity_id: binary_sensor.rachio_rain
-    state: 'off'
+  - platform: zone
+    entity_id: person.arleepta
+    zone: zone.home
+    event: enter
+  - platform: zone
+    entity_id: person.sooraj_chettada
+    zone: zone.home
+    event: enter
+  condition: []
   action:
-  - service: script.water_the_flowers
-    data: {}
+  - sequence:
+    - if:
+      - condition: device
+        device_id: f6fb94ee1b2f598b481ded658a4af30b
+        domain: lock
+        entity_id: 191d58b23eef085ccf6f38511077e5cd
+        type: is_locked
+      then:
+      - device_id: f6fb94ee1b2f598b481ded658a4af30b
+        domain: lock
+        entity_id: 191d58b23eef085ccf6f38511077e5cd
+        type: unlock
+    - if:
+      - condition: state
+        entity_id: alarm_control_panel.home
+        state: armed_away
+      then:
+      - service: alarm_control_panel.alarm_disarm
+        metadata: {}
+        data:
+          code: '1985'
+        target:
+          entity_id: alarm_control_panel.home
   mode: single
