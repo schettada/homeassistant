@@ -746,8 +746,8 @@
         selectattr('state','eq','on')|map(attribute='name')|list}}
   - service: script.notify_phones
     data:
-      message: There are {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','on')|map(attribute='entity_id')|list|count}}
-        door(s) Unlocked! - {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','on')|map(attribute='name')|list}}
+      message: There are {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','unlocked')|map(attribute='entity_id')|list|count}}
+        door(s) Unlocked! - {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','unlocked')|map(attribute='name')|list}}
   mode: single
 - id: '1714447816906'
   alias: Door Lock/Unlock Status
@@ -789,6 +789,20 @@
     entity_id: 837c37232cc27b31f135afdce35fb51c
     type: jammed
     id: fd_jammed
+  - platform: state
+    entity_id:
+    - cover.ratgdov25i_18fe0b_door
+    - cover.ratgdov25i_18fe0a_door
+    from: closed
+    to: opening
+    id: garageopen
+  - platform: state
+    entity_id:
+    - cover.ratgdov25i_18fe0b_door
+    - cover.ratgdov25i_18fe0a_door
+    from: open
+    to: closing
+    id: garageclose
   condition: []
   action:
   - choose:
@@ -846,6 +860,15 @@
         data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Jammed'
           title: Security Message
+    - conditions:
+      - condition: trigger
+        id:
+        - garageopen
+        - garageclose
+      sequence:
+      - service: script.notify_all
+        data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is {{ trigger.to_state.state}}'
   mode: single
 - id: '1718425424769'
   alias: Auto Disarm Security
