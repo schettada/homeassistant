@@ -373,28 +373,6 @@
     target:
       device_id: abb44e139e83eb2414e59654c64ee273
   mode: single
-- id: '1677821339165'
-  alias: Garage Door Unlock
-  description: ''
-  trigger:
-  - platform: zone
-    entity_id: person.arleepta
-    zone: zone.home
-    event: enter
-  - platform: zone
-    entity_id: person.sooraj_chettada
-    zone: zone.home
-    event: enter
-  condition:
-  - condition: state
-    entity_id: lock.garage_door_lock
-    state: locked
-  action:
-  - device_id: f6fb94ee1b2f598b481ded658a4af30b
-    domain: lock
-    entity_id: 191d58b23eef085ccf6f38511077e5cd
-    type: unlock
-  mode: single
 - id: '1681345612250'
   alias: Front Door Bell
   description: ''
