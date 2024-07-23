@@ -399,7 +399,7 @@
   trigger:
   - platform: sun
     event: sunset
-    offset: 0
+    offset: -00:10:00
   condition: []
   action:
   - service: light.turn_on
@@ -885,4 +885,47 @@
           code: '1985'
         target:
           entity_id: alarm_control_panel.home
+  mode: single
+- id: '1721442422593'
+  alias: Turn Off Automations
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.turn_off_automations
+    from: 'off'
+    to: 'on'
+    id: turnoff
+  - platform: state
+    entity_id:
+    - input_boolean.turn_off_automations
+    from: 'on'
+    to: 'off'
+    id: turnon
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - turnoff
+      sequence:
+      - service: automation.turn_off
+        target:
+          entity_id:
+          - automation.door_lock_unlock_status
+          - automation.doors_windows_open_close
+        data:
+          stop_actions: true
+    - conditions:
+      - condition: trigger
+        id:
+        - turnon
+      sequence:
+      - service: automation.turn_on
+        target:
+          entity_id:
+          - automation.door_lock_unlock_status
+          - automation.doors_windows_open_close
+        data: {}
   mode: single
