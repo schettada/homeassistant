@@ -581,11 +581,11 @@
     - cover.ratgdov25i_18fe0b_door
     - cover.ratgdov25i_18fe0a_door
     id: longopen
-    enabled: false
+    enabled: true
     to: open
     for:
       hours: 0
-      minutes: 15
+      minutes: 5
       seconds: 0
   condition: []
   action:
@@ -616,7 +616,7 @@
       - service: script.notify_all
         data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is {{ trigger.to_state.state
-            }} for 15 mins.'
+            }} for 5 mins.'
     enabled: true
   mode: single
 - id: '1704390098395'
@@ -774,6 +774,7 @@
     from: closed
     to: opening
     id: garageopen
+    enabled: false
   - platform: state
     entity_id:
     - cover.ratgdov25i_18fe0b_door
@@ -781,6 +782,18 @@
     from: open
     to: closing
     id: garageclose
+    enabled: false
+  - platform: state
+    entity_id:
+    - cover.ratgdov25i_18fe0b_door
+    - cover.ratgdov25i_18fe0a_door
+    to: open
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+    id: longopen
+    enabled: false
   condition: []
   action:
   - choose:
