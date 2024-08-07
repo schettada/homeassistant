@@ -2,8 +2,10 @@ import { css } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 
 export const styles = css`
   :host {
-    --primary-color: #4CAF50;
-    --background-color: #f5f5f5;
+    --uvc-primary-color: var(--primary-color);
+    --uvc-background-color: var(--card-background-color, #fff);
+    --uvc-bar-background: var(--uvc-bar-background-color, #595959);
+    --uvc-bar-border-color: var(--uvc-bar-border-color, #595959);
   }
   .vehicle-card-content {
     padding: 16px;
@@ -50,14 +52,22 @@ export const styles = css`
   .level-info {
     flex: 1;
   }
+  .level-info.hybrid {
+    display: flex;
+    flex-direction: column;
+  }
+  .hybrid-separator {
+    height: 16px;
+  }
   .item_bar {
     position: relative;
     height: 1.5rem;
     width: 100%;
-    background-color: rgb(9 8 8);
+    background-color: var(--uvc-bar-background);
     border-radius: 6px;
     overflow: hidden;
-    border: 2px solid rgb(9 8 8);
+    border: 2px solid var(--uvc-bar-border-color);
+    margin-bottom: 4px;
   }
   .progress {
     position: absolute;
@@ -67,16 +77,17 @@ export const styles = css`
     width: 0;
     height: 1.5rem;
     margin: 0;
-    background-color: var(--accent-color, var(--primary-color));
+    background-color: var(--uvc-primary-color);
     border-radius: 4px;
   }
   .level-text {
     font-size: 1.2em;
     font-weight: bold;
     color: var(--primary-text-color);
-    margin-top: 8px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
   }
   .range {
     text-align: right;
@@ -112,8 +123,8 @@ export const styles = css`
   }
   input[type="text"]:focus, .entity-picker-input:focus {
     outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 1px var(--primary-color);
+    border-color: var(--uvc-primary-color);
+    box-shadow: 0 0 0 1px var(--uvc-primary-color);
   }
   .radio-group, .checkbox-group {
     display: flex;
@@ -206,7 +217,7 @@ export const styles = css`
     border-radius: 50%;
   }
   input:checked + .slider {
-    background-color: var(--primary-color);
+    background-color: var(--uvc-primary-color);
   }
   input:checked + .slider:before {
     transform: translateX(16px);
@@ -221,7 +232,7 @@ export const styles = css`
     margin-top: 8px;
   }
   .selected-entity {
-    background-color: var(--accent-color);
+    background-color: var(--uvc-primary-color);
     color: var(--text-primary-color, white);
     padding: 8px;
     border-radius: 4px;
@@ -294,9 +305,20 @@ export const styles = css`
     font-size: 14px;
   }
   .icon-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .icon-item {
+    display: flex;
+    align-items: center;
+  }
+  .icon-item ha-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--uvc-primary-color);
   }
   .icon-option {
     cursor: pointer;
