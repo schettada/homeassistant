@@ -384,14 +384,15 @@
     from: 'off'
   condition: []
   action:
-  - service: script.alexa_announcement
-    data:
+  - data:
       message: Someone is at front door
-  - service: script.notify_phones
-    data:
+    action: script.alexa_announcement
+    enabled: false
+  - data:
       message: Someone is at front door
-  - service: script.door_bell
-    data: {}
+    action: script.notify_phones
+  - data: {}
+    action: script.door_bell
   mode: single
 - id: '1684639035497'
   alias: Lights On
