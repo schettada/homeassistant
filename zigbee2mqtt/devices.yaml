@@ -52,16 +52,12 @@
   friendly_name: Rack Light Switch
 '0x002446fffd09435b':
   friendly_name: Garage Door Lock
-'0x00158d000847e3b9':
-  friendly_name: Deck Sliding Door Sensor
 '0x00158d0009421708':
   friendly_name: Kitchen Sink Leak Sensor
 '0x00158d000945364e':
   friendly_name: Recirculation Pump Leak Sensor
 '0x00158d000941fdab':
   friendly_name: Basement Drain Leak Sensor
-'0x00158d000848313a':
-  friendly_name: Basement Door Sensor
 '0x00158d0008478254':
   friendly_name: Garage Door Sensor
 '0xb0ce1814030101aa':
@@ -72,3 +68,7 @@
   friendly_name: Sump Pump Leak Sensor
 '0x804b50fffe59140f':
   friendly_name: '0x804b50fffe59140f'
+'0x00158d000848313a':
+  friendly_name: Basement Door Sensor
+'0x00158d000847e3b9':
+  friendly_name: Deck Sliding Door Sensor

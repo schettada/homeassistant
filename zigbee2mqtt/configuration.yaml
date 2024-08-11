@@ -7,15 +7,15 @@ homeassistant: true
 permit_join: false
 mqtt:
   base_topic: zigbee2mqtt
-  user: '!secret zbuser'
-  password: '!secret zbpass'
+  user: "!secret zbuser"
+  password: "!secret zbpass"
   client_id: zigbee2mqtt
   reject_unauthorized: true
   server: mqtt://core-mosquitto:1883
 serial:
   port: tcp://10.2.1.12:6638
 advanced:
-  log_level: debug
+  log_level: info
   pan_id: 6754
   channel: 25
   network_key:
@@ -39,9 +39,9 @@ advanced:
   availability_passlist: []
 device_options: {}
 blocklist:
-  - '0xb0ce18140300f802'
-  - '0xb0ce181403011613'
-  - '0xb0ce18140301d98d'
+  - "0xb0ce18140300f802"
+  - "0xb0ce181403011613"
+  - "0xb0ce18140301d98d"
 passlist: []
 queue: {}
 frontend:

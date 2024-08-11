@@ -1,25 +1,3 @@
-- id: '1661355474241'
-  alias: Xfinity Status
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.pfsense_gateway_xfinity_dhcp_status
-    from: online
-    to: unavailable
-  - platform: state
-    entity_id:
-    - sensor.pfsense_gateway_xfinity_dhcp_status
-    from: unavailable
-    to: online
-  condition: []
-  action:
-  - service: script.notify_all
-    data:
-      message: '{% if is_state(''sensor.pfsense_gateway_xfinity_dhcp_status'', ''online'')
-        %} Xfinity Gateway is Online {% else %} Xfinity Gateway is Down {% endif %}'
-      title: Critical Message
-  mode: single
 - id: '1661747369154'
   alias: HA Start/Stop
   description: ''
@@ -375,29 +353,10 @@
       force: true
       skip_delay: true
       entity_id: alarm_control_panel.home
-  mode: single
-- id: '1675219130040'
-  alias: CenturyLink Status
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.pfsense_gateway_centurylink_pppoe_status
-    from: online
-    to: unavailable
-  - platform: state
-    entity_id:
-    - sensor.pfsense_gateway_centurylink_pppoe_status
-    from: unavailable
-    to: online
-  condition: []
-  action:
-  - service: script.notify_all
-    data:
-      message: '{% if is_state(''sensor.pfsense_gateway_centurylink_pppoe_status'',
-        ''online'') %} CenturyLink Gateway is Online {% else %} CenturyLink Gateway
-        is Down {% endif %}'
-      title: Critical Message
+  - device_id: f6fb94ee1b2f598b481ded658a4af30b
+    domain: lock
+    entity_id: 191d58b23eef085ccf6f38511077e5cd
+    type: lock
   mode: single
 - id: '1677274589664'
   alias: Rack Light On/Off
@@ -414,67 +373,6 @@
     target:
       device_id: abb44e139e83eb2414e59654c64ee273
   mode: single
-- id: '1677820971605'
-  alias: Garage Door Lock
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - person.arleepta
-    - person.sooraj_chettada
-    to: not_home
-    for:
-      hours: 0
-      minutes: 5
-      seconds: 0
-  condition:
-  - condition: and
-    conditions:
-    - condition: state
-      entity_id: person.sooraj_chettada
-      state: not_home
-    - condition: state
-      entity_id: person.arleepta
-      state: not_home
-    - condition: state
-      entity_id: lock.garage_door_lock
-      state: unlocked
-  action:
-  - service: lock.lock
-    data: {}
-    target:
-      entity_id: lock.garage_door_lock
-  - service: script.notify_phones
-    data:
-      message: Garage Door is Locked
-      title: Security Message
-  mode: single
-- id: '1677821339165'
-  alias: Garage Door Unlock
-  description: ''
-  trigger:
-  - platform: zone
-    entity_id: person.arleepta
-    zone: zone.home
-    event: enter
-  - platform: zone
-    entity_id: person.sooraj_chettada
-    zone: zone.home
-    event: enter
-  condition:
-  - condition: state
-    entity_id: lock.garage_door_lock
-    state: locked
-  action:
-  - service: lock.unlock
-    data: {}
-    target:
-      entity_id: lock.garage_door_lock
-  - service: script.notify_phones
-    data:
-      message: Garage Door is Unlocked
-      title: Security Message
-  mode: single
 - id: '1681345612250'
   alias: Front Door Bell
   description: ''
@@ -486,14 +384,15 @@
     from: 'off'
   condition: []
   action:
-  - service: script.alexa_announcement
-    data:
+  - data:
       message: Someone is at front door
-  - service: script.notify_phones
-    data:
+    action: script.alexa_announcement
+    enabled: false
+  - data:
       message: Someone is at front door
-  - service: script.door_bell
-    data: {}
+    action: script.notify_phones
+  - data: {}
+    action: script.door_bell
   mode: single
 - id: '1684639035497'
   alias: Lights On
@@ -501,7 +400,7 @@
   trigger:
   - platform: sun
     event: sunset
-    offset: 0
+    offset: -00:10:00
   condition: []
   action:
   - service: light.turn_on
@@ -622,25 +521,6 @@
         target:
           entity_id: light.basement_stair_light
   mode: single
-- id: '1690577161675'
-  alias: Water the pots
-  description: ''
-  trigger:
-  - platform: time
-    at: 06:00:00
-  - platform: time
-    at: '20:00:00'
-  condition:
-  - condition: state
-    entity_id: binary_sensor.rachio
-    state: 'on'
-  - condition: state
-    entity_id: binary_sensor.rachio_rain_sensor
-    state: 'off'
-  action:
-  - service: script.water_the_plants
-    data: {}
-  mode: single
 - id: '1690577897483'
   alias: Leak Sensor Notification
   description: ''
@@ -706,7 +586,7 @@
     to: open
     for:
       hours: 0
-      minutes: 15
+      minutes: 5
       seconds: 0
   condition: []
   action:
@@ -737,7 +617,7 @@
       - service: script.notify_all
         data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is {{ trigger.to_state.state
-            }} for 15 mins.'
+            }} for 5 mins.'
     enabled: true
   mode: single
 - id: '1704390098395'
@@ -746,19 +626,37 @@
   trigger:
   - platform: time_pattern
     minutes: /15
-  condition:
-  - condition: state
-    entity_id: binary_sensor.front_door_sensor_contact
-    state: 'on'
-    for:
-      hours: 0
-      minutes: 15
-      seconds: 0
+  condition: []
   action:
-  - service: script.notify_all
-    data:
-      message: Front Door is Open for more than 15 Minutes
-      title: Security Message
+  - sequence:
+    - if:
+      - condition: state
+        entity_id: binary_sensor.front_door_sensor_contact
+        state: 'on'
+        for:
+          hours: 0
+          minutes: 15
+          seconds: 0
+      then:
+      - service: script.notify_all
+        data:
+          message: Front Door is Open for {{ relative_time(states.binary_sensor.front_door_sensor_contact.last_changed)
+            }}
+          title: Security Message
+    - if:
+      - condition: state
+        entity_id: binary_sensor.garage_door_sensor_contact
+        state: 'on'
+        for:
+          hours: 0
+          minutes: 15
+          seconds: 0
+      then:
+      - service: script.notify_all
+        data:
+          message: Garage Door is Open for {{ relative_time(states.binary_sensor.garage_door_sensor_contact.last_changed)
+            }}
+          title: Security Message
   mode: single
 - id: '1704928174660'
   alias: Study Lights On/Off
@@ -807,132 +705,6 @@
         target:
           entity_id: light.study_light
   mode: single
-- id: '1706897928972'
-  alias: Front Door Status
-  description: ''
-  trigger:
-  - platform: device
-    device_id: 154e23b4f1b0a1edd4bd8f5a5957ede9
-    domain: lock
-    entity_id: 837c37232cc27b31f135afdce35fb51c
-    type: unlocked
-    id: unlock
-  - platform: device
-    device_id: 154e23b4f1b0a1edd4bd8f5a5957ede9
-    domain: lock
-    entity_id: 837c37232cc27b31f135afdce35fb51c
-    type: locked
-    id: locked
-  - platform: device
-    device_id: 154e23b4f1b0a1edd4bd8f5a5957ede9
-    domain: lock
-    entity_id: 837c37232cc27b31f135afdce35fb51c
-    type: unlocked
-    for:
-      hours: 0
-      minutes: 15
-      seconds: 0
-    id: unlocked15
-  - platform: device
-    device_id: 154e23b4f1b0a1edd4bd8f5a5957ede9
-    domain: lock
-    entity_id: 837c37232cc27b31f135afdce35fb51c
-    type: jammed
-    id: jammed
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - unlock
-      sequence:
-      - service: script.notify_all
-        data:
-          message: '{{ trigger.to_state.attributes.friendly_name }} is Unlocked'
-          title: Security Message
-    - conditions:
-      - condition: trigger
-        id:
-        - locked
-      sequence:
-      - service: script.notify_all
-        data:
-          message: '{{ trigger.to_state.attributes.friendly_name }} is Locked'
-          title: Security Message
-    - conditions:
-      - condition: trigger
-        id:
-        - unlocked15
-      sequence:
-      - service: script.notify_all
-        data:
-          message: '{{ trigger.to_state.attributes.friendly_name }} is Unlocked for
-            15 minutes'
-          title: Security Message
-    - conditions:
-      - condition: trigger
-        id:
-        - jammed
-      sequence:
-      - service: script.notify_all
-        data:
-          message: '{{ trigger.to_state.attributes.friendly_name }} is Jammed'
-          title: Security Message
-  mode: single
-- id: '1706898281596'
-  alias: Garage Door Status
-  description: ''
-  trigger:
-  - platform: device
-    device_id: f6fb94ee1b2f598b481ded658a4af30b
-    domain: lock
-    entity_id: 191d58b23eef085ccf6f38511077e5cd
-    type: unlocked
-    id: unlock
-  - platform: device
-    device_id: f6fb94ee1b2f598b481ded658a4af30b
-    domain: lock
-    entity_id: 191d58b23eef085ccf6f38511077e5cd
-    type: locked
-    id: locked
-  - platform: device
-    device_id: f6fb94ee1b2f598b481ded658a4af30b
-    domain: lock
-    entity_id: 191d58b23eef085ccf6f38511077e5cd
-    type: jammed
-    id: jammed
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - unlock
-      sequence:
-      - service: script.notify_all
-        data:
-          message: '{{ trigger.to_state.attributes.friendly_name }} is Unlocked'
-          title: Security Message
-    - conditions:
-      - condition: trigger
-        id:
-        - locked
-      sequence:
-      - service: script.notify_all
-        data:
-          message: '{{ trigger.to_state.attributes.friendly_name }} is Locked'
-          title: Security Message
-    - conditions:
-      - condition: trigger
-        id:
-        - jammed
-      sequence:
-      - service: script.notify_all
-        data:
-          message: '{{ trigger.to_state.attributes.friendly_name }} is Jammed'
-          title: Security Message
-  mode: single
 - id: '1711769380993'
   alias: Night Check
   description: ''
@@ -953,8 +725,8 @@
         selectattr('state','eq','on')|map(attribute='name')|list}}
   - service: script.notify_phones
     data:
-      message: There are {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','on')|map(attribute='entity_id')|list|count}}
-        door(s) Unlocked! - {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','on')|map(attribute='name')|list}}
+      message: There are {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','unlocked')|map(attribute='entity_id')|list|count}}
+        door(s) Unlocked! - {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','unlocked')|map(attribute='name')|list}}
   mode: single
 - id: '1714447816906'
   alias: Door Lock/Unlock Status
@@ -996,6 +768,33 @@
     entity_id: 837c37232cc27b31f135afdce35fb51c
     type: jammed
     id: fd_jammed
+  - platform: state
+    entity_id:
+    - cover.ratgdov25i_18fe0b_door
+    - cover.ratgdov25i_18fe0a_door
+    from: closed
+    to: opening
+    id: garageopen
+    enabled: false
+  - platform: state
+    entity_id:
+    - cover.ratgdov25i_18fe0b_door
+    - cover.ratgdov25i_18fe0a_door
+    from: open
+    to: closing
+    id: garageclose
+    enabled: false
+  - platform: state
+    entity_id:
+    - cover.ratgdov25i_18fe0b_door
+    - cover.ratgdov25i_18fe0a_door
+    to: open
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+    id: longopen
+    enabled: false
   condition: []
   action:
   - choose:
@@ -1053,4 +852,94 @@
         data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Jammed'
           title: Security Message
+    - conditions:
+      - condition: trigger
+        id:
+        - garageopen
+        - garageclose
+      sequence:
+      - service: script.notify_all
+        data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is {{ trigger.to_state.state}}'
+  mode: single
+- id: '1718425424769'
+  alias: Auto Disarm Security
+  description: ''
+  trigger:
+  - platform: zone
+    entity_id: person.arleepta
+    zone: zone.home
+    event: enter
+  - platform: zone
+    entity_id: person.sooraj_chettada
+    zone: zone.home
+    event: enter
+  condition: []
+  action:
+  - sequence:
+    - if:
+      - condition: device
+        device_id: f6fb94ee1b2f598b481ded658a4af30b
+        domain: lock
+        entity_id: 191d58b23eef085ccf6f38511077e5cd
+        type: is_locked
+      then:
+      - device_id: f6fb94ee1b2f598b481ded658a4af30b
+        domain: lock
+        entity_id: 191d58b23eef085ccf6f38511077e5cd
+        type: unlock
+    - if:
+      - condition: state
+        entity_id: alarm_control_panel.home
+        state: armed_away
+      then:
+      - service: alarm_control_panel.alarm_disarm
+        metadata: {}
+        data:
+          code: '1985'
+        target:
+          entity_id: alarm_control_panel.home
+  mode: single
+- id: '1721442422593'
+  alias: Turn Off Automations
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.turn_off_automations
+    from: 'off'
+    to: 'on'
+    id: turnoff
+  - platform: state
+    entity_id:
+    - input_boolean.turn_off_automations
+    from: 'on'
+    to: 'off'
+    id: turnon
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - turnoff
+      sequence:
+      - service: automation.turn_off
+        target:
+          entity_id:
+          - automation.door_lock_unlock_status
+          - automation.doors_windows_open_close
+        data:
+          stop_actions: true
+    - conditions:
+      - condition: trigger
+        id:
+        - turnon
+      sequence:
+      - service: automation.turn_on
+        target:
+          entity_id:
+          - automation.door_lock_unlock_status
+          - automation.doors_windows_open_close
+        data: {}
   mode: single

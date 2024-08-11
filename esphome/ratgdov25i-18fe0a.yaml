@@ -9,9 +9,12 @@ esphome:
   friendly_name: ${friendly_name}
 api:
   encryption:
-    key: tL9fz7u/Ab3W4DGG+iFm5tDugPmDsfUrnDBaNvB0fYc=
+    key: POFmr6Xu2sBS70Bp9Xv9YphAtFgyEXBkSI8TfbUVxOM=
 
 
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+
+ota:
+  platform: esphome
