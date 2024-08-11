@@ -214,7 +214,7 @@
         "battery_low": false,
         "contact": true,
         "linkquality": 120,
-        "temperature": 21
+        "temperature": 20
     },
     "0xdc8e95fffe3ed0cd": {
         "state": "OFF",
@@ -232,7 +232,7 @@
         "linkquality": 145,
         "voltage": 3025,
         "battery": 100,
-        "device_temperature": 27,
+        "device_temperature": 26,
         "power_outage_count": 28
     },
     "0x002446fffd09435b": {
