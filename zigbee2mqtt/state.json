@@ -64,7 +64,7 @@
     "0x00158d0008483159": {
         "voltage": 2995,
         "battery": 97,
-        "device_temperature": 25,
+        "device_temperature": 24,
         "power_outage_count": 21,
         "contact": true,
         "linkquality": 76,
@@ -85,7 +85,7 @@
     "0x00158d0008064044": {
         "voltage": 2995,
         "battery": 97,
-        "device_temperature": 25,
+        "device_temperature": 24,
         "power_outage_count": 19,
         "contact": true,
         "linkquality": 112,
