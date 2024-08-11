@@ -2,8 +2,6 @@
 homeassistant:
   auth_providers:
     - type: homeassistant
-    # - type: legacy_api_password
-    #   api_password: !secret httppw
 
 http:
   ssl_certificate: !secret ssl_crt
@@ -74,9 +72,5 @@ recorder:
       - image
       - image_processing
 
-# notify: !include notify.yaml
-sensor: !include sensors.yaml
 image_processing: !include image_processing.yaml
-# camera: !include cameras.yaml
-# proximity: !include proximity.yaml
 # rest_command: !include rest.yaml
