@@ -6,7 +6,7 @@
         "occupancy": false,
         "illuminance": 0,
         "illuminance_lux": 0,
-        "temperature": 19.44,
+        "temperature": 18.73,
         "update": {
             "state": "idle",
             "installed_version": 1107323831,
@@ -74,9 +74,9 @@
         "linkquality": 123
     },
     "0x00158d000847824e": {
-        "voltage": 3035,
+        "voltage": 3025,
         "battery": 100,
-        "device_temperature": 21,
+        "device_temperature": 19,
         "power_outage_count": 18,
         "contact": true,
         "linkquality": 91,
@@ -342,7 +342,7 @@
         "linkquality": 105,
         "voltage": 3015,
         "battery": 100,
-        "device_temperature": 24,
+        "device_temperature": 23,
         "power_outage_count": 55,
         "trigger_count": 0
     },
