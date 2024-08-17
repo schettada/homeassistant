@@ -5,6 +5,7 @@ import {
 } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 import { styles } from "./styles.js";
 
+
 const fireEvent = (node, type, detail, options) => {
   options = options || {};
   detail = detail === null || detail === undefined ? {} : detail;
@@ -17,53 +18,6 @@ const fireEvent = (node, type, detail, options) => {
   node.dispatchEvent(event);
   return event;
 };
-
-function compressImage(file, maxWidth, maxHeight, quality) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target.result;
-      img.onload = () => {
-        const elem = document.createElement("canvas");
-        let width = img.width;
-        let height = img.height;
-
-        if (width > height) {
-          if (width > maxWidth) {
-            height *= maxWidth / width;
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width *= maxHeight / height;
-            height = maxHeight;
-          }
-        }
-        elem.width = width;
-        elem.height = height;
-        const ctx = elem.getContext("2d");
-
-        ctx.clearRect(0, 0, width, height);
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const fileType = file.type || "image/jpeg";
-        let data;
-
-        if (fileType === "image/png") {
-          data = elem.toDataURL("image/png");
-        } else {
-          data = elem.toDataURL("image/jpeg", quality);
-        }
-
-        resolve(data);
-      };
-      img.onerror = (error) => reject(error);
-    };
-    reader.onerror = (error) => reject(error);
-  });
-}
 
 
 export class UltraVehicleCardEditor extends LitElement {
@@ -83,6 +37,7 @@ export class UltraVehicleCardEditor extends LitElement {
       _customIcons: { type: Object },
       _iconSearchFilter: { type: String },
       _currentEditingEntity: { type: String },
+      _currentEditingIconType: { type: String },
       _carStateEntityFilter: { type: String },
       _chargeLimitEntityFilter: { type: String },
       _cardBackgroundColor: { type: String },
@@ -91,93 +46,18 @@ export class UltraVehicleCardEditor extends LitElement {
       _limitIndicatorColor: { type: String },
       _iconActiveColor: { type: String },
       _iconInactiveColor: { type: String },
+      _draggedElement: { type: Object },
+      _draggedIndex: { type: Number },
+      _showEntityInformation: { type: Boolean },
+      _iconSize: { type: Number },
+      _iconGap: { type: Number },
+      _iconSizes: { type: Object },
     };
   }
 
-static get styles() {
-  return [
-    styles,
-    css`
-        :host {
-        --ha-card-border-radius: var(--ha-config-card-border-radius, 8px);
-      }
-        
-      .editor-container {
-        margin-bottom: 8px;
-      }
-      ha-card {
-        overflow: hidden;
-      }
-      .element-editor {
-        margin-bottom: 8px;
-      }
-
-      .icon-grid-container {
-        margin-top: 16px;
-      }
-      .selected-entities {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        margin-top: 8px;
-      }
-      .selected-entity {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 4px 8px;
-        background-color: var(--primary-color);
-        color: var(--text-primary-color);
-        border-radius: 4px;
-      }
-      .entity-content {
-        display: flex;
-        align-items: center;
-      }
-      .custom-icon {
-        margin-right: 8px;
-        cursor: pointer;
-      }
-      .entity-name {
-        flex-grow: 1;
-      }
-      .remove-entity {
-        cursor: pointer;
-      }
-      .icon-wrapper {
-        position: relative;
-      }
-      .icon-picker-popup {
-        position: absolute;
-        left: 0;
-        top: 100%;
-        z-index: 1;
-        background-color: var(--card-background-color);
-        border: 1px solid var(--divider-color);
-        border-radius: 4px;
-        padding: 8px;
-        width: 300px;
-      }
-      .icon-grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 8px;
-      }
-      .icon-option {
-        cursor: pointer;
-        padding: 4px;
-        border-radius: 4px;
-      }
-      .icon-option:hover {
-        background-color: var(--secondary-background-color);
-      }
-      .icon-search {
-        width: 100%;
-        margin-bottom: 8px;
-      }
-    `,
-  ];
-}
+  static get styles() {
+    return [styles];
+  }
 
   constructor() {
     super();
@@ -193,14 +73,25 @@ static get styles() {
     this._customIcons = {};
     this._iconSearchFilter = "";
     this._currentEditingEntity = null;
+    this._currentEditingIconType = null;
     this._carStateEntityFilter = "";
     this._chargeLimitEntityFilter = "";
+    this._showEntityInformation = true;
+    this._iconSize = 24;
+    this._showEntityInformation = true;
+    this._iconGap = 12;
+    this._image_urlFilter = "";
+  this._charging_image_urlFilter = "";
+  this._iconSizes = {};
   }
 
   setConfig(config) {
     this.config = {
       title: "My Vehicle",
       image_url: "",
+      charging_image_url: "",
+      image_url_type: config.image_url_type || "image",
+      charging_image_url_type: config.charging_image_url_type || "image",
       vehicle_type: "EV",
       unit_type: "mi",
       level_entity: "",
@@ -215,16 +106,41 @@ static get styles() {
       show_car_state: true,
       show_charge_limit: true,
       icon_grid_entities: [],
-      custom_icons: {},
+      custom_icons: config.custom_icons || {},
+      icon_interactions: {},
+      icon_styles: {},
+      icon_labels: config.icon_labels || {},
       hybrid_display_order: "fuel_first",
       car_state_entity: "",
       charge_limit_entity: "",
+      icon_size: 24,
+      icon_gap: 12,
+      showEntityInformation: config.showEntityInformation !== undefined ? config.showEntityInformation : true,
+      carStateTextColor: config.carStateTextColor || '',
+      rangeTextColor: config.rangeTextColor || '',
+      percentageTextColor: config.percentageTextColor || '',
+      icon_sizes: config.icon_sizes || {},
+      engine_on_entity: "",
       ...config,
     };
     this._selectedIconGridEntities = [...this.config.icon_grid_entities];
     this._customIcons = { ...this.config.custom_icons };
+    this._iconInteractions = { ...this.config.icon_interactions };
+    this._iconStyles = { ...this.config.icon_styles };
+    this._iconSize = this.config.icon_size || 24;
+    this._showEntityInformation = this.config.showEntityInformation;
+    this._iconGap = this.config.icon_gap || 12;
+    this._image_urlFilter = "";
+  this._charging_image_urlFilter = "";
+  this._iconSizes = { ...this.config.icon_sizes };
   }
-
+  static getStubConfig() {
+    return {
+      // ... existing properties ...
+      icon_labels: {},
+      // ... other properties ...
+    };
+  }
   render() {
     if (!this.hass) {
       return html``;
@@ -232,12 +148,13 @@ static get styles() {
 
    return html`
     <div class="editor-container">
-      ${this._renderBasicConfig()}
-      ${this._renderEntityPickers()}
-      ${this._renderIconGridConfig()}
-      ${this._renderColorPickers()}
+       ${this._renderBasicConfig()}
+        ${this._renderEntityInformation()}
+        ${this._renderIconGridConfig()}
+        ${this._renderColorPickers()}
     </div>
     `;
+    
   }
 
   _renderBasicConfig() {
@@ -252,28 +169,7 @@ static get styles() {
           .configValue="${"title"}"
         />
       </div>
-
-      <div class="input-group">
-        <label for="image_url">Image URL</label>
-        <input
-          id="image_url"
-          type="text"
-          .value="${this._getDisplayImageUrl(this.config.image_url)}"
-          @input="${this._valueChanged}"
-          .configValue="${"image_url"}"
-        />
-      </div>
-
-      <div class="input-group">
-        <label for="image_upload">Upload Image</label>
-        <input
-          type="file"
-          id="image_upload"
-          @change="${this._handleImageUpload}"
-          accept="image/*"
-        />
-      </div>
-
+  
       <div class="input-group">
         <label>Vehicle Type</label>
         <div class="radio-group">
@@ -309,33 +205,7 @@ static get styles() {
           </label>
         </div>
       </div>
-
-      <div class="input-group">
-        <label>Unit Type</label>
-        <div class="radio-group">
-          <label>
-            <input
-              type="radio"
-              name="unit_type"
-              value="mi"
-              ?checked="${this.config.unit_type === "mi"}"
-              @change="${this._unitTypeChanged}"
-            />
-            Miles (mi)
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="unit_type"
-              value="km"
-              ?checked="${this.config.unit_type === "km"}"
-              @change="${this._unitTypeChanged}"
-            />
-            Kilometers (km)
-          </label>
-        </div>
-      </div>
-
+  
       ${this.config.vehicle_type === "Hybrid"
         ? html`
             <div class="input-group">
@@ -346,8 +216,7 @@ static get styles() {
                     type="radio"
                     name="hybrid_display_order"
                     value="fuel_first"
-                    ?checked="${this.config.hybrid_display_order ===
-                    "fuel_first"}"
+                    ?checked="${this.config.hybrid_display_order === "fuel_first"}"
                     @change="${this._hybridOrderChanged}"
                   />
                   Fuel First
@@ -357,8 +226,7 @@ static get styles() {
                     type="radio"
                     name="hybrid_display_order"
                     value="battery_first"
-                    ?checked="${this.config.hybrid_display_order ===
-                    "battery_first"}"
+                    ?checked="${this.config.hybrid_display_order === "battery_first"}"
                     @change="${this._hybridOrderChanged}"
                   />
                   Battery First
@@ -367,67 +235,167 @@ static get styles() {
             </div>
           `
         : ""}
+  
+      <div class="divider"></div>
+  
+      <h3>Images</h3>
+      ${this._renderImageUploadField("Main Image", "image_url", "Enter image URL")}
+      ${this._renderImageUploadField("Charging Image", "charging_image_url", "Enter charging image URL")}
     `;
   }
 
- _renderEntityPickers() {
-  const { vehicle_type } = this.config;
-  return html`
-    ${vehicle_type === "EV" || vehicle_type === "Hybrid"
-      ? html`
-          ${this._renderEntityPicker(
-            "battery_level_entity",
-            "Battery Level Entity",
-            "This is used for battery percent and bar length."
-          )}
-          ${this._renderEntityPicker(
-            "battery_range_entity",
-            "Battery Range Entity",
-            "This is used for the battery range left."
-          )}
-          ${this._renderEntityPicker(
-            "charging_status_entity",
-            "Charging Status Entity",
-            "This is used for charging wording and bar animation."
-          )}
-          ${this._renderEntityPicker(
-            "charge_limit_entity",
-            "Charge Limit Entity",
-            "This is used to display the charge limit on the battery bar."
-          )}
-        `
-      : ""}
-    ${vehicle_type === "Fuel" || vehicle_type === "Hybrid"
-      ? html`
-          ${this._renderEntityPicker(
-            "fuel_level_entity",
-            "Fuel Level Entity",
-            "This is used for fuel percent and bar length."
-          )}
-          ${this._renderEntityPicker(
-            "fuel_range_entity",
-            "Fuel Range Entity",
-            "This is used for the fuel range left."
-          )}
-        `
-      : ""}
-    ${this._renderEntityPicker(
-      "location_entity",
-      "Location Entity",
-      "This is used to display the vehicle location."
-    )}
-    ${this._renderEntityPicker(
-      "mileage_entity",
-      "Mileage Entity",
-      "This is used to display the vehicle mileage."
-    )}
-    ${this._renderEntityPicker(
-      "car_state_entity",
-      "Car State Entity",
-      "This is used to display the current state of the car (e.g., offline, charging)."
-    )}
-  `;
+  _renderImageUploadField(label, configKey, placeholder) {
+    const imageTypeKey = `${configKey}_type`;
+    const currentType = this.config[imageTypeKey] || "image";
+
+    return html`
+      <div class="image-input-container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label style="margin-right: 16px; font-size: 1.2em; font-weight: bold;">${label}</label>
+          <div class="radio-group" style="justify-content: flex-end;">
+            <label>
+              <input
+                type="radio"
+                name="${imageTypeKey}"
+                value="none"
+                ?checked="${currentType === 'none'}"
+                @change="${(e) => this._handleImageSourceChange(configKey, 'none')}"
+              />
+              None
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="${imageTypeKey}"
+                value="image"
+                ?checked="${currentType === 'image'}"
+                @change="${(e) => this._handleImageSourceChange(configKey, 'image')}"
+              />
+              Local/Url
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="${imageTypeKey}"
+                value="entity"
+                ?checked="${currentType === 'entity'}"
+                @change="${(e) => this._handleImageSourceChange(configKey, 'entity')}"
+              />
+              Entity
+            </label>
+          </div>
+        </div>
+
+        ${currentType === 'image' 
+          ? html`
+              <div class="image-upload-container">
+                <input
+                  type="text"
+                  .value="${this.config[configKey] || ''}"
+                  placeholder="${placeholder}"
+                  @input="${(e) => this._valueChanged(e)}"
+                  .configValue="${configKey}"
+                />
+                <label class="file-upload-label" for="${configKey}-upload">Upload</label>
+                <input
+                  type="file"
+                  id="${configKey}-upload"
+                  style="display:none"
+                  @change="${(e) => this._handleImageUpload(e, configKey)}"
+                />
+              </div>
+            `
+          : currentType === 'entity'
+          ? this._renderEntityPickerWithoutToggle(configKey, "Select an Entity", "This entity provides the image for the display.")
+          : ''}
+      </div>
+    `;
+  }
+
+  _renderEntityInformation() {
+    return html`
+      <div class="entity-information">
+        <div class="entity-information-header" @click=${this._toggleEntityInformation}>
+          <h3>Entity Information</h3>
+          <ha-icon icon=${this._showEntityInformation ? "mdi:chevron-up" : "mdi:chevron-down"}></ha-icon>
+        </div>
+        ${this._showEntityInformation ? this._renderEntityPickers() : ''}
+      </div>
+    `;
+  }
+  _toggleEntityInformation() {
+  this._showEntityInformation = !this._showEntityInformation;
+  this.config = {
+    ...this.config,
+    showEntityInformation: this._showEntityInformation,
+  };
+  this.configChanged(this.config);
+  this.requestUpdate();
 }
+
+  _renderEntityPickers() {
+    const { vehicle_type } = this.config;
+    return html`
+      ${vehicle_type === "EV" || vehicle_type === "Hybrid"
+        ? html`
+            ${this._renderEntityPicker(
+              "battery_level_entity",
+              "Battery Level Entity",
+              "This is used for battery percent and bar length."
+            )}
+            ${this._renderEntityPicker(
+              "battery_range_entity",
+              "Battery Range Entity",
+              "This is used for the battery range left."
+            )}
+            ${this._renderEntityPicker(
+              "charging_status_entity",
+              "Charging Status Entity",
+              "This is used for charging wording and bar animation."
+            )}
+            ${this._renderEntityPicker(
+              "charge_limit_entity",
+              "Charge Limit Entity",
+              "This is used to display the charge limit on the battery bar."
+            )}
+          `
+        : ""}
+      ${vehicle_type === "Fuel" || vehicle_type === "Hybrid"
+        ? html`
+            ${this._renderEntityPicker(
+              "fuel_level_entity",
+              "Fuel Level Entity",
+              "This is used for fuel percent and bar length."
+            )}
+            ${this._renderEntityPicker(
+              "fuel_range_entity",
+              "Fuel Range Entity",
+              "This is used for the fuel range left."
+            )}
+            ${this._renderEntityPicker(
+              "engine_on_entity",
+              "Engine On Entity",
+              "This entity indicates whether the engine is running."
+            )}
+          `
+        : ""}
+      ${this._renderEntityPicker(
+        "location_entity",
+        "Location Entity",
+        "This is used to display the vehicle location."
+      )}
+      ${this._renderEntityPicker(
+        "mileage_entity",
+        "Mileage Entity",
+        "This is used to display the vehicle mileage."
+      )}
+      ${this._renderEntityPicker(
+        "car_state_entity",
+        "Car State Entity",
+        "This is used to display the current state of the car (e.g., offline, charging)."
+      )}
+    `;
+  }
 
   _renderEntityPicker(configValue, labelText, description) {
     const toggleName = this._getToggleName(configValue);
@@ -486,7 +454,7 @@ static get styles() {
     `;
   }
 
-  _renderIconGridConfig() {
+ _renderIconGridConfig() {
     return html`
       <div class="icon-grid-container">
         <h3>Icon Grid</h3>
@@ -518,6 +486,17 @@ static get styles() {
             this._renderSelectedEntity(entityId, index)
           )}
         </div>
+        <div class="icon-gap-slider">
+          <label for="icon-gap">Icon Gap Size: ${this._iconGap}px</label>
+          <input
+            type="range"
+            id="icon-gap"
+            min="0"
+            max="50"
+            .value="${this._iconGap}"
+            @input="${this._iconGapChanged}"
+          />
+        </div>
       </div>
     `;
   }
@@ -548,212 +527,538 @@ static get styles() {
   }
 
   _renderSelectedEntity(entityId, index) {
+    const sanitizedEntityId = entityId.replace(/\./g, '_');
     const entity = this.hass.states[entityId];
     const friendlyName = entity.attributes.friendly_name || entityId;
-
-    // Check for custom icon first, then entity's default icon, then fallback icon
-    const customIcon = this._customIcons[entityId];
+    const customIcon = this._customIcons[entityId] || {};
     const defaultIcon = entity.attributes.icon;
-    const currentIcon = customIcon || defaultIcon || "mdi:help-circle";
-
+    const activeIcon = customIcon.active || defaultIcon || "mdi:help-circle";
+    const inactiveIcon = customIcon.inactive || defaultIcon || "mdi:help-circle";
+    const interaction = this._iconInteractions[entityId] || { type: 'none' };
+    const buttonStyle = this._iconStyles[entityId] || 'icon';
+    const activeColor = customIcon.activeColor || this.config.iconActiveColor || '';
+    const inactiveColor = customIcon.inactiveColor || this.config.iconInactiveColor || '';
+  
     return html`
-      <div
-        class="selected-entity"
-        draggable="true"
-        @dragstart="${(e) => this._onDragStart(e, index)}"
-      >
-        <div class="handle">
-          <ha-svg-icon
-            .path="${"M3,15H21V13H3V15M3,19H21V17H3V19M3,11H21V9H3V11M3,5V7H21V5H3Z"}"
-          ></ha-svg-icon>
-        </div>
-        <div class="entity-content">
-          <div class="icon-wrapper">
-            <ha-icon
-              .icon="${currentIcon}"
-              @mousedown="${(e) => e.stopPropagation()}"
-              @click="${(e) => this._openIconPicker(e, entityId)}"
-              class="custom-icon"
-            ></ha-icon>
-            ${this._currentEditingEntity === entityId
-              ? this._renderIconPicker()
-              : ""}
+      <div class="selected-entity" draggable="true" @dragstart="${(e) => this._onDragStart(e, index)}" data-entity-id="${entityId}">
+        <div class="entity-header">
+          <div class="handle" 
+               @mousedown="${(e) => this._onDragStart(e, index)}"
+               @touchstart="${(e) => this._onDragStart(e, index)}">
+            <ha-icon icon="mdi:drag"></ha-icon>
           </div>
-          <span class="entity-name">${friendlyName}</span>
-        </div>
-        <span
-          class="remove-entity"
-          @click="${() => this._removeIconGridEntity(index)}"
-          >×</span
-        >
-      </div>
-    `;
-  }
-
-  _getToggleName(configValue) {
-    switch (configValue) {
-      case "battery_level_entity":
-        return this.config.vehicle_type === "EV"
-          ? "show_battery"
-          : "show_battery";
-      case "battery_range_entity":
-        return this.config.vehicle_type === "EV"
-          ? "show_battery_range"
-          : "show_battery_range";
-      case "fuel_level_entity":
-        return "show_fuel";
-      case "fuel_range_entity":
-        return "show_fuel_range";
-      case "location_entity":
-        return "show_location";
-      case "mileage_entity":
-        return "show_mileage";
-      case "car_state_entity":
-        return "show_car_state";
-      case "charge_limit_entity":
-        return "show_charge_limit";
-      default:
-        return `show_${configValue.split("_")[0]}`;
-    }
-  }
-
-  _renderIconPicker() {
-    return html`
-      <div class="icon-picker-popup" @click="${(e) => e.stopPropagation()}">
-        <ha-icon-picker
-          .hass=${this.hass}
-          .value=${this._customIcons[this._currentEditingEntity] || ""}
-          @value-changed=${this._handleIconChange}
-        ></ha-icon-picker>
-      </div>
-    `;
-  }
-  
-  
-  _formatLabel(key) {
-    return key.split(/(?=[A-Z])/).join(' ').replace(/^\w/, c => c.toUpperCase());
-  }
-  
-
-_openColorPicker(e, configKey) {
-    e.stopPropagation();
-    const colorInput = e.target.closest('.color-input-wrapper').querySelector('input[type="color"]');
-    colorInput.click();
-    
-   
-    const rect = e.target.getBoundingClientRect();
-    const pickerPopup = e.target.closest('.color-input-wrapper').querySelector('.color-picker-popup');
-    pickerPopup.style.top = `${rect.bottom}px`;
-    pickerPopup.style.left = `${rect.left}px`;
-
-   
-    const hideColorPicker = (event) => {
-        if (!event.target.closest('.color-input-wrapper')) {
-            colorInput.style.display = 'none';
-            document.removeEventListener('click', hideColorPicker);
-        }
-    };
-
-    setTimeout(() => {
-        document.addEventListener('click', hideColorPicker);
-    }, 0);
-}
-
-_renderColorPicker(label, configKey, defaultValue) {
-  const currentValue = this.config[configKey] || defaultValue;
-  const textColor = this._getContrastYIQ(currentValue);
-  return html`
-    <div class="color-picker">
-      <label>${label}</label>
-      <div class="color-input-wrapper" @click="${(e) => this._openColorPicker(e, configKey)}">
-        <div class="color-preview" style="background-color: ${currentValue}; color: ${textColor};">
-          <span class="color-hex">${currentValue}</span>
           <ha-icon
-            class="reset-icon"
-            icon="mdi:refresh"
-            @click=${(e) => this._resetColor(e, configKey, defaultValue)}
+            class="toggle-details"
+            icon="mdi:chevron-down"
+            @click="${() => this._toggleEntityDetails(entityId)}"
+          ></ha-icon>
+          <span class="entity-name">${friendlyName}</span>
+          <ha-icon
+            class="remove-entity"
+            icon="mdi:close"
+            @click="${() => this._removeIconGridEntity(index)}"
           ></ha-icon>
         </div>
-        <input
-          type="color"
-          .value=${currentValue}
-          @change=${(e) => this._colorChanged(e, configKey)}
-          style="display: none;"
-        >
-      </div>
-    </div>
-  `;
-}
-_renderColorPickers() {
-  const getDefaultColor = (property) => {
-    const style = getComputedStyle(this);
-    return style.getPropertyValue(property).trim() || style.getPropertyValue(`--${property}`).trim();
-  };
-
-  const defaultColors = {
-    cardBackgroundColor: getDefaultColor('--card-background-color') || '#1c1c1c',
-    barBackgroundColor: getDefaultColor('--uvc-bar-background-color') || '#595959',
-    barBorderColor: getDefaultColor('--uvc-bar-border-color') || '#595959',
-    barFillColor: getDefaultColor('--uvc-primary-color') || '#4CAF50',
-    limitIndicatorColor: '#FFFFFF',
-    iconActiveColor: getDefaultColor('--uvc-primary-color') || '#4CAF50',
-    iconInactiveColor: getDefaultColor('--secondary-text-color') || '#9E9E9E',
-    infoTextColor: getDefaultColor('--secondary-text-color') || '#9E9E9E'  // Added this line
-  };
-
-  return html`
-    <div class="color-pickers">
-      <h3>Custom Colors</h3>
-      <div class="entity-description">
-        Customize the colors of various elements in the card. Click on a color to change it, or use the reset icon to revert to the default color.
-      </div>
-      <div class="color-pickers-grid">
-        ${Object.entries(defaultColors).map(([key, defaultValue]) => html`
-          <div class="color-picker-item">
-            ${this._renderColorPicker(this._formatLabel(key), key, defaultValue)}
+        <div class="entity-details" id="entity-details-${sanitizedEntityId}" style="display: none;">
+          <div class="editor-row">
+            <div class="editor-item">
+              <label>Inactive Icon</label>
+              <ha-icon-picker
+                .hass=${this.hass}
+                .value=${inactiveIcon}
+                @value-changed=${(e) => this._handleIconChange(e, 'inactive', entityId)}
+              ></ha-icon-picker>
+            </div>
+            <div class="editor-item">
+              <label>Active Icon</label>
+              <ha-icon-picker
+                .hass=${this.hass}
+                .value=${activeIcon}
+                @value-changed=${(e) => this._handleIconChange(e, 'active', entityId)}
+              ></ha-icon-picker>
+            </div>
           </div>
-        `)}
+          <div class="editor-row">
+            <div class="editor-item">
+              ${this._renderIconColorPicker(`Inactive Color`, entityId, 'inactive', inactiveColor)}
+            </div>
+            <div class="editor-item">
+              ${this._renderIconColorPicker(`Active Color`, entityId, 'active', activeColor)}
+            </div>
+          </div>
+          <div class="editor-row">
+            <div class="editor-item">
+              <label>Button Style</label>
+              <select
+                @change="${(e) => this._handleButtonStyleChange(entityId, e.target.value)}"
+                .value="${buttonStyle}"
+              >
+                <option value="icon">Icon</option>
+                <option value="round">Round</option>
+                <option value="square">Square</option>
+              </select>
+            </div>
+            <div class="editor-item">
+              <label>Icon Size</label>
+              <input
+                type="number"
+                .value="${this._getIconSize(entityId)}"
+                @input="${(e) => this._iconSizeChanged(e, entityId)}"
+                min="0"
+                max="100"
+              />
+            </div>
+          </div>
+          <div class="editor-row">
+            <div class="editor-item">
+              <label>Interaction</label>
+              ${this._renderInteractionSelect(entityId, interaction)}
+            </div>
+            <div class="editor-item">
+              <label>Icon Label Position</label>
+              <select
+                .value=${(this.config.icon_labels && this.config.icon_labels[entityId]) || 'none'}
+                @change=${(e) => this._updateIconLabel(entityId, e.target.value)}
+              >
+                <option value="none">None</option>
+                <option value="left">Left</option>
+                <option value="top">Top</option>
+                <option value="right">Right</option>
+                <option value="bottom">Bottom</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  `;
-}
-
-_resetColor(e, configKey, defaultValue) {
-  e.stopPropagation();
-  this.config = {
-    ...this.config,
-    [configKey]: defaultValue,
-  };
-  this.configChanged(this.config);
-  this.requestUpdate();
-}
+    `;
+  }
+  _handleButtonStyleChange(entityId, style) {
+    this._iconStyles = {
+      ...this._iconStyles,
+      [entityId]: style,
+    };
+    this._updateIconStylesConfig();
+  }
   
-
-_colorChanged(e, configKey) {
-  const color = e.target.value;
-  this.config = {
-    ...this.config,
-    [configKey]: color,
-  };
-  this.configChanged(this.config);
-}
-
-  _getDisplayImageUrl(url) {
-    return url && url.startsWith("data:image") ? "Uploaded Image" : url;
+  _updateIconStylesConfig() {
+    this.config = {
+      ...this.config,
+      icon_styles: this._iconStyles,
+    };
+    this.configChanged(this.config);
+  }
+  
+  _renderIconColorPicker(label, entityId, colorType, defaultValue) {
+    const currentValue = this._getIconColor(entityId, colorType) || defaultValue;
+    const textColor = this._getContrastYIQ(currentValue);
+  
+    return html`
+      <div class="color-picker">
+        <label>${label}</label>
+        <div class="color-input-wrapper">
+          <input type="color" 
+                 .value="${currentValue}" 
+                 @change="${(e) => this._iconColorChanged(e, entityId, colorType)}"
+                 style="opacity: 0; position: absolute; width: 100%; height: 100%; cursor: pointer;">
+          <div class="color-preview" style="background-color: ${currentValue}; color: ${textColor};">
+            <span class="color-hex">${currentValue}</span>
+            <ha-icon
+              class="reset-icon"
+              icon="mdi:refresh"
+              @click="${(e) => this._resetIconColor(e, entityId, colorType, defaultValue)}"
+            ></ha-icon>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
-  _valueChanged(ev) {
-    if (!this.config || !this.hass) {
-      return;
+_getIconColor(entityId, colorType) {
+  const customColor = this._customIcons[entityId]?.[`${colorType}Color`];
+  if (customColor === undefined) {
+    return colorType === 'active' ? this.config.iconActiveColor : this.config.iconInactiveColor;
+  }
+  return customColor;
+}
+
+_iconColorChanged(e, entityId, colorType) {
+  const color = e.target.value;
+
+  this._customIcons = {
+    ...this._customIcons,
+    [entityId]: {
+      ...this._customIcons[entityId],
+      [`${colorType}Color`]: color,
+    },
+  };
+
+  this._updateCustomIconsConfig();
+  this.requestUpdate();
+}
+
+_resetIconColor(e, entityId, colorType, defaultValue) {
+  e.stopPropagation();
+  
+  this._customIcons = {
+    ...this._customIcons,
+    [entityId]: {
+      ...this._customIcons[entityId],
+      [`${colorType}Color`]: undefined,
+    },
+  };
+  
+  this._updateCustomIconsConfig();
+  this.requestUpdate();
+}
+
+_updateCustomIconsConfig() {
+  const cleanedCustomIcons = Object.entries(this._customIcons).reduce((acc, [key, value]) => {
+    const cleanedValue = {
+      active: value.active,
+      inactive: value.inactive,
+      activeColor: value.activeColor,
+      inactiveColor: value.inactiveColor,
+    };
+    acc[key] = cleanedValue;
+    return acc;
+  }, {});
+
+  this.config = {
+    ...this.config,
+    custom_icons: cleanedCustomIcons,
+  };
+  this.configChanged(this.config);
+}
+
+_toggleEntityDetails(entityId) {
+  // Sanitize the entity ID for use in the element ID
+  const sanitizedEntityId = entityId.replace(/\./g, '_');
+  
+  // Find the details element using the sanitized ID
+  const detailsElement = this.shadowRoot.querySelector(`#entity-details-${sanitizedEntityId}`);
+  
+  // Find the toggle icon within the correct entity's row
+  const entityRow = this.shadowRoot.querySelector(`.selected-entity[data-entity-id="${entityId}"]`);
+  const toggleIcon = entityRow ? entityRow.querySelector('.toggle-details') : null;
+  
+  if (detailsElement && toggleIcon) {
+    const isHidden = detailsElement.style.display === 'none' || !detailsElement.style.display;
+    detailsElement.style.display = isHidden ? 'block' : 'none';
+    toggleIcon.icon = isHidden ? 'mdi:chevron-up' : 'mdi:chevron-down';
+  } else {
+    
+  }
+}
+
+_getNavigationPaths() {
+  return [
+     "overview",
+    "map",
+    "logbook",
+    "history",
+    "energy",
+    "config",
+    "developer-tools",
+    "lovelace",
+    "devices",
+    "integrations",
+    "automations",
+    "scenes",
+    "scripts",
+    "areas",
+    "tags",
+    "people",
+  ];
+}
+_updateIndices() {
+  const elements = this.shadowRoot.querySelectorAll('.selected-entity');
+  elements.forEach((element, index) => {
+    element.dataset.index = index;
+  });
+}
+_renderInteractionSelect(entityId, interaction) {
+  const interactions = [
+    { value: "more-info", label: "More Info" },
+      { value: "toggle", label: "Toggle" },
+      { value: "navigate", label: "Navigate" },
+      { value: "url", label: "URL" },
+      { value: "automation", label: "Automation" },
+      { value: "none", label: "None" },
+  ];
+
+return html`
+      <select
+        class="interaction-select"
+        .value=${interaction.type}
+        @change=${(e) => this._handleInteractionTypeChange(entityId, e.target.value)}
+      >
+        ${interactions.map(
+          (int) => html`
+            <option value=${int.value} ?selected=${interaction.type === int.value}>
+              ${int.label}
+            </option>
+          `
+        )}
+      </select>
+      ${this._renderInteractionOptions(entityId, interaction)}
+    `;
+  }
+
+_renderInteractionOptions(entityId, interaction) {
+    switch (interaction.type) {
+      case 'navigate':
+        return this._renderNavigationOption(entityId, interaction);
+      case 'url':
+        return this._renderUrlOption(entityId, interaction);
+      case 'automation':
+        return this._renderAutomationOption(entityId, interaction);
+      default:
+        return html``;
     }
-    const target = ev.target;
-    if (target.configValue) {
+  }
+
+_renderNavigationOption(entityId, interaction) {
+    const paths = this._getNavigationPaths();
+    return html`
+      <div class="interaction-option">
+        <label>Navigation path:</label>
+        <select
+          @change=${(e) => this._updateInteractionOption(entityId, 'path', e.target.value)}
+        >
+          ${paths.map(path => html`
+            <option value=${path} ?selected=${interaction.path === path}>${path}</option>
+          `)}
+        </select>
+      </div>
+    `;
+  }
+
+ _renderUrlOption(entityId, interaction) {
+    return html`
+      <div class="interaction-option">
+        <label>URL:</label>
+        <input
+          type="text"
+          .value=${interaction.url || ''}
+          @input=${(e) => this._updateInteractionOption(entityId, 'url', e.target.value)}
+        />
+      </div>
+    `;
+  }
+  
+_renderAutomationOption(entityId, interaction) {
+    const automations = this._getAutomations();
+    return html`
+      <div class="interaction-option">
+        <label>Automation:</label>
+        <select
+          @change=${(e) => this._updateInteractionOption(entityId, 'automation', e.target.value)}
+        >
+          ${automations.map(automation => html`
+            <option value=${automation.entity_id} ?selected=${interaction.automation === automation.entity_id}>
+              ${automation.attributes.friendly_name || automation.entity_id}
+            </option>
+          `)}
+        </select>
+      </div>
+    `;
+  }
+
+_getAutomations() {
+    return Object.values(this.hass.states).filter(
+      (entity) => entity.entity_id.startsWith("automation.")
+    );
+  }
+
+_handleInteractionTypeChange(entityId, newType) {
+    this._iconInteractions = {
+      ...this._iconInteractions,
+      [entityId]: { type: newType },
+    };
+    this._updateIconInteractionsConfig();
+    this.requestUpdate();
+  }
+_getDisplayImageUrl(url) {
+  return url && url.startsWith("data:image") ? "Uploaded Image" : url;
+}
+ _updateInteractionOption(entityId, option, value) {
+  this._iconInteractions = {
+    ...this._iconInteractions,
+    [entityId]: {
+      ...this._iconInteractions[entityId],
+      [option]: value,
+    },
+  };
+  this._updateIconInteractionsConfig();
+}
+
+_iconSizeChanged(e) {
+  this._iconSize = parseInt(e.target.value);
+  this.config = {
+    ...this.config,
+    icon_size: this._iconSize,
+  };
+  this.configChanged(this.config);
+  fireEvent(this, 'config-changed', { config: this.config });
+}
+_onDragStart(e, index) {
+  if (e.dataTransfer) {
+      e.dataTransfer.setData('text/plain', index.toString());
+  }
+  // Store the index in a class property as a fallback
+  this._draggedIndex = index;
+}
+_iconGapChanged(e) {
+  this._iconGap = parseInt(e.target.value);
+  this.config = {
+    ...this.config,
+    icon_gap: this._iconGap,
+  };
+  this.configChanged(this.config);
+  fireEvent(this, 'config-changed', { config: this.config });
+}
+_onDragOver(e) {
+  e.preventDefault();
+}
+
+_onDrop(e) {
+  e.preventDefault();
+  let fromIndex;
+  if (e.dataTransfer) {
+      fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+  } else {
+      fromIndex = this._draggedIndex;
+  }
+  const toIndex = [...e.currentTarget.children].indexOf(e.target.closest('.selected-entity'));
+
+  if (fromIndex !== undefined && fromIndex !== toIndex && toIndex !== -1) {
+      const newOrder = [...this._selectedIconGridEntities];
+      const [removed] = newOrder.splice(fromIndex, 1);
+      newOrder.splice(toIndex, 0, removed);
+      this._selectedIconGridEntities = newOrder;
+      this._updateIconGridConfig();
+  }
+  // Reset the dragged index
+  this._draggedIndex = undefined;
+}
+ 
+_handleIconChange(e, iconType, entityId) {
+  const newIcon = e.detail.value;
+  this._selectIcon(entityId, newIcon, iconType);
+}
+
+_selectIcon(entityId, icon, iconType) {
+  this._customIcons = {
+    ...this._customIcons,
+    [entityId]: {
+      ...this._customIcons[entityId],
+      [iconType]: icon,
+    },
+  };
+  this._updateCustomIconsConfig();
+  this.requestUpdate();
+}
+  _updateIconInteractionsConfig() {
+    this.config = {
+      ...this.config,
+      icon_interactions: this._iconInteractions,
+    };
+    this.configChanged(this.config);
+  }
+
+  _renderColorPickers() {
+    const getDefaultColor = (property) => {
+      const style = getComputedStyle(this);
+      return style.getPropertyValue(property).trim() || style.getPropertyValue(`--${property}`).trim();
+    };
+  
+    const defaultColors = {
+      cardBackgroundColor: getDefaultColor('--card-background-color') || '#1c1c1c',
+      barBackgroundColor: getDefaultColor('--secondary-text-color') || '#9E9E9E',
+      barBorderColor: getDefaultColor('--secondary-text-color') || '#9E9E9E',
+      barFillColor: getDefaultColor('--primary-color') || '#03a9f4',
+      limitIndicatorColor: getDefaultColor('--primary-text-color') || '#FFFFFF',
+      infoTextColor: getDefaultColor('--secondary-text-color') || '#9E9E9E',
+      carStateTextColor: getDefaultColor('--primary-text-color') || '#FFFFFF',
+      rangeTextColor: getDefaultColor('--primary-text-color') || '#FFFFFF',
+      percentageTextColor: getDefaultColor('--primary-text-color') || '#FFFFFF'
+    };
+  
+    return html`
+      <div class="color-pickers">
+        <h3>Custom Colors</h3>
+        <div class="entity-description">
+          Customize the colors of various elements in the card. Click on a color to change it, or use the reset icon to revert to the default color.
+        </div>
+        <div class="color-pickers-grid">
+          ${Object.entries(defaultColors).map(([key, defaultValue]) => html`
+            <div class="color-picker-item">
+              ${this._renderColorPicker(this._formatLabel(key), key, defaultValue)}
+            </div>
+          `)}
+        </div>
+      </div>
+    `;
+  }
+
+  _renderColorPicker(label, configKey, defaultValue) {
+    const currentValue = this.config[configKey] || defaultValue;
+    const textColor = this._getContrastYIQ(currentValue);
+  
+    return html`
+      <div class="color-picker">
+        <label>${label}</label>
+        <div class="color-input-wrapper">
+          <input type="color" 
+                 .value="${currentValue}" 
+                 @change="${(e) => this._colorChanged(e, configKey)}"
+                 style="opacity: 0; position: absolute; width: 100%; height: 100%; cursor: pointer;">
+          <div class="color-preview" style="background-color: ${currentValue}; color: ${textColor};">
+            <span class="color-hex">${currentValue}</span>
+            <ha-icon
+              class="reset-icon"
+              icon="mdi:refresh"
+              @click="${(e) => this._resetColor(e, configKey, defaultValue)}"
+            ></ha-icon>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+
+  _colorChanged(e, configKey) {
+    const color = e.target.value;
+    if (configKey.includes('_')) {
+      // This is an icon-specific color
+      const [entityId, colorType] = configKey.split('_');
+      this._customIcons = {
+        ...this._customIcons,
+        [entityId]: {
+          ...this._customIcons[entityId],
+          [colorType]: color,
+        },
+      };
+      this._updateCustomIconsConfig();
+    } else {
+      // This is a global color
       this.config = {
         ...this.config,
-        [target.configValue]: target.value,
+        [configKey]: color,
       };
       this.configChanged(this.config);
     }
+    this.requestUpdate();
+  }
+
+  _resetColor(e, configKey, defaultValue) {
+    e.stopPropagation();
+    this.config = {
+      ...this.config,
+      [configKey]: defaultValue,
+    };
+    this.configChanged(this.config);
+    this.requestUpdate();
   }
 
   _toggleChanged(ev) {
@@ -792,17 +1097,263 @@ _colorChanged(e, configKey) {
     };
     this.configChanged(this.config);
   }
+  _renderImageUploadField(label, configKey, placeholder) {
+    const imageTypeKey = `${configKey}_type`;
+    const currentType = this.config[imageTypeKey] || "image";
 
-  async _handleImageUpload(ev) {
+    return html`
+      <div class="image-input-container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label style="margin-right: 16px; font-size: 1.2em; font-weight: bold;">${label}</label>
+          <div class="radio-group" style="justify-content: flex-end;">
+            <label>
+              <input
+                type="radio"
+                name="${imageTypeKey}"
+                value="none"
+                ?checked="${currentType === 'none'}"
+                @change="${(e) => this._handleImageSourceChange(configKey, 'none')}"
+              />
+              None
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="${imageTypeKey}"
+                value="image"
+                ?checked="${currentType === 'image'}"
+                @change="${(e) => this._handleImageSourceChange(configKey, 'image')}"
+              />
+              Local/Url
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="${imageTypeKey}"
+                value="entity"
+                ?checked="${currentType === 'entity'}"
+                @change="${(e) => this._handleImageSourceChange(configKey, 'entity')}"
+              />
+              Entity
+            </label>
+          </div>
+        </div>
+
+        ${currentType === 'image' 
+          ? html`
+              <div class="image-upload-container">
+                <input
+                  type="text"
+                  .value="${this.config[configKey] || ''}"
+                  placeholder="${placeholder}"
+                  @input="${(e) => this._valueChanged(e)}"
+                  .configValue="${configKey}"
+                />
+                <label class="file-upload-label" for="${configKey}-upload">Upload</label>
+                <input
+                  type="file"
+                  id="${configKey}-upload"
+                  style="display:none"
+                  @change="${(e) => this._handleImageUpload(e, configKey)}"
+                />
+              </div>
+            `
+          : currentType === 'entity'
+          ? this._renderEntityPickerWithoutToggle(configKey, "Select an Entity", "This entity provides the image for the display.")
+          : ''}
+      </div>
+    `;
+  }
+  _renderEntityPickerWithoutToggle(configValue, labelText, description) {
+    return html`
+      <div class="input-group">
+        <label for="${configValue}">${labelText}</label>
+        <div class="entity-description">${description}</div>
+        <div class="entity-row">
+          <div class="entity-picker-wrapper">
+            <div class="entity-picker-container">
+              <input
+                type="text"
+                class="entity-picker-input"
+                .value="${this.config[configValue] || ""}"
+                @input="${(e) => this._entityFilterChanged(e, configValue)}"
+                placeholder="Search entities"
+              />
+              ${this[`_${configValue}Filter`]
+                ? html`
+                    <div class="entity-picker-results">
+                      ${Object.keys(this.hass.states)
+                        .filter((eid) =>
+                          eid
+                            .toLowerCase()
+                            .includes(
+                              this[`_${configValue}Filter`].toLowerCase()
+                            )
+                        )
+                        .map(
+                          (eid) => html`
+                            <div
+                              class="entity-picker-result"
+                              @click="${() =>
+                                this._selectEntity(configValue, eid)}"
+                            >
+                              ${eid}
+                            </div>
+                          `
+                        )}
+                    </div>
+                  `
+                : ""}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  _renderImageInput(configKey, type, value, placeholder) {
+    
+    switch (type) {
+      case 'entity':
+        return html`
+          <ha-entity-picker
+            .hass=${this.hass}
+            .value=${value.startsWith('entity:') ? value.slice(7) : value}
+            .configValue=${configKey}
+            @value-changed=${this._entityPicked}
+            allow-custom-entity
+          ></ha-entity-picker>
+        `;
+      case 'template':
+       
+        return html`
+          <textarea
+            .value=${value}
+            .configValue="${configKey}"
+            @input="${this._templateChanged}"
+            placeholder="Enter template code here"
+            rows="3"
+          ></textarea>
+        `;
+      default: // 'image'
+       
+        return html`
+          <input
+            type="text"
+            .value="${value}"
+            .configValue="${configKey}"
+            placeholder="${placeholder}"
+            @input="${this._valueChanged}"
+          />
+          <label for="${configKey}_upload" class="file-upload-label">
+            Upload
+            <input
+              type="file"
+              id="${configKey}_upload"
+              @change="${(e) => this._handleImageUpload(e, configKey)}"
+              accept="image/*"
+              style="display: none;"
+            />
+          </label>
+        `;
+    }
+  }
+  _templateChanged(ev, configKey) {
+    const newValue = ev.target.value;
+    try {
+      const result = this._evaluateTemplate(newValue);
+      if (result) {
+        this._updateConfig(configKey, newValue);
+      }
+    } catch (error) {
+      console.error('Error evaluating template:', error);
+    }
+  }
+
+  _renderTemplatePicker(configKey, value) {
+    const templates = this._getTemplateHelpers();
+    return html`
+      <ha-combo-box
+        .hass=${this.hass}
+        .value=${value}
+        .items=${templates}
+        .configValue="${configKey}"
+        @value-changed="${this._templatePicked}"
+        item-value-path="value"
+        item-label-path="name"
+      ></ha-combo-box>
+    `;
+  }
+  _templatePicked(ev) {
+    const target = ev.target;
+    const configValue = target.configValue;
+    const newValue = ev.detail.value || '';
+    this._updateConfig(configValue, newValue);
+  }
+  _updateConfig(key, value) {
+    this.config = {
+      ...this.config,
+      [key]: value,
+    };
+    this.configChanged(this.config);
+  }
+  _getTemplateHelpers() {
+    return Object.keys(this.hass.states)
+      .filter(entityId => entityId.startsWith('template.') || entityId.startsWith('input_text.'))
+      .map(entityId => ({
+        value: `{{ states('${entityId}') }}`,
+        name: this.hass.states[entityId].attributes.friendly_name || entityId
+      }));
+  }
+  _handleImageSourceChange(configKey, newType) {
+    const imageTypeKey = `${configKey}_type`;
+    let newValue = '';
+  
+    if (newType === 'entity') {
+      newValue = ''; // Ensure this is properly set with the selected entity ID
+    }
+  
+    this.config = {
+      ...this.config,
+      [imageTypeKey]: newType,
+      [configKey]: newValue,
+    };
+  
+    this.configChanged(this.config);
+  }
+  
+  _selectImageEntity(configKey, entityId) {
+    this.config = {
+      ...this.config,
+      [configKey]: `entity:${entityId}`,
+    };
+    this[`_${configKey}Filter`] = "";
+    this.configChanged(this.config);
+  }
+  
+  _templateChanged(ev) {
+    const target = ev.target;
+    const configValue = target.configValue;
+    const newValue = target.value;
+    this._updateConfig(configValue, newValue);
+  }
+  _entityPicked(ev) {
+    const target = ev.target;
+    const configValue = target.configValue;
+    const newValue = ev.detail.value;
+    this._updateConfig(configValue, newValue);
+  }
+
+  async _handleImageUpload(ev, configKey) {
     const input = ev.target;
     if (!input.files || input.files.length === 0) {
       return;
     }
-
+  
     const file = input.files[0];
     const formData = new FormData();
     formData.append("file", file);
-
+  
     try {
       const response = await fetch("/api/image/upload", {
         method: "POST",
@@ -811,25 +1362,23 @@ _colorChanged(e, configKey) {
           Authorization: `Bearer ${this.hass.auth.data.access_token}`,
         },
       });
-
+  
       if (!response.ok) {
         throw new Error("Failed to upload image");
       }
-
+  
       const data = await response.json();
       const imageId = data.id;
-
+  
       if (!imageId) {
-        console.error("Response structure:", data); // Log the response structure for debugging
+        console.error("Response structure:", data);
         throw new Error("Image ID is missing in the response");
       }
-
+  
       const imageUrl = `/api/image/serve/${imageId}/original`;
-      // console.log("Uploaded image URL:", imageUrl);
-
-      // Add the new image URL to the list of image links
+  
       if (this.config) {
-        this.config = { ...this.config, image_url: imageUrl };
+        this.config = { ...this.config, [configKey]: imageUrl };
         this.configChanged(this.config);
         this.requestUpdate();
       }
@@ -838,13 +1387,8 @@ _colorChanged(e, configKey) {
     }
   }
 
-  _handleIconChange(e) {
-    const newIcon = e.detail.value;
-    this._selectIcon(this._currentEditingEntity, newIcon);
-  }
-
-  _entityFilterChanged(e, configValue) {
-    this[`_${configValue}Filter`] = e.target.value;
+  _entityFilterChanged(e, configKey) {
+    this[`_${configKey}Filter`] = e.target.value;
     this.requestUpdate();
   }
 
@@ -884,85 +1428,127 @@ _colorChanged(e, configKey) {
     this._updateCustomIconsConfig();
   }
 
-  _onDragStart(e, index) {
-    e.dataTransfer.setData("text/plain", index);
-  }
-
-  _onDragOver(e) {
-    e.preventDefault();
-  }
-
-  _onDrop(e) {
-    e.preventDefault();
-    const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
-    const toIndex = [...e.currentTarget.children].indexOf(
-      e.target.closest(".selected-entity")
-    );
-
-    if (fromIndex !== toIndex) {
-      const newOrder = [...this._selectedIconGridEntities];
-      const [removed] = newOrder.splice(fromIndex, 1);
-      newOrder.splice(toIndex, 0, removed);
-      this._selectedIconGridEntities = newOrder;
-      this._updateIconGridConfig();
-    }
-  }
-
-  _openIconPicker(e, entityId) {
-    e.stopPropagation();
-    this._currentEditingEntity = entityId;
-    this._iconSearchFilter = "";
-    this.requestUpdate();
-
-    setTimeout(() => {
-      window.addEventListener("click", this._closeIconPicker);
-    }, 0);
-  }
-
-  _closeIconPicker = (e) => {
-    if (e.target.closest(".icon-picker-popup")) return;
-    this._currentEditingEntity = null;
-    this.requestUpdate();
-    window.removeEventListener("click", this._closeIconPicker);
-  };
-
-  _selectIcon(entityId, icon) {
-    this._customIcons = {
-      ...this._customIcons,
-      [entityId]: icon,
-    };
-    this._currentEditingEntity = null;
-    this._updateCustomIconsConfig();
-    this.requestUpdate();
-    window.removeEventListener("click", this._closeIconPicker);
-  }
 
   _updateIconGridConfig() {
     this.config = {
-      ...this.config,
-      icon_grid_entities: this._selectedIconGridEntities,
+        ...this.config,
+        icon_grid_entities: this._selectedIconGridEntities,
     };
     this.configChanged(this.config);
-  }
-
-   _updateCustomIconsConfig() {
-    this.config = {
-      ...this.config,
-      custom_icons: this._customIcons,
+}
+_updateCustomIconsConfig() {
+  const cleanedCustomIcons = Object.entries(this._customIcons).reduce((acc, [key, value]) => {
+    const cleanedValue = {
+      active: value.active,
+      inactive: value.inactive,
+      activeColor: value.activeColor,
+      inactiveColor: value.inactiveColor,
     };
-    this.configChanged(this.config);
-  }
+    acc[key] = cleanedValue;
+    return acc;
+  }, {});
 
-  configChanged(newConfig) {
-    fireEvent(this, "config-changed", { config: newConfig });
-  }
+  this.config = {
+    ...this.config,
+    custom_icons: cleanedCustomIcons,
+  };
   
-    _getContrastYIQ(hexcolor) {
+  this.configChanged(this.config);
+}
+
+  _getToggleName(configValue) {
+    switch (configValue) {
+      case "battery_level_entity":
+        return this.config.vehicle_type === "EV"
+          ? "show_battery"
+          : "show_battery";
+      case "battery_range_entity":
+        return this.config.vehicle_type === "EV"
+          ? "show_battery_range"
+          : "show_battery_range";
+      case "fuel_level_entity":
+        return "show_fuel";
+      case "fuel_range_entity":
+        return "show_fuel_range";
+      case "location_entity":
+        return "show_location";
+      case "mileage_entity":
+        return "show_mileage";
+      case "car_state_entity":
+        return "show_car_state";
+      case "charge_limit_entity":
+        return "show_charge_limit";
+      default:
+        return `show_${configValue.split("_")[0]}`;
+    }
+  }
+
+  _formatLabel(key) {
+    return key.split(/(?=[A-Z])/).join(' ').replace(/^\w/, c => c.toUpperCase());
+  }
+
+  _getContrastYIQ(hexcolor) {
     const r = parseInt(hexcolor.substr(1, 2), 16);
     const g = parseInt(hexcolor.substr(3, 2), 16);
     const b = parseInt(hexcolor.substr(5, 2), 16);
     const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
     return (yiq >= 128) ? 'black' : 'white';
+  }
+
+  configChanged(newConfig) {
+    fireEvent(this, "config-changed", { config: { ...newConfig, icon_labels: this.config.icon_labels } });
+  }
+
+  _valueChanged(ev) {
+    const target = ev.target;
+    const configValue = target.configValue;
+    const newValue = target.value;
+    this._updateConfig(configValue, newValue);
+  }
+
+  _evaluateTemplate(template) {
+   
+    try {
+      // Use Function constructor to create a function from the template string
+      const templateFunction = new Function('states', 'user', `return \`${template}\`;`);
+      // Call the function with the hass states and user object
+      const result = templateFunction(this.hass.states, this.hass.user);
+     
+      return result;
+    } catch (error) {
+      console.error('Error evaluating template:', error);
+      return null;
+    }
+  }
+
+  _getIconSize(entityId) {
+    return this._iconSizes[entityId] || this.config.icon_size || 24;
+  }
+
+  _iconSizeChanged(e, entityId) {
+    const newSize = parseInt(e.target.value);
+    this._iconSizes = {
+      ...this._iconSizes,
+      [entityId]: newSize,
+    };
+    this._updateIconSizesConfig();
+  }
+
+  _updateIconSizesConfig() {
+    this.config = {
+      ...this.config,
+      icon_sizes: this._iconSizes,
+    };
+    this.configChanged(this.config);
+  }
+
+  _updateIconLabel(entityId, value) {
+    if (!this.config.icon_labels) {
+      this.config.icon_labels = {};
+    }
+    this.config.icon_labels[entityId] = value;
+    console.log('Updated icon labels:', this.config.icon_labels);
+    this.configChanged(this.config);
   }
 }
 
