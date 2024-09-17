@@ -1,38 +1,18 @@
 export function formatEntityValue(entity, useFormattedEntities, hass, localize) {
   if (!entity || !hass) return null;
 
-
   // If formatting is not enabled, return the state as-is
   if (!useFormattedEntities) {
     return entity.state;
   }
 
-  // Use Home Assistant's built-in localization for state
-  let translatedState = hass.formatEntityState(entity);
-
-  // Special handling for device trackers and location entities
-  if (entity.entity_id.split('.')[0] === 'device_tracker' || 
-      entity.entity_id.split('.')[0] === 'person' ||
-      entity.attributes.device_class === 'presence') {
-    const lowerState = translatedState.toLowerCase();
-    if (lowerState === 'home' || lowerState === 'not_home' || lowerState === 'away') {
-      const formattedState = lowerState === 'home' ? 'Home' : 'Away';
-      return formattedState;
-    }
+  // Use Home Assistant's built-in formatting functions
+  if (typeof hass.formatEntityState === 'function') {
+    return hass.formatEntityState(entity);
   }
 
-  // Handle numeric values with units
-  const numericMatch = translatedState.match(/^([\d,]+(?:\.\d+)?)\s*(.*)$/);
-  if (numericMatch) {
-    const numericValue = parseFloat(numericMatch[1].replace(/,/g, ''));
-    const unit = numericMatch[2];
-    const roundedValue = Math.round(numericValue);
-    const formattedValue = roundedValue.toLocaleString('en-US');
-    return `${formattedValue} ${unit}`.trim();
-  }
-
-  // For all other entities, return the translated state
-  return translatedState;
+  // Fallback to basic formatting if Home Assistant functions are not available
+  return entity.state;
 }
 
 function formatBinaryState(state, attributes, hass, localize) {
@@ -71,48 +51,57 @@ function formatGenericState(state) {
   return state.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }
 
-export function getIconActiveState(entityId, hass) {
+export function getIconActiveState(entityId, hass, config) {
   const state = hass.states[entityId];
   if (!state) return false;
   const stateStr = state.state.toLowerCase();
 
-  // Always consider mileage/odometer/range entities as inactive
-  if (entityId.includes('odometer') || entityId.includes('mileage') || entityId.includes('range')) {
-    return false;
-  }
 
-  // Handle boolean entities
-  if (["on", "off", "true", "false"].includes(stateStr)) {
-    return ["on", "true"].includes(stateStr);
-  }
+  // Check custom active and inactive states from config
+  const activeState = config.activeState;
+  const inactiveState = config.inactiveState;
 
-  // Handle charging status specifically
-  if (state.attributes.device_class === "battery_charging") {
-    return stateStr === "on" || stateStr === "charging";
-  }
-
-  // Handle other types of entities
-  if (["open", "unlocked", "charging", "connected"].includes(stateStr)) {
-    return true;
-  }
-
-  // Handle specific inactive states
-  if (["closed", "locked", "not_charging", "disconnected"].includes(stateStr)) {
-    return false;
-  }
-
-  // Handle numeric values (consider non-zero as active, except for range/mileage)
-  const numericValue = parseFloat(stateStr.replace(/,/g, ''));
-  if (!isNaN(numericValue)) {
-    // Check if the entity is related to range or mileage
-    if (entityId.includes('range') || entityId.includes('mileage')) {
-      return false;
+  if (activeState) {
+    if (activeState === 'default') {
+      return isActiveState(stateStr);
+    } else if (activeState.startsWith('template:')) {
+      // ... existing template handling ...
+    } else if (activeState.startsWith('attribute:')) {
+      const [, attributeName, attributeValue] = activeState.split(':');
+      return state.attributes[attributeName] === attributeValue;
+    } else if (activeState.startsWith('option:')) {
+      return stateStr === activeState.split(':')[1].toLowerCase();
+    } else {
+      return stateStr === activeState.toLowerCase();
     }
-    return numericValue !== 0;
   }
 
-  // For other cases, consider any non-empty state as active, except for specific inactive states
-  return stateStr !== "" && stateStr !== "unavailable" && stateStr !== "unknown" && stateStr !== "off";
+  if (inactiveState) {
+    if (inactiveState === 'default') {
+      return !isActiveState(stateStr);
+    } else if (inactiveState.startsWith('template:')) {
+      // ... existing template handling ...
+    } else if (inactiveState.startsWith('attribute:')) {
+      const [, attributeName, attributeValue] = inactiveState.split(':');
+      return state.attributes[attributeName] !== attributeValue;
+    } else if (inactiveState.startsWith('option:')) {
+      return stateStr !== inactiveState.split(':')[1].toLowerCase();
+    } else {
+      return stateStr !== inactiveState.toLowerCase();
+    }
+  }
+
+  // If no custom states are set, use the default behavior
+  return isActiveState(stateStr);
+}
+
+function isActiveState(state) {
+  const activeStates = [
+    "on", "active", "open", "connected", "running", "true", "1", "home", 
+    "locked", "above_horizon", "charging", "full", "yes", "online", "present", 
+    "armed", "occupied", "unlocked", "playing", "motion", "engaged", "awake", "detected"
+  ];
+  return activeStates.includes(state);
 }
 
 export function formatBinarySensorState(state, attributes) {
@@ -120,7 +109,33 @@ export function formatBinarySensorState(state, attributes) {
 }
 
 export function isEngineOn(engineOnEntity) {
-  return engineOnEntity && engineOnEntity.state.toLowerCase() === "on";
+  if (!engineOnEntity) return false;
+
+  const state = engineOnEntity.state.toLowerCase();
+  const attributes = engineOnEntity.attributes;
+
+  // Check attributes for 'engine_on' status
+  if (attributes) {
+    for (const [key, value] of Object.entries(attributes)) {
+      if (typeof value === 'string' && value.toLowerCase() === 'on') {
+        return true;
+      }
+    }
+  }
+
+  // Handle boolean entities
+  if (['on', 'off', 'true', 'false'].includes(state)) {
+    return state === 'on' || state === 'true';
+  }
+
+  // Handle numeric entities
+  if (!isNaN(state)) {
+    return parseFloat(state) > 0;
+  }
+
+  // Handle string-based entities
+  const engineOnStates = ['on', 'running', 'active', 'true'];
+  return engineOnStates.includes(state);
 }
 
 function formatNumberWithCommas(number) {

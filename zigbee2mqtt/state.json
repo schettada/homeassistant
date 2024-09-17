@@ -6,7 +6,7 @@
         "occupancy": false,
         "illuminance": 0,
         "illuminance_lux": 0,
-        "temperature": 20.43,
+        "temperature": 18.17,
         "update": {
             "state": "idle",
             "installed_version": 1107323831,
@@ -20,8 +20,8 @@
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 0,
-        "illuminance_lux": 0,
+        "illuminance": 7905,
+        "illuminance_lux": 6,
         "linkquality": 109,
         "temperature": 16.82,
         "update": {
@@ -36,17 +36,17 @@
         "linkquality": 98,
         "voltage": 3035,
         "battery": 100,
-        "device_temperature": 26,
+        "device_temperature": 25,
         "power_outage_count": 22,
         "trigger_count": 0
     },
     "0x00124b0025908789": {
-        "linkquality": 109
+        "linkquality": 120
     },
     "0x00158d000847821b": {
         "voltage": 3065,
         "battery": 100,
-        "device_temperature": 21,
+        "device_temperature": 19,
         "power_outage_count": 6,
         "contact": true,
         "linkquality": 105,
@@ -71,12 +71,12 @@
         "trigger_count": 0
     },
     "0x00124b002590928c": {
-        "linkquality": 116
+        "linkquality": 112
     },
     "0x00158d000847824e": {
         "voltage": 3035,
         "battery": 100,
-        "device_temperature": 24,
+        "device_temperature": 25,
         "power_outage_count": 18,
         "contact": true,
         "linkquality": 105,
@@ -101,7 +101,7 @@
         "trigger_count": 0
     },
     "0x00124b00259092fb": {
-        "linkquality": 120
+        "linkquality": 109
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
@@ -214,7 +214,7 @@
         "battery_low": false,
         "contact": true,
         "linkquality": 116,
-        "temperature": 21
+        "temperature": 19
     },
     "0xdc8e95fffe3ed0cd": {
         "state": "OFF",
@@ -237,14 +237,14 @@
     },
     "0x002446fffd09435b": {
         "battery": 20,
-        "state": "LOCK",
-        "lock_state": "locked",
+        "state": "UNLOCK",
+        "lock_state": "unlocked",
         "linkquality": 105
     },
     "0x00158d0009421708": {
         "voltage": 3015,
         "battery": 100,
-        "device_temperature": 25,
+        "device_temperature": 23,
         "power_outage_count": 11,
         "water_leak": false,
         "tamper": false,
@@ -255,7 +255,7 @@
     "0x00158d000945364e": {
         "voltage": 3025,
         "battery": 100,
-        "device_temperature": 32,
+        "device_temperature": 29,
         "power_outage_count": 25,
         "water_leak": false,
         "tamper": false,
@@ -267,9 +267,9 @@
         "water_leak": false,
         "tamper": false,
         "battery_low": false,
-        "voltage": 3015,
+        "voltage": 3005,
         "battery": 100,
-        "device_temperature": 22,
+        "device_temperature": 21,
         "power_outage_count": 9,
         "linkquality": 116,
         "trigger_count": 0
@@ -308,8 +308,8 @@
     },
     "0x8c6fb9fffe262da7": {
         "battery": 100,
-        "illuminance": 0,
-        "illuminance_lux": 1,
+        "illuminance": 10791,
+        "illuminance_lux": 12,
         "update": {
             "state": "available",
             "installed_version": 16777303,
@@ -342,16 +342,16 @@
         "linkquality": 65,
         "voltage": 3015,
         "battery": 100,
-        "device_temperature": 24,
+        "device_temperature": 23,
         "power_outage_count": 75,
-        "trigger_count": 0
+        "trigger_count": 4
     },
     "0x00158d000847e3b9": {
         "linkquality": 120,
         "contact": true,
         "voltage": 3035,
         "battery": 100,
-        "device_temperature": 26,
+        "device_temperature": 24,
         "power_outage_count": 497,
         "trigger_count": 0
     }
