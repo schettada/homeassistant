@@ -3,8 +3,8 @@ import {
   html,
   css,
 } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
-import { version, setVersion } from "./version.js?v=15";
-setVersion("V1.6.1");
+import { version, setVersion } from "./version.js?v=20";
+setVersion("V1.6.5");
 
 const sensorModule = await import("./sensors.js?v=" + version);
 const { formatEntityValue, getIconActiveState, formatBinarySensorState, isEngineOn } = sensorModule;
@@ -31,137 +31,6 @@ class UltraVehicleCard extends localize(LitElement) {
 
   static get styles() {
     return [styles];
-  }
-
-  static getStubConfig() {
-    return {
-      title: "My Vehicle",
-      image_url: "",
-      vehicle_type: "EV",
-      unit_type: "mi",
-      battery_level_entity: "",
-      battery_range_entity: "",
-      fuel_level_entity: "",
-      fuel_range_entity: "",
-      charging_status_entity: "",
-      location_entity: "",
-      mileage_entity: "",
-      show_battery: true,
-      show_battery_range: true,
-      show_fuel: true,
-      show_fuel_range: true,
-      show_location: true,
-      show_mileage: true,
-      icon_grid_entities: [],
-      custom_icons: {},
-      hybrid_display_order: "fuel_first",
-      car_state_entity: "",
-      charge_limit_entity: "",
-      show_car_state: true,
-      show_charge_limit: true,
-      cardBackgroundColor: "",
-      barBackgroundColor: "",
-      barFillColor: "",
-      limitIndicatorColor: "",
-      iconActiveColor: UltraVehicleCard._getComputedColor("--primary-color"),
-      iconInactiveColor: UltraVehicleCard._getComputedColor(
-        "--primary-text-color"
-      ),
-      carStateTextColor: "",
-      rangeTextColor: "",
-      percentageTextColor: "",
-      icon_sizes: {},
-      icon_labels: {},
-      useFormattedEntities: false,
-      mainImageHeight: '180px',
-      chargingImageHeight: '180px',
-      layoutType: "single",
-    };
-  }
-
-  static _getComputedColor(variable) {
-    const style = getComputedStyle(document.documentElement);
-    const value = style.getPropertyValue(variable).trim();
-    if (value.startsWith("#")) {
-      return value;
-    } else if (value.startsWith("rgb")) {
-      const rgb = value.match(/\d+/g);
-      return `#${parseInt(rgb[0]).toString(16).padStart(2, "0")}${parseInt(
-        rgb[1]
-      )
-        .toString(16)
-        .padStart(2, "0")}${parseInt(rgb[2]).toString(16).padStart(2, "0")}`;
-    }
-    return "#808080"; // Fallback color if unable to determine
-  }
-
-  setConfig(config) {
-    if (!config) {
-      throw new Error("Invalid configuration");
-    }
-    // Create a new config object with default values
-    const defaultHeight = config.layoutType === 'double' ? '62px' : '180px';
-    this.config = {
-      title: config.title || "My Vehicle",
-      image_url: "",
-      charging_image_url: "",
-      image_url_type: "image",
-      charging_image_url_type: "image",
-      engine_on_image_url: "",
-      engine_on_image_url_type: "url",
-      engineOnImageHeight: config.engineOnImageHeight || defaultHeight,
-      engine_on_entity: "",
-      vehicle_type: "EV",
-      unit_type: "mi",
-      battery_level_entity: "",
-      battery_range_entity: "",
-      fuel_level_entity: "",
-      fuel_range_entity: "",
-      charging_status_entity: "",
-      location_entity: "",
-      mileage_entity: "",
-      showTitle: config.showTitle !== false,
-      show_battery: true,
-      show_battery_range: true,
-      show_fuel: true,
-      show_fuel_range: true,
-      show_location: true,
-      show_mileage: true,
-      show_car_state: true,
-      show_charge_limit: true,
-      icon_grid_entities: [],
-      custom_icons: {},
-      hybrid_display_order: "fuel_first",
-      car_state_entity: "",
-      charge_limit_entity: "",
-      icon_size: 24,
-      icon_gap: 12,
-      mainImageHeight: config.mainImageHeight || defaultHeight,
-      chargingImageHeight: config.chargingImageHeight || defaultHeight,
-      layoutType: config.layoutType || "single",
-      ...config,  // Spread the provided config to override defaults
-      activeState: config.activeState || '',
-      inactiveState: config.inactiveState || '',
-      useBarGradient: config.useBarGradient || false,
-      barGradientStops: config.barGradientStops || [
-        { percentage: 0, color: '#ff0000' },
-        { percentage: 100, color: '#00ff00' }
-      ],
-      cardBackgroundColor: config.cardBackgroundColor || "#1c1c1c",
-      barBackgroundColor: config.barBackgroundColor || "#9b9b9b",
-      barBorderColor: config.barBorderColor || "#9b9b9b",
-      barFillColor: config.barFillColor || "#0da2d3",
-      limitIndicatorColor: config.limitIndicatorColor || "#e1e1e1",
-      infoTextColor: config.infoTextColor || "#9b9b9b",
-      carStateTextColor: config.carStateTextColor || "#e1e1e1",
-      rangeTextColor: config.rangeTextColor || "#e1e1e1",
-      percentageTextColor: config.percentageTextColor || "#e1e1e1",
-      cardTitleColor: config.cardTitleColor || 'var(--primary-text-color)',
-    };
-    this._updateStyles();
-    this._updateIconBackground();
-    this._updateImageHeights();
-    this.requestUpdate();
   }
 
   updated(changedProperties) {
@@ -982,13 +851,6 @@ class UltraVehicleCard extends localize(LitElement) {
     `;
   }
 
-  _getLocalizedState(state) {
-    if (state === "not_home") {
-      return this.hass.localize("state.device_tracker.not_home") || this.localize("common.away");
-    }
-    return this.hass.localize(`state.device_tracker.${state}`) || state;
-  }
-
   _renderVehicleImage() {
     const isCharging = this._isCharging(this.hass.states[this.config.charging_status_entity]);
     const isEngineOn = this._isEngineOn(this.hass.states[this.config.engine_on_entity]);
@@ -1096,8 +958,15 @@ class UltraVehicleCard extends localize(LitElement) {
 
   _getImageUrlFromEntity(entityId) {
     const stateObj = this.hass.states[entityId];
-    if (stateObj && stateObj.attributes && stateObj.attributes.entity_picture) {
-      return stateObj.attributes.entity_picture;
+    if (stateObj) {
+      // Check if the entity has an entity_picture attribute
+      if (stateObj.attributes && stateObj.attributes.entity_picture) {
+        return stateObj.attributes.entity_picture;
+      }
+      // Check if the state itself is a valid URL
+      if (stateObj.state && stateObj.state.startsWith('http')) {
+        return stateObj.state;
+      }
     }
     return null;
   }
@@ -1252,13 +1121,15 @@ class UltraVehicleCard extends localize(LitElement) {
     }
 
     // Determine which color to use
+    const activeColor = 'var(--uvc-icon-active, var(--primary-color))';
+    const inactiveColor = 'var(--uvc-icon-inactive, var(--primary-text-color))';
+
     let color;
     if (isActive) {
-      color = customIcon.activeColor || this.config.iconActiveColor || "#03a9f4";
+      color = customIcon.activeColor || this.config.iconActiveColor || activeColor;
     } else {
-      color = customIcon.inactiveColor || this.config.iconInactiveColor || "#e1e1e1";
+      color = customIcon.inactiveColor || this.config.iconInactiveColor || inactiveColor;
     }
-
 
     const iconSize = this.config.icon_sizes?.[entityId] || this.config.icon_size || 24;
     const buttonStyle = this.config.icon_styles?.[entityId] || "icon";
@@ -1386,9 +1257,7 @@ class UltraVehicleCard extends localize(LitElement) {
         this._handleMoreInfo(entityId);
         break;
       case "toggle":
-        this.hass.callService("homeassistant", "toggle", {
-          entity_id: entityId,
-        });
+        this._toggleEntity(entityId);
         break;
       case "navigate":
         this._navigate(interaction.path);
@@ -1411,6 +1280,21 @@ class UltraVehicleCard extends localize(LitElement) {
     }
   }
 
+  _toggleEntity(entityId) {
+    const domain = entityId.split('.')[0];
+    let service;
+
+    switch (domain) {
+      case 'lock':
+        service = this.hass.states[entityId].state === 'locked' ? 'unlock' : 'lock';
+        break;
+      default:
+        service = 'toggle';
+    }
+
+    this.hass.callService(domain, service, { entity_id: entityId });
+  }
+
   _triggerEntity(entityId) {
     const domain = entityId.split(".")[0];
     let service = "turn_on";
@@ -1422,6 +1306,10 @@ class UltraVehicleCard extends localize(LitElement) {
       case "script":
         service = "turn_on";
         break;
+      case "button":
+        service = "press"
+        break;
+        
       // Add more cases here for other entity types that might need special handling
     }
 
@@ -1474,12 +1362,6 @@ class UltraVehicleCard extends localize(LitElement) {
       detail: { entityId }
     });
     this.dispatchEvent(event);
-  }
-
-  _toggleEntity(entityId) {
-    this.hass.callService("homeassistant", "toggle", {
-      entity_id: entityId,
-    });
   }
 
   _capitalizeFirstLetter(string) {
@@ -1560,9 +1442,8 @@ class UltraVehicleCard extends localize(LitElement) {
     ];
 
     colorProps.forEach(({ config, css }) => {
-      if (this.config[config]) {
-        this.style.setProperty(css, this.config[config]);
-      }
+      const color = this.config[config] || UltraVehicleCard._getComputedColor(css);
+      this.style.setProperty(css, color);
     });
 
     // Update icon size
@@ -1592,17 +1473,19 @@ class UltraVehicleCard extends localize(LitElement) {
       this.style.setProperty('--uvc-percentage-text-color', this.config.percentageTextColor);
     }
 
-    this.requestUpdate();
-  }
+    if (this.config.iconActiveColor) {
+      this.style.setProperty('--uvc-icon-active', this.config.iconActiveColor);
+    } else {
+      this.style.removeProperty('--uvc-icon-active');
+    }
 
-  _hexToRgb(hex) {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result
-      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
-          result[3],
-          16
-        )}`
-      : null;
+    if (this.config.iconInactiveColor) {
+      this.style.setProperty('--uvc-icon-inactive', this.config.iconInactiveColor);
+    } else {
+      this.style.removeProperty('--uvc-icon-inactive');
+    }
+
+    this.requestUpdate();
   }
 
   _getLocalizedState(state) {
@@ -1612,14 +1495,6 @@ class UltraVehicleCard extends localize(LitElement) {
     return this.hass.localize(`state.device_tracker.${state}`) || state;
   }
 
-  updated(changedProperties) {
-    super.updated(changedProperties);
-    if (changedProperties.has('config')) {
-      this._updateStyles();
-      this._updateIconBackground();
-      this._updateImageHeights();
-    }
-  }
 
   setConfig(config) {
     if (!config) {
@@ -1675,16 +1550,6 @@ class UltraVehicleCard extends localize(LitElement) {
         { percentage: 0, color: '#ff0000' },
         { percentage: 100, color: '#00ff00' }
       ],
-      cardBackgroundColor: config.cardBackgroundColor || "#1c1c1c",
-      barBackgroundColor: config.barBackgroundColor || "#9b9b9b",
-      barBorderColor: config.barBorderColor || "#9b9b9b",
-      barFillColor: config.barFillColor || "#0da2d3",
-      limitIndicatorColor: config.limitIndicatorColor || "#e1e1e1",
-      infoTextColor: config.infoTextColor || "#9b9b9b",
-      carStateTextColor: config.carStateTextColor || "#e1e1e1",
-      rangeTextColor: config.rangeTextColor || "#e1e1e1",
-      percentageTextColor: config.percentageTextColor || "#e1e1e1",
-      cardTitleColor: config.cardTitleColor || 'var(--primary-text-color)',
       show_engine_animation: config.show_engine_animation !== false,
       show_charging_animation: config.show_charging_animation !== false,
     };
@@ -1706,13 +1571,6 @@ class UltraVehicleCard extends localize(LitElement) {
     super.disconnectedCallback();
     window.removeEventListener('theme-changed', this._updateIconBackground.bind(this));
     window.matchMedia('(prefers-color-scheme: dark)').removeListener(this._updateIconBackground.bind(this));
-  }
-
-  updated(changedProperties) {
-    super.updated(changedProperties);
-    if (changedProperties.has('hass')) {
-      this._updateIconBackground();
-    }
   }
 
   firstUpdated() {
@@ -1754,19 +1612,6 @@ class UltraVehicleCard extends localize(LitElement) {
     hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : null;
-  }
-
-  updated(changedProperties) {
-    super.updated(changedProperties);
-    if (changedProperties.has('config')) {
-      this._updateIconBackground();
-    }
-  }
-
-  _updateIconBackground() {
-    const cardBackgroundColor = this.config.cardBackgroundColor || getComputedStyle(this).getPropertyValue('--card-background-color').trim();
-    const isDarkBackground = this._isColorDark(cardBackgroundColor);
-    this._updateIconBackgroundColor(isDarkBackground);
   }
 
   _updateImageHeights() {

@@ -16,7 +16,7 @@
         "linkquality": 105
     },
     "0x0017880109197eb3": {
-        "battery": 71,
+        "battery": 70,
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
@@ -64,14 +64,14 @@
     "0x00158d0008483159": {
         "voltage": 2995,
         "battery": 97,
-        "device_temperature": 26,
+        "device_temperature": 25,
         "power_outage_count": 21,
         "contact": true,
         "linkquality": 76,
         "trigger_count": 0
     },
     "0x00124b002590928c": {
-        "linkquality": 116
+        "linkquality": 112
     },
     "0x00158d000847824e": {
         "voltage": 3035,
@@ -83,9 +83,9 @@
         "trigger_count": 0
     },
     "0x00158d0008064044": {
-        "voltage": 3005,
+        "voltage": 3015,
         "battery": 100,
-        "device_temperature": 29,
+        "device_temperature": 28,
         "power_outage_count": 19,
         "contact": true,
         "linkquality": 98,
@@ -101,7 +101,7 @@
         "trigger_count": 0
     },
     "0x00124b00259092fb": {
-        "linkquality": 98
+        "linkquality": 149
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
@@ -214,7 +214,7 @@
         "battery_low": false,
         "contact": true,
         "linkquality": 116,
-        "temperature": 21
+        "temperature": 22
     },
     "0xdc8e95fffe3ed0cd": {
         "state": "OFF",
@@ -232,7 +232,7 @@
         "linkquality": 102,
         "voltage": 3025,
         "battery": 100,
-        "device_temperature": 26,
+        "device_temperature": 25,
         "power_outage_count": 28
     },
     "0x002446fffd09435b": {
@@ -244,7 +244,7 @@
     "0x00158d0009421708": {
         "voltage": 3015,
         "battery": 100,
-        "device_temperature": 24,
+        "device_temperature": 25,
         "power_outage_count": 11,
         "water_leak": false,
         "tamper": false,
@@ -272,7 +272,7 @@
         "device_temperature": 21,
         "power_outage_count": 9,
         "linkquality": 116,
-        "trigger_count": 1
+        "trigger_count": 0
     },
     "0x00158d0008478254": {
         "voltage": 3045,
