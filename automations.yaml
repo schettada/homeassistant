@@ -943,3 +943,37 @@
           - automation.doors_windows_open_close
         data: {}
   mode: single
+- id: '1727806768707'
+  alias: Power Status
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.ups_status
+    from: Online
+    id: poweroff
+  - platform: state
+    entity_id:
+    - sensor.ups_status
+    to: Online
+    id: poweron
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - poweroff
+      sequence:
+      - data:
+          message: Power Is Off
+        action: script.notify_phones
+    - conditions:
+      - condition: trigger
+        id:
+        - poweron
+      sequence:
+      - data:
+          message: Power Is On
+        action: script.notify_phones
+  mode: single
