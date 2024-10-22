@@ -1,0 +1,64 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Anbieter auswählen",
+                "description": "Wähle den Anbieter den du konfigurieren möchtest."
+            },
+            "localai": {
+                "title": "LocalAI konfigurieren",
+                "description": "Gib die IP-Adresse und den Port deines LocalAI-Servers an.",
+                "data": {
+                    "localai_ip": "IP-Adresse",
+                    "localai_port": "Port"
+                }
+            },
+            "ollama": {
+                "title": "Ollama konfigurieren",
+                "description": "Gib die IP-Adresse und den Port deines Ollama-Servers an.",
+                "data": {
+                    "localai_ip": "IP-Addresse",
+                    "localai_port": "Port"
+                }
+            },
+            "openai": {
+                "title": "OpenAI konfigurieren",
+                "description": "Gib einen gültigen OpenAI API-key ein.",
+                "data": {
+                    "api_key": "Dein API-key"
+                }
+            },
+            "anthropic": {
+                "title": "Anthropic Claude konfigurieren",
+                "description": "Gib einen gültigen Anthropic API-key ein.",
+                "data": {
+                    "api_key": "Dein API-key"
+                }
+            },
+            "google": {
+                "title": "Google Gemini konfigurieren",
+                "description": "Gib einen gültigen Google Gemini API-key ein.",
+                "data": {
+                    "api_key": "Dein API-key"
+                }
+            },
+            "custom_openai": {
+                "title": "OpenAI-kompatiblen Provider konfigurieren",
+                "description": "**Wichtig**: Funktioniert nur mit OpenAI API kompatiblen APIs. 'Custom Endpoint' muss das folgende Format haben: `http(s)://baseURL(:port)/some/endpoint`",
+                "data": {
+                    "custom_openai_endpoint": "Custom Endpoint",
+                    "custom_openai_api_key": "Dein API-key"
+                }
+            }
+        },
+        "error": {
+            "handshake_failed": "Verbindung zum Server konnte nicht hergestellt werden. Überprüfe deinen API-key oder IP und Port",
+            "empty_api_key": "Ungültiger API-key",
+            "invalid_provider": "Ungültiger Provider ausgewählt"
+        },
+        "abort": {
+            "already_configured": "Anbieter ist bereits konfiguriert. Lösche die vorhandene Konfiguration, um eine neue hinzuzufügen.",
+            "unknown_provider": "Unbekannter Anbieter"
+        }
+    }
+}

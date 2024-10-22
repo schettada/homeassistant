@@ -13,7 +13,7 @@ mqtt:
   reject_unauthorized: true
   server: mqtt://core-mosquitto:1883
 serial:
-  port: tcp://10.2.1.12:6638
+  port: tcp://10.2.1.6:6638
 advanced:
   log_level: info
   pan_id: 6754
