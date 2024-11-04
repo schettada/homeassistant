@@ -542,21 +542,6 @@
       message: '{{ trigger.to_state.attributes.friendly_name }} detected'
       title: Critical Message
   mode: single
-- id: '1693545939612'
-  alias: Noonlight Update
-  description: ''
-  trigger:
-  - platform: webhook
-    allowed_methods:
-    - POST
-    local_only: false
-    webhook_id: -aRXwprENXVko86XJ_bfMcEmE
-  condition: []
-  action:
-  - service: notify.mobile_app_sj
-    data:
-      message: '{{ trigger.json.event_type }}'
-  mode: single
 - id: '1702406910255'
   alias: Garage Status
   description: ''
