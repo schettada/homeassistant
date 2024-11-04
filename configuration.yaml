@@ -73,4 +73,5 @@ recorder:
       - image_processing
 
 image_processing: !include image_processing.yaml
-# rest_command: !include rest.yaml
+sensor: !include sensors.yaml
+#rest_command: !include rest.yaml

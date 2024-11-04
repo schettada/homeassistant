@@ -731,136 +731,55 @@
 - id: '1714447816906'
   alias: Door Lock/Unlock Status
   description: ''
-  trigger:
-  - platform: device
-    device_id: f6fb94ee1b2f598b481ded658a4af30b
+  triggers:
+  - device_id: f6fb94ee1b2f598b481ded658a4af30b
     domain: lock
     entity_id: 191d58b23eef085ccf6f38511077e5cd
     type: unlocked
     id: gd_unlock
-  - platform: device
-    device_id: f6fb94ee1b2f598b481ded658a4af30b
+    trigger: device
+  - device_id: f6fb94ee1b2f598b481ded658a4af30b
     domain: lock
     entity_id: 191d58b23eef085ccf6f38511077e5cd
     type: locked
     id: gd_locked
-  - platform: device
-    device_id: f6fb94ee1b2f598b481ded658a4af30b
+    trigger: device
+  - device_id: f6fb94ee1b2f598b481ded658a4af30b
     domain: lock
     entity_id: 191d58b23eef085ccf6f38511077e5cd
     type: jammed
     id: gd_jammed
-  - platform: device
-    device_id: 154e23b4f1b0a1edd4bd8f5a5957ede9
-    domain: lock
-    entity_id: 837c37232cc27b31f135afdce35fb51c
-    type: unlocked
-    id: fd_unlock
-  - platform: device
-    device_id: 154e23b4f1b0a1edd4bd8f5a5957ede9
-    domain: lock
-    entity_id: 837c37232cc27b31f135afdce35fb51c
-    type: locked
-    id: fd_locked
-  - platform: device
-    device_id: 154e23b4f1b0a1edd4bd8f5a5957ede9
-    domain: lock
-    entity_id: 837c37232cc27b31f135afdce35fb51c
-    type: jammed
-    id: fd_jammed
-  - platform: state
-    entity_id:
-    - cover.ratgdov25i_18fe0b_door
-    - cover.ratgdov25i_18fe0a_door
-    from: closed
-    to: opening
-    id: garageopen
-    enabled: false
-  - platform: state
-    entity_id:
-    - cover.ratgdov25i_18fe0b_door
-    - cover.ratgdov25i_18fe0a_door
-    from: open
-    to: closing
-    id: garageclose
-    enabled: false
-  - platform: state
-    entity_id:
-    - cover.ratgdov25i_18fe0b_door
-    - cover.ratgdov25i_18fe0a_door
-    to: open
-    for:
-      hours: 0
-      minutes: 10
-      seconds: 0
-    id: longopen
-    enabled: false
-  condition: []
-  action:
+    trigger: device
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
         id:
         - gd_unlock
       sequence:
-      - service: script.notify_all
-        data:
+      - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Unlocked'
           title: Security Message
+        action: script.notify_all
     - conditions:
       - condition: trigger
         id:
         - gd_locked
       sequence:
-      - service: script.notify_all
-        data:
+      - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Locked'
           title: Security Message
+        action: script.notify_all
     - conditions:
       - condition: trigger
         id:
         - gd_jammed
       sequence:
-      - service: script.notify_all
-        data:
+      - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Jammed'
           title: Security Message
-    - conditions:
-      - condition: trigger
-        id:
-        - fd_unlock
-      sequence:
-      - service: script.notify_all
-        data:
-          message: '{{ trigger.to_state.attributes.friendly_name }} is Unlocked'
-          title: Security Message
-    - conditions:
-      - condition: trigger
-        id:
-        - fd_locked
-      sequence:
-      - service: script.notify_all
-        data:
-          message: '{{ trigger.to_state.attributes.friendly_name }} is Locked'
-          title: Security Message
-    - conditions:
-      - condition: trigger
-        id:
-        - fd_jammed
-      sequence:
-      - service: script.notify_all
-        data:
-          message: '{{ trigger.to_state.attributes.friendly_name }} is Jammed'
-          title: Security Message
-    - conditions:
-      - condition: trigger
-        id:
-        - garageopen
-        - garageclose
-      sequence:
-      - service: script.notify_all
-        data:
-          message: '{{ trigger.to_state.attributes.friendly_name }} is {{ trigger.to_state.state}}'
+        action: script.notify_all
   mode: single
 - id: '1718425424769'
   alias: Auto Disarm Security
@@ -976,4 +895,41 @@
       - data:
           message: Power Is On
         action: script.notify_phones
+  mode: single
+- id: '1730651438663'
+  alias: Outdoor Lights
+  description: ''
+  triggers:
+  - trigger: time
+    at: '18:00:00'
+    id: eve
+  - trigger: time
+    at: 00:30:00
+    id: night
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - eve
+      sequence:
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - switch.tp_link_smart_plug_048d_od1
+          - switch.tp_link_smart_plug_048d_od2
+    - conditions:
+      - condition: trigger
+        id:
+        - night
+      sequence:
+      - action: switch.turn_off
+        target:
+          entity_id:
+          - switch.tp_link_smart_plug_048d_od1
+          - switch.tp_link_smart_plug_048d_od2
+        data: {}
   mode: single
