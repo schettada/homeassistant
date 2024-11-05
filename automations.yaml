@@ -735,6 +735,24 @@
     type: jammed
     id: gd_jammed
     trigger: device
+  - device_id: ffdf93c07bcdcb929e54e064d383b470
+    domain: lock
+    entity_id: b438392b34f145fed27c1ed5aaf709c7
+    type: unlocked
+    trigger: device
+    id: fd_unlock
+  - device_id: ffdf93c07bcdcb929e54e064d383b470
+    domain: lock
+    entity_id: b438392b34f145fed27c1ed5aaf709c7
+    type: locked
+    trigger: device
+    id: fd_locked
+  - device_id: ffdf93c07bcdcb929e54e064d383b470
+    domain: lock
+    entity_id: b438392b34f145fed27c1ed5aaf709c7
+    type: jammed
+    trigger: device
+    id: fd_jammed
   conditions: []
   actions:
   - choose:
@@ -760,6 +778,33 @@
       - condition: trigger
         id:
         - gd_jammed
+      sequence:
+      - data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is Jammed'
+          title: Security Message
+        action: script.notify_all
+    - conditions:
+      - condition: trigger
+        id:
+        - fd_unlock
+      sequence:
+      - data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is Unlocked'
+          title: Security Message
+        action: script.notify_all
+    - conditions:
+      - condition: trigger
+        id:
+        - fd_locked
+      sequence:
+      - data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is Locked'
+          title: Security Message
+        action: script.notify_all
+    - conditions:
+      - condition: trigger
+        id:
+        - fd_jammed
       sequence:
       - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Jammed'
@@ -886,11 +931,12 @@
   description: ''
   triggers:
   - trigger: time
-    at: '18:00:00'
-    id: eve
-  - trigger: time
     at: 00:30:00
     id: night
+  - trigger: sun
+    event: sunset
+    offset: 0
+    id: eve
   conditions: []
   actions:
   - choose:
@@ -906,6 +952,13 @@
           entity_id:
           - switch.tp_link_smart_plug_048d_od1
           - switch.tp_link_smart_plug_048d_od2
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - switch.porch_light
+          - switch.driveway_light
     - conditions:
       - condition: trigger
         id:
