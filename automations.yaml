@@ -693,25 +693,30 @@
 - id: '1711769380993'
   alias: Night Check
   description: ''
-  trigger:
-  - platform: time
-    at: '22:30:00'
-  condition: []
-  action:
-  - service: script.notify_phones
-    data:
+  triggers:
+  - at: '22:30:00'
+    trigger: time
+  conditions: []
+  actions:
+  - data:
       message: There are {{expand(state_attr('light.all_lights', 'entity_id'))| selectattr('state','eq','on')|map(attribute='entity_id')|list|count}}
         light(s) On! - {{expand(state_attr('light.all_lights', 'entity_id'))| selectattr('state','eq','on')|map(attribute='name')|list}}
-  - service: script.notify_phones
-    data:
+    action: script.notify_phones
+  - data:
       message: There are {{expand(state_attr('binary_sensor.doors_windows', 'entity_id'))|
         selectattr('state','eq','on')|map(attribute='entity_id')|list|count}} door(s)/Window(s)
         Open! - {{expand(state_attr('binary_sensor.doors_windows', 'entity_id'))|
         selectattr('state','eq','on')|map(attribute='name')|list}}
-  - service: script.notify_phones
-    data:
+    action: script.notify_phones
+  - data:
       message: There are {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','unlocked')|map(attribute='entity_id')|list|count}}
         door(s) Unlocked! - {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','unlocked')|map(attribute='name')|list}}
+    action: script.notify_phones
+  - data:
+      message: There are {{expand(state_attr('switch.all_switches', 'entity_id'))|
+        selectattr('state','eq','on')|map(attribute='entity_id')|list|count}} switch(s)
+        On! - {{expand(state_attr('switch.all_switches', 'entity_id'))| selectattr('state','eq','on')|map(attribute='name')|list}}
+    action: script.notify_phones
   mode: single
 - id: '1714447816906'
   alias: Door Lock/Unlock Status
