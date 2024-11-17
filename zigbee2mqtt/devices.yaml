@@ -64,8 +64,6 @@
   friendly_name: Study Motion Sensor
 '0x00158d000abd5f8e':
   friendly_name: Sump Pump Leak Sensor
-'0x804b50fffe59140f':
-  friendly_name: '0x804b50fffe59140f'
 '0x00158d000847e3b9':
   friendly_name: Deck Sliding Door Sensor
 '0x00158d000848313a':
