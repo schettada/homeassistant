@@ -397,13 +397,14 @@
 - id: '1684639035497'
   alias: Lights On
   description: ''
-  trigger:
-  - platform: sun
-    event: sunset
+  triggers:
+  - event: sunset
     offset: -00:10:00
-  condition: []
-  action:
-  - service: light.turn_on
+    trigger: sun
+  conditions: []
+  actions:
+  - action: light.turn_on
+    metadata: {}
     data: {}
     target:
       entity_id:
@@ -415,67 +416,69 @@
 - id: '1684639231696'
   alias: Lights Off
   description: ''
-  trigger:
-  - platform: time
-    at: '22:00:00'
+  triggers:
+  - at: '22:30:00'
     id: night
-  - platform: time
-    at: '23:30:00'
+    trigger: time
+  - at: '23:30:00'
     id: latenight
-  - platform: sun
-    event: sunrise
+    trigger: time
+  - event: sunrise
     offset: 0
     id: sunrise
-  condition: []
-  action:
+    trigger: sun
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
         id: sunrise
       sequence:
-      - service: light.turn_off
+      - action: light.turn_off
+        metadata: {}
         data: {}
         target:
           entity_id:
-          - light.driveway_light
+          - light.outdoor
     - conditions:
       - condition: trigger
         id: night
       sequence:
-      - service: light.turn_off
+      - action: light.turn_off
+        metadata: {}
         data: {}
         target:
           entity_id:
-          - light.kitchen_light
-          - light.stair_light
+          - light.first_floor
+          - light.basement
     - conditions:
       - condition: trigger
         id:
         - latenight
       sequence:
-      - service: light.turn_off
+      - action: light.turn_off
+        metadata: {}
+        data: {}
         target:
           entity_id: light.porch_light
-        data: {}
   mode: single
 - id: '1686972244347'
   alias: Basement Stair Light
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.basement_door_sensor_contact
     from: 'off'
     to: 'on'
     id: open
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - binary_sensor.basement_door_sensor_contact
     from: 'on'
     to: 'off'
     id: close
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - binary_sensor.basement_door_sensor_contact
     from: 'off'
     to: 'on'
@@ -484,8 +487,9 @@
       minutes: 15
       seconds: 0
     id: openlong
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
@@ -494,10 +498,13 @@
         entity_id: light.basement_stair_light
         state: 'off'
       sequence:
-      - service: light.turn_on
+      - action: light.turn_on
+        metadata: {}
         data: {}
         target:
-          entity_id: light.basement_stair_light
+          entity_id:
+          - light.basement_stair_light
+          - light.basement_light
     - conditions:
       - condition: trigger
         id: close
@@ -505,7 +512,8 @@
         entity_id: light.basement_stair_light
         state: 'on'
       sequence:
-      - service: light.turn_off
+      - action: light.turn_off
+        metadata: {}
         data: {}
         target:
           entity_id: light.basement_stair_light
@@ -516,7 +524,8 @@
         entity_id: light.basement_light
         state: 'on'
       sequence:
-      - service: light.turn_off
+      - action: light.turn_off
+        metadata: {}
         data: {}
         target:
           entity_id: light.basement_stair_light
@@ -936,7 +945,7 @@
   description: ''
   triggers:
   - trigger: time
-    at: 00:30:00
+    at: '23:30:00'
     id: night
   - trigger: sun
     event: sunset
@@ -957,22 +966,28 @@
           entity_id:
           - switch.tp_link_smart_plug_048d_od1
           - switch.tp_link_smart_plug_048d_od2
-      - action: switch.turn_off
+      - action: light.turn_off
         metadata: {}
         data: {}
         target:
           entity_id:
-          - switch.porch_light
-          - switch.driveway_light
+          - light.driveway_light
+          - light.porch_light
     - conditions:
       - condition: trigger
         id:
         - night
       sequence:
       - action: switch.turn_off
+        metadata: {}
+        data: {}
         target:
           entity_id:
           - switch.tp_link_smart_plug_048d_od1
           - switch.tp_link_smart_plug_048d_od2
+      - action: light.turn_on
+        metadata: {}
         data: {}
+        target:
+          entity_id: light.driveway_light
   mode: single
