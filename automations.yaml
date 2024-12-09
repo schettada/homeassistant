@@ -966,6 +966,8 @@
           entity_id:
           - switch.tp_link_smart_plug_048d_od1
           - switch.tp_link_smart_plug_048d_od2
+          - switch.living_christmas_tree
+          - switch.tp_link_smart_plug_c592_mantle_1
       - action: light.turn_off
         metadata: {}
         data: {}
@@ -985,6 +987,8 @@
           entity_id:
           - switch.tp_link_smart_plug_048d_od1
           - switch.tp_link_smart_plug_048d_od2
+          - switch.living_christmas_tree
+          - switch.tp_link_smart_plug_c592_mantle_1
       - action: light.turn_on
         metadata: {}
         data: {}

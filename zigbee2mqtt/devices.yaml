@@ -2,16 +2,12 @@
   friendly_name: Basement Stairs Multi Sensor
 '0x0017880109197eb3':
   friendly_name: Basement Multi Sensor
-'0x00158d0008063fd8':
-  friendly_name: Walkout Door Sensor
 '0x00158d0008483159':
   friendly_name: Basement Window Sensor
 '0x00158d0008483134':
   friendly_name: Loft Window Sensor
 '0x00124b0025908789':
   friendly_name: Garage Router
-'0x00158d000847821b':
-  friendly_name: Front Door Sensor
 '0x00124b002590928c':
   friendly_name: 'Second Floor Router '
 '0x00158d000847824e':
@@ -66,7 +62,5 @@
   friendly_name: Sump Pump Leak Sensor
 '0x00158d000847e3b9':
   friendly_name: Deck Sliding Door Sensor
-'0x00158d000848313a':
-  friendly_name: Basement Door Sensor
 '0x00158d0008478254':
   friendly_name: Garage Door Sensor
