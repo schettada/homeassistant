@@ -533,23 +533,24 @@
 - id: '1690577897483'
   alias: Leak Sensor Notification
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.kitchen_sink_leak_sensor_water_leak
-    - binary_sensor.basement_drain_leak_sensor_water_leak
-    - binary_sensor.recirculation_pump_leak_sensor_water_leak
+  triggers:
+  - entity_id:
+    - binary_sensor.sump_pump
+    - binary_sensor.basement_drain
+    - binary_sensor.master_bathroom_water_leak
+    - binary_sensor.kitchen_sink
     to: 'on'
     for:
       hours: 0
       minutes: 0
       seconds: 0
-  condition: []
-  action:
-  - service: script.notify_all
-    data:
+    trigger: state
+  conditions: []
+  actions:
+  - data:
       message: '{{ trigger.to_state.attributes.friendly_name }} detected'
       title: Critical Message
+    action: script.notify_all
   mode: single
 - id: '1702406910255'
   alias: Garage Status
@@ -989,6 +990,53 @@
           - switch.tp_link_smart_plug_048d_od2
           - switch.living_christmas_tree
           - switch.tp_link_smart_plug_c592_mantle_1
+      - action: light.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.driveway_light
+  mode: single
+- id: '1733801932803'
+  alias: Holiday Lights
+  description: ''
+  triggers:
+  - trigger: time
+    at: '23:30:00'
+    id: night
+  - trigger: sun
+    event: sunset
+    offset: 0
+    id: eve
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - eve
+      sequence:
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.holiday_lights
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - light.driveway_light
+          - light.porch_light
+    - conditions:
+      - condition: trigger
+        id:
+        - night
+      sequence:
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.holiday_lights
       - action: light.turn_on
         metadata: {}
         data: {}
