@@ -12,12 +12,6 @@
   friendly_name: 'Network Rack Smoke Detector '
 '0x00158d0008065d2c':
   friendly_name: Garage Multi Sensor
-'0x00158d0008065d35':
-  friendly_name: Great Room Multi Sensor
-'0x00158d0008300f31':
-  friendly_name: Study Multi Sensor
-'0x00158d0008300ef6':
-  friendly_name: 'Loft Multi Sensor '
 '0x00158d0008063dd6':
   friendly_name: 'Arleepta Office Multi Sensor '
 '0x00158d0008065c4a':
@@ -38,3 +32,5 @@
   friendly_name: Attic Light
 '0x8c6fb9fffe262da7':
   friendly_name: Study Motion Sensor
+'0x00158d0008300f31':
+  friendly_name: '0x00158d0008300f31'
