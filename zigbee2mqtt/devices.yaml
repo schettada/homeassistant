@@ -10,16 +10,6 @@
   friendly_name: Basement Router
 '0x84fd27fffe696daf':
   friendly_name: 'Network Rack Smoke Detector '
-'0x00158d0008065d2c':
-  friendly_name: Garage Multi Sensor
-'0x00158d0008063dd6':
-  friendly_name: 'Arleepta Office Multi Sensor '
-'0x00158d0008065c4a':
-  friendly_name: 'Neeva Bedroom Multi Sensor '
-'0x00158d00083037f0':
-  friendly_name: Guest Room Multi Sensor
-'0x00158d0008307341':
-  friendly_name: 'Deck Multi Sensor '
 '0x000d6f0013e693f9':
   friendly_name: keypad
 '0xdc8e95fffe3ed0cd':
@@ -34,3 +24,5 @@
   friendly_name: Study Motion Sensor
 '0x00158d0008300f31':
   friendly_name: '0x00158d0008300f31'
+'0x00158d0008307341':
+  friendly_name: '0x00158d0008307341'
