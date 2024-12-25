@@ -488,6 +488,16 @@
       seconds: 0
     id: openlong
     trigger: state
+  - type: not_occupied
+    device_id: fce32ba62b5184c5193c55dc48226f91
+    entity_id: a23bfcd660adc44e9eacd78b1e3b1831
+    domain: binary_sensor
+    trigger: device
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+    id: noone
   conditions: []
   actions:
   - choose:
@@ -529,6 +539,16 @@
         data: {}
         target:
           entity_id: light.basement_stair_light
+    - conditions:
+      - condition: trigger
+        id:
+        - noone
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.basement_light
   mode: single
 - id: '1690577897483'
   alias: Leak Sensor Notification
@@ -1042,4 +1062,92 @@
         data: {}
         target:
           entity_id: light.driveway_light
+  mode: single
+- id: '1734902479753'
+  alias: Basement Lights
+  description: ''
+  triggers:
+  - entity_id:
+    - binary_sensor.basement_door_sensor_contact
+    from: 'off'
+    to: 'on'
+    id: open
+    trigger: state
+  - entity_id:
+    - binary_sensor.basement_door_sensor_contact
+    from: 'on'
+    to: 'off'
+    id: close
+    trigger: state
+  - entity_id:
+    - binary_sensor.basement_door_sensor_contact
+    from: 'off'
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+    id: openlong
+    trigger: state
+  - type: not_occupied
+    device_id: fce32ba62b5184c5193c55dc48226f91
+    entity_id: a23bfcd660adc44e9eacd78b1e3b1831
+    domain: binary_sensor
+    trigger: device
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+    id: noone
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: open
+      - condition: state
+        entity_id: light.basement_stair_light
+        state: 'off'
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - light.basement_stair_light
+          - light.basement_light
+    - conditions:
+      - condition: trigger
+        id: close
+      - condition: state
+        entity_id: light.basement_stair_light
+        state: 'on'
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.basement_stair_light
+    - conditions:
+      - condition: trigger
+        id: openlong
+      - condition: state
+        entity_id: light.basement_light
+        state: 'on'
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.basement_stair_light
+    - conditions:
+      - condition: trigger
+        id:
+        - noone
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.basement_light
   mode: single
