@@ -555,8 +555,8 @@
   description: ''
   triggers:
   - entity_id:
-    - binary_sensor.sump_pump
-    - binary_sensor.basement_drain
+    - binary_sensor.sump_pump_water_leak
+    - binary_sensor.basement_drain_water_leak
     - binary_sensor.master_bathroom_water_leak
     - binary_sensor.kitchen_sink
     to: 'on'

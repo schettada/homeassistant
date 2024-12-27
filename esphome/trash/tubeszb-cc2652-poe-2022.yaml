@@ -7,10 +7,14 @@ esphome:
   name_add_mac_suffix: false
 api:
   encryption:
-    key: Khc0x2pXDlDwuK4F9Z3c4jetmKw1u8D0AqOJhSpO2W8=
+    key: TTIyQVzgwb4pkr1D8ZVKxSqlTzSN5iDWQuWGhyRMxxI=
+
 time:
   - platform: homeassistant
-    id: homeassistant_time
+    id: homeassistant_time 
+
+ota:
+  platform: esphome 
 
 esp32_ble_tracker:
   scan_parameters:
@@ -19,4 +23,4 @@ esp32_ble_tracker:
     active: true
 
 bluetooth_proxy:
-  active: true
+  active: true  
