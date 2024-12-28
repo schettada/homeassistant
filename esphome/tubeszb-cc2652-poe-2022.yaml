@@ -8,6 +8,7 @@ esphome:
 api:
   encryption:
     key: Khc0x2pXDlDwuK4F9Z3c4jetmKw1u8D0AqOJhSpO2W8=
+
 time:
   - platform: homeassistant
     id: homeassistant_time
