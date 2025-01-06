@@ -1,9 +1,10 @@
+external_converters: []
 devices:
   - devices.yaml
 groups:
   - groups.yaml
-homeassistant:
-  enabled: true
+homeassistant: true
+permit_join: false
 mqtt:
   base_topic: zigbee2mqtt
   user: "!secret zbuser"
@@ -13,7 +14,6 @@ mqtt:
   server: mqtt://core-mosquitto:1883
 serial:
   port: tcp://10.2.1.6:6638
-  adapter: zstack
 advanced:
   log_level: info
   pan_id: 6754
@@ -35,6 +35,8 @@ advanced:
     - 10
     - 12
     - 13
+  availability_blocklist: []
+  availability_passlist: []
 device_options: {}
 blocklist:
   - "0xb0ce18140300f802"
@@ -43,8 +45,6 @@ blocklist:
 passlist: []
 queue: {}
 frontend:
-  enabled: true
   port: 8099
-availability:
-  enabled: false
-version: 4
+experimental: {}
+availability: false

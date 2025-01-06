@@ -46,7 +46,7 @@ schedule:
 scene: !include scenes.yaml
 script: !include scripts.yaml
 ssdp:
-# stream:
+stream:
 sun:
 system_health:
 tag:
