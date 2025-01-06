@@ -5,7 +5,7 @@
         "motion_sensitivity": "high",
         "occupancy": false,
         "illuminance": 0,
-        "temperature": 18.17,
+        "temperature": 20.43,
         "update": {
             "state": "idle",
             "installed_version": 1107323831,
@@ -21,7 +21,7 @@
         "occupancy": false,
         "illuminance": 3,
         "linkquality": 112,
-        "temperature": 17.67,
+        "temperature": 18.09,
         "update": {
             "state": "idle",
             "installed_version": 1107323831,
@@ -30,7 +30,7 @@
         "update_available": false
     },
     "0x00124b0025908789": {
-        "linkquality": 109
+        "linkquality": 102
     },
     "0x00124b002590928c": {
         "linkquality": 58
@@ -56,7 +56,7 @@
         "battery_low": false,
         "contact": true,
         "linkquality": 76,
-        "temperature": 18
+        "temperature": 19
     },
     "0xdc8e95fffe3ed0cd": {
         "state": "OFF",
@@ -72,15 +72,15 @@
     },
     "0x00158d0009108ee3": {
         "linkquality": 116,
-        "voltage": 3025,
+        "voltage": 3035,
         "battery": 100,
-        "device_temperature": 27,
+        "device_temperature": 28,
         "power_outage_count": 28
     },
     "0x002446fffd09435b": {
         "battery": 80,
-        "state": "LOCK",
-        "lock_state": "locked",
+        "state": "UNLOCK",
+        "lock_state": "unlocked",
         "linkquality": 102
     },
     "0xb0ce1814030101aa": {
