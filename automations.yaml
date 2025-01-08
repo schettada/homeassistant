@@ -361,17 +361,16 @@
 - id: '1677274589664'
   alias: Rack Light On/Off
   description: ''
-  trigger:
-  - platform: state
+  triggers:
+  - trigger: state
     entity_id:
-    - sensor.rack_light_switch_action
-    to: single
-  condition: []
-  action:
-  - service: light.toggle
-    data: {}
+    - event.rack_light_switch_button
+  conditions: []
+  actions:
+  - data: {}
     target:
       device_id: abb44e139e83eb2414e59654c64ee273
+    action: light.toggle
   mode: single
 - id: '1681345612250'
   alias: Front Door Bell

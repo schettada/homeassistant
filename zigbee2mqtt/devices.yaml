@@ -12,8 +12,6 @@
   friendly_name: keypad
 '0xdc8e95fffe3ed0cd':
   friendly_name: Rack Light
-'0x00158d0009108ee3':
-  friendly_name: Rack Light Switch
 '0x002446fffd09435b':
   friendly_name: Garage Door Lock
 '0xb0ce1814030101aa':

@@ -55,6 +55,14 @@ def update_car_info_attributes(vehicle_info):
     return {**extra_attrs, **update_car_stats_attributes(vehicle_info)}
 
 
+def update_dtc_info_attributes(vehicle_info):
+    """Return DTC details"""
+    return {
+        const.ATTR_VEHICLE_MIL_LAST_UPDATED_KEY: vehicle_info["stats"]["mil"]["lastUpdated"],
+        const.ATTR_VEHICLE_DTC_CODES: vehicle_info["stats"]["mil"]["dtcDetails"]
+    }
+
+
 SENSORS: tuple[BouncieSensorEntityDescription, ...] = (
     BouncieSensorEntityDescription(
         key="car-last-update",
@@ -63,7 +71,7 @@ SENSORS: tuple[BouncieSensorEntityDescription, ...] = (
         value_fn=lambda vehicle_info: vehicle_info["stats"]["lastUpdated"],
         extra_attrs_fn=lambda vehicle_info: {
             const.ATTR_VEHICLE_STATS_LAST_UPDATE_JSON_KEY: json.dumps(vehicle_info)
-        }
+        },
     ),
     BouncieSensorEntityDescription(
         key="car-info",
@@ -94,7 +102,7 @@ SENSORS: tuple[BouncieSensorEntityDescription, ...] = (
         key="car-fuel",
         icon="mdi:gas-station",
         name="Car Fuel",
-        device_class=SensorDeviceClass.BATTERY,
+        device_class=SensorDeviceClass.VOLUME_STORAGE,
         native_unit_of_measurement="%",
         value_fn=lambda vehicle_info: int(vehicle_info["stats"]["fuelLevel"]),
         extra_attrs_fn=update_car_stats_attributes,
@@ -117,9 +125,16 @@ SENSORS: tuple[BouncieSensorEntityDescription, ...] = (
         value_fn=lambda vehicle_info: vehicle_info["stats"]["mil"]["milOn"],
         extra_attrs_fn=lambda vehicle_info: {
             const.ATTR_VEHICLE_MIL_LAST_UPDATED_KEY: vehicle_info["stats"]["mil"][
-                "lastUpdated"
-            ]
+                "lastUpdated"]
         },
+    ),
+    BouncieSensorEntityDescription(
+        key="car-dtc-count",
+        icon="mdi:engine",
+        name="Car DTC Count",
+        state_class=SensorStateClass.TOTAL,
+        value_fn=lambda vehicle_info: int(vehicle_info["stats"]["mil"]["dtcCount"]),
+        extra_attrs_fn=update_dtc_info_attributes,
     ),
     BouncieSensorEntityDescription(
         key="car-battery",
@@ -128,8 +143,7 @@ SENSORS: tuple[BouncieSensorEntityDescription, ...] = (
         value_fn=lambda vehicle_info: vehicle_info["stats"]["battery"]["status"],
         extra_attrs_fn=lambda vehicle_info: {
             const.ATTR_VEHICLE_BATTERY_LAST_UPDATED_KEY: vehicle_info["stats"][
-                "battery"
-            ]["lastUpdated"]
+                "battery"]["lastUpdated"]
         },
     ),
 )
