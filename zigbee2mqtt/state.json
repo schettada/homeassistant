@@ -5,23 +5,23 @@
         "motion_sensitivity": "high",
         "occupancy": false,
         "illuminance": 0,
-        "temperature": 19.3,
+        "temperature": 19.16,
         "update": {
             "state": "idle",
             "installed_version": 1107323831,
             "latest_version": 1107323831
         },
         "update_available": false,
-        "linkquality": 127
+        "linkquality": 116
     },
     "0x0017880109197eb3": {
-        "battery": 65.5,
+        "battery": 64.5,
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 6,
+        "illuminance": 5,
         "linkquality": 127,
-        "temperature": 18.23,
+        "temperature": 17.81,
         "update": {
             "state": "idle",
             "installed_version": 1107323831,
@@ -30,10 +30,10 @@
         "update_available": false
     },
     "0x00124b0025908789": {
-        "linkquality": 72
+        "linkquality": 98
     },
     "0x00124b002590928c": {
-        "linkquality": 87
+        "linkquality": 76
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
@@ -45,7 +45,7 @@
         "trouble": false,
         "ac_status": false,
         "test": false,
-        "linkquality": 123,
+        "linkquality": 112,
         "battery_defect": false
     },
     "0x000d6f0013e693f9": {
@@ -55,12 +55,12 @@
         "tamper": false,
         "battery_low": false,
         "contact": true,
-        "linkquality": 94,
-        "temperature": 20
+        "linkquality": 105,
+        "temperature": 19
     },
     "0xdc8e95fffe3ed0cd": {
         "state": "OFF",
-        "linkquality": 127,
+        "linkquality": 116,
         "brightness": 254,
         "power_on_behavior": "previous",
         "update": {
@@ -74,7 +74,7 @@
         "battery": 80,
         "state": "UNLOCK",
         "lock_state": "unlocked",
-        "linkquality": 65
+        "linkquality": 105
     },
     "0xb0ce1814030101aa": {
         "color_mode": "color_temp",
@@ -108,7 +108,7 @@
             "latest_version": 16777316
         },
         "update_available": true,
-        "linkquality": 87,
+        "linkquality": 105,
         "occupancy": true
     }
 }
