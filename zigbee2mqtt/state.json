@@ -5,7 +5,7 @@
         "motion_sensitivity": "high",
         "occupancy": false,
         "illuminance": 0,
-        "temperature": 19.16,
+        "temperature": 19.3,
         "update": {
             "state": "idle",
             "installed_version": 1107323831,
@@ -19,7 +19,7 @@
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 5,
+        "illuminance": 0,
         "linkquality": 127,
         "temperature": 17.81,
         "update": {
@@ -33,7 +33,7 @@
         "linkquality": 98
     },
     "0x00124b002590928c": {
-        "linkquality": 76
+        "linkquality": 21
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
