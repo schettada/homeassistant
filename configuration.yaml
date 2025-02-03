@@ -71,5 +71,4 @@ recorder:
       - update
       - image
       - image_processing
-
-image_processing: !include image_processing.yaml
+# image_processing: !include image_processing.yaml
