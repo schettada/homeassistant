@@ -1,15 +1,15 @@
 {
     "0x0017880109196488": {
-        "battery": 68,
+        "battery": 69.5,
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
         "illuminance": 1,
-        "temperature": 19.3,
+        "temperature": 18.31,
         "update": {
-            "state": "idle",
+            "state": "available",
             "installed_version": 1107323831,
-            "latest_version": 1107323831
+            "latest_version": 1124102917
         },
         "update_available": false,
         "linkquality": 116
@@ -19,13 +19,13 @@
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 6,
+        "illuminance": 1,
         "linkquality": 127,
-        "temperature": 17.24,
+        "temperature": 16.96,
         "update": {
-            "state": "idle",
+            "state": "available",
             "installed_version": 1107323831,
-            "latest_version": 1107323831
+            "latest_version": 1124102917
         },
         "update_available": false
     },
@@ -33,7 +33,7 @@
         "linkquality": 98
     },
     "0x00124b002590928c": {
-        "linkquality": 87
+        "linkquality": 58
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
