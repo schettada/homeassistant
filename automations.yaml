@@ -470,6 +470,7 @@
     - binary_sensor.basement_drain_water_leak
     - binary_sensor.master_bathroom_water_leak
     - binary_sensor.kitchen_sink
+    - binary_sensor.neeva_bathroom_water_leak
     to: 'on'
     for:
       hours: 0
@@ -1006,4 +1007,38 @@
         data: {}
         target:
           entity_id: light.basement_light
+  mode: single
+- id: '1739472330506'
+  alias: Recirculation Pump Control
+  description: ''
+  triggers:
+  - trigger: time
+    at: 05:30:00
+    id: start
+  - trigger: time
+    at: '23:30:00'
+    id: end
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - start
+      sequence:
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.master_bathroom_outlet_1
+    - conditions:
+      - condition: trigger
+        id:
+        - end
+      sequence:
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.master_bathroom_outlet_1
   mode: single
