@@ -1031,6 +1031,11 @@
         data: {}
         target:
           entity_id: switch.master_bathroom_outlet_1
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.master_bathroom_outlet_2
     - conditions:
       - condition: trigger
         id:
@@ -1041,4 +1046,9 @@
         data: {}
         target:
           entity_id: switch.master_bathroom_outlet_1
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.master_bathroom_outlet_2
   mode: single
