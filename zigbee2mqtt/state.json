@@ -5,7 +5,7 @@
         "motion_sensitivity": "high",
         "occupancy": false,
         "illuminance": 1,
-        "temperature": 19.58,
+        "temperature": 19.3,
         "update": {
             "state": "available",
             "installed_version": 1107323831,
@@ -21,7 +21,7 @@
         "occupancy": false,
         "illuminance": 1,
         "linkquality": 134,
-        "temperature": 18.23,
+        "temperature": 16.82,
         "update": {
             "state": "available",
             "installed_version": 1107323831,
@@ -72,8 +72,8 @@
     },
     "0x002446fffd09435b": {
         "battery": 80,
-        "state": "UNLOCK",
-        "lock_state": "unlocked",
+        "state": "LOCK",
+        "lock_state": "locked",
         "linkquality": 80
     },
     "0xb0ce1814030101aa": {
