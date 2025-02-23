@@ -1006,7 +1006,9 @@
         metadata: {}
         data: {}
         target:
-          entity_id: light.basement_light
+          entity_id:
+          - light.basement_light
+          - light.basement_stair_light
   mode: single
 - id: '1739472330506'
   alias: Recirculation Pump Control
