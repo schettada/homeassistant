@@ -585,53 +585,6 @@
             }}
           title: Security Message
   mode: single
-- id: '1704928174660'
-  alias: Study Lights On/Off
-  description: ''
-  trigger:
-  - type: motion
-    platform: device
-    device_id: 8eb24ac06958179d41b9e54f44553268
-    entity_id: f3b2a5ea13aad341b431767c21bad3ce
-    domain: binary_sensor
-    id: 'on'
-  - type: no_motion
-    platform: device
-    device_id: 8eb24ac06958179d41b9e54f44553268
-    entity_id: f3b2a5ea13aad341b431767c21bad3ce
-    domain: binary_sensor
-    for:
-      hours: 0
-      minutes: 5
-      seconds: 0
-    id: 'off'
-  condition:
-  - condition: sun
-    after: sunset
-    before: sunrise
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - 'on'
-      sequence:
-      - service: light.turn_on
-        metadata: {}
-        data: {}
-        target:
-          entity_id: light.study_light
-    - conditions:
-      - condition: trigger
-        id:
-        - 'off'
-      sequence:
-      - service: light.turn_off
-        metadata: {}
-        data: {}
-        target:
-          entity_id: light.study_light
-  mode: single
 - id: '1711769380993'
   alias: Night Check
   description: ''
