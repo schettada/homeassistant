@@ -1,5 +1,5 @@
 substitutions:
-  name: tubeszb-cc2652-poe-2022
+  name: zigbee
 packages:
   tubezb.cc2652-poe-2022: github://tube0013/tube_gateways/models/current/tubeszb-cc2652-poe-2022/firmware/esphome/tubeszb-cc2652-poe-2022_v2.yaml
 esphome:
@@ -8,6 +8,9 @@ esphome:
 api:
   encryption:
     key: Khc0x2pXDlDwuK4F9Z3c4jetmKw1u8D0AqOJhSpO2W8=
+
+ethernet:
+  domain: !secret domain
 
 time:
   - platform: homeassistant
