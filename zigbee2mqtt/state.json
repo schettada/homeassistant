@@ -5,23 +5,23 @@
         "motion_sensitivity": "high",
         "occupancy": false,
         "illuminance": 1,
-        "temperature": 19.86,
+        "temperature": 19.02,
         "update": {
             "state": "available",
             "installed_version": 1107323831,
             "latest_version": 1124102917
         },
         "update_available": false,
-        "linkquality": 120
+        "linkquality": 109
     },
     "0x0017880109197eb3": {
-        "battery": 62,
+        "battery": 61,
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 5,
+        "illuminance": 3,
         "linkquality": 131,
-        "temperature": 18.09,
+        "temperature": 17.81,
         "update": {
             "state": "available",
             "installed_version": 1107323831,
@@ -30,10 +30,10 @@
         "update_available": false
     },
     "0x00124b0025908789": {
-        "linkquality": 91
+        "linkquality": 109
     },
     "0x00124b002590928c": {
-        "linkquality": 91
+        "linkquality": 98
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
@@ -45,7 +45,7 @@
         "trouble": false,
         "ac_status": false,
         "test": false,
-        "linkquality": 123,
+        "linkquality": 109,
         "battery_defect": false
     },
     "0x000d6f0013e693f9": {
@@ -55,12 +55,12 @@
         "tamper": false,
         "battery_low": false,
         "contact": true,
-        "linkquality": 87,
+        "linkquality": 105,
         "temperature": 19
     },
     "0xdc8e95fffe3ed0cd": {
         "state": "OFF",
-        "linkquality": 112,
+        "linkquality": 105,
         "brightness": 254,
         "power_on_behavior": "previous",
         "update": {
@@ -74,7 +74,7 @@
         "battery": 80,
         "state": "UNLOCK",
         "lock_state": "unlocked",
-        "linkquality": 87
+        "linkquality": 105
     },
     "0xb0ce1814030101aa": {
         "color_mode": "color_temp",
@@ -87,7 +87,7 @@
         "energy": 2.38,
         "state": "OFF",
         "power": 0,
-        "linkquality": 83,
+        "linkquality": 98,
         "color_temp": 303,
         "color": {
             "x": 0.417,
