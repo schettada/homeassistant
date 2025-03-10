@@ -21,7 +21,7 @@ config:
 conversation:
 counter:
 dhcp:
-# energy:
+energy:
 frontend:
   themes: !include_dir_merge_named themes
 hardware:

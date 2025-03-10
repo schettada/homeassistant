@@ -795,19 +795,19 @@
 - id: '1727806768707'
   alias: Power Status
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - sensor.ups_status
     from: Online
     id: poweroff
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - sensor.ups_status
-    to: Online
     id: poweron
-  condition: []
-  action:
+    trigger: state
+    from: On Battery Battery Discharging
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
