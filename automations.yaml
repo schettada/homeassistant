@@ -1007,3 +1007,24 @@
         target:
           entity_id: switch.master_bathroom_outlet_2
   mode: single
+- id: '1741710123085'
+  alias: 'Shutdown Home Assistant '
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.ups_battery_charge
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    below: 25
+  conditions: []
+  actions:
+  - action: script.notify_all
+    data:
+      message: Home Assistant is shutting down due to low UPS battery
+      title: Critical Message
+  - action: hassio.host_shutdown
+    data: {}
+  mode: single
