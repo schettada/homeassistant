@@ -21,3 +21,5 @@ www/nv.png
 pyscript/*.py
 shell/*.sh
 www/amazon-rekognition/*.png
+public_key.pem
+tesla_fleet.key

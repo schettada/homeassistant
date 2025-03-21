@@ -2,6 +2,8 @@
 homeassistant:
   auth_providers:
     - type: homeassistant
+  auth_mfa_modules:
+    - type: totp
 
 http:
   ssl_certificate: !secret ssl_crt
@@ -14,7 +16,7 @@ http:
 
 # default_config:
 automation: !include automations.yaml
-# backup:
+backup:
 bluetooth:
 cloud:
 config:
