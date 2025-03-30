@@ -797,12 +797,12 @@
   description: ''
   triggers:
   - entity_id:
-    - sensor.ups_status
+    - sensor.tripp_lite_status
     from: Online
     id: poweroff
     trigger: state
   - entity_id:
-    - sensor.ups_status
+    - sensor.tripp_lite_status
     id: poweron
     trigger: state
     from: On Battery Battery Discharging
@@ -1013,7 +1013,7 @@
   triggers:
   - trigger: numeric_state
     entity_id:
-    - sensor.ups_battery_charge
+    - sensor.tripp_lite_battery_charge
     for:
       hours: 0
       minutes: 1
