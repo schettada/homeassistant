@@ -51,7 +51,7 @@ sensor:
     id: tof_softener_salt_level
     address: 0x29
     timeout: 60s
-    update_interval: 30s
+    update_interval: 300s
     unit_of_measurement: "m"
     filters:
       - filter_out: nan
