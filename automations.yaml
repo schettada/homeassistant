@@ -1013,7 +1013,7 @@
   triggers:
   - trigger: numeric_state
     entity_id:
-    - sensor.tripp_lite_battery_charge
+    - sensor.apc_battery_charge
     for:
       hours: 0
       minutes: 1
