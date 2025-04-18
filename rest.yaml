@@ -1,30 +1,30 @@
 ---
-noon_create_alarm:
-  url: https://api-sandbox.noonlight.com/dispatch/v1/alarms
-  method: POST
-  headers:
-    Authorization: !secret noon_token
-    accept: "application/json"
-  payload: '!secret noon_create'
-  content_type: "application/json"
-  verify_ssl: true
+# noon_create_alarm:
+#   url: https://api-sandbox.noonlight.com/dispatch/v1/alarms
+#   method: POST
+#   headers:
+#     Authorization: !secret noon_token
+#     accept: "application/json"
+#   payload: "!secret noon_create"
+#   content_type: "application/json"
+#   verify_ssl: true
 
-noon_add_people:
-  url: https://api-sandbox.noonlight.com/dispatch/v1/alarms/test/people
-  method: POST
-  headers:
-    Authorization: !secret noon_token
-    accept: "application/json"
-  payload: '!secret noon_add'
-  content_type: "application/json"
-  verify_ssl: true
+# noon_add_people:
+#   url: https://api-sandbox.noonlight.com/dispatch/v1/alarms/test/people
+#   method: POST
+#   headers:
+#     Authorization: !secret noon_token
+#     accept: "application/json"
+#   payload: "!secret noon_add"
+#   content_type: "application/json"
+#   verify_ssl: true
 
-noon_cancel_alarm:
-  url: https://api-sandbox.noonlight.com/dispatch/v1/alarms/test/status
-  method: POST
-  headers:
-    Authorization: !secret noon_token
-    accept: "application/json"
-  payload: '!secret noon_cancel'
-  content_type: "application/json"
-  verify_ssl: true
+# noon_cancel_alarm:
+#   url: https://api-sandbox.noonlight.com/dispatch/v1/alarms/test/status
+#   method: POST
+#   headers:
+#     Authorization: !secret noon_token
+#     accept: "application/json"
+#   payload: "!secret noon_cancel"
+#   content_type: "application/json"
+#   verify_ssl: true

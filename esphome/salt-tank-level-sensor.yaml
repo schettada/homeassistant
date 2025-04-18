@@ -1,5 +1,5 @@
 esphome:
-  name: salt-tank-level-sensor
+  name: salttank
   friendly_name: Salt Tank Level Sensor
 
 esp32:
@@ -22,10 +22,10 @@ ota:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
-
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  domain: !secret domain
+  fast_connect: True
   ap:
-    ssid: "Salt-Tank-Level-Sensor"
+    ssid: "Salt-Tank"
     password: "1VyeJ1epu13V"
 
 captive_portal:
@@ -38,26 +38,24 @@ time:
     id: homeassistant_time 
 
 button:
- - platform: restart
-   name: restart
+  - platform: restart
+    name: restart
 
- # The actual distance sensor
+i2c:
+  sda: GPIO16
+  scl: GPIO17
+
 sensor:
-  - platform: ultrasonic
-    trigger_pin: GPIO17
-    echo_pin: GPIO16
+  - platform: vl53l0x
     name: "Salt Level"
-    update_interval: 30s
-  # trigger pin active for: (default 10us)  
-  # pulse_time: 20us
-  # distance in meter to timeout  
-    timeout: 3m
+    id: tof_softener_salt_level
+    address: 0x29
+    timeout: 60s
+    update_interval: 300s
+    unit_of_measurement: "m"
     filters:
-    - filter_out: nan
-    - median:
-        window_size: 3
-  #       send_every: 1
-        send_first_at: 1
-  #    - calibrate_linear:
-  #       - 0.23 -> 1.86
-  #       - 2.41 -> 0.0
+      - filter_out: nan
+      - median:
+          window_size: 3
+          send_first_at: 1
+    accuracy_decimals: 2

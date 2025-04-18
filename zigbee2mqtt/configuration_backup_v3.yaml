@@ -1,0 +1,49 @@
+devices:
+  - devices.yaml
+groups:
+  - groups.yaml
+homeassistant:
+  enabled: true
+mqtt:
+  base_topic: zigbee2mqtt
+  user: '!secret zbuser'
+  password: '!secret zbpass'
+  client_id: zigbee2mqtt
+  reject_unauthorized: true
+  server: mqtt://core-mosquitto:1883
+serial:
+  port: tcp://10.2.1.6:6638
+advanced:
+  log_level: info
+  pan_id: 6754
+  channel: 25
+  network_key:
+    - 1
+    - 3
+    - 5
+    - 7
+    - 9
+    - 11
+    - 13
+    - 15
+    - 0
+    - 2
+    - 4
+    - 6
+    - 8
+    - 10
+    - 12
+    - 13
+device_options: {}
+blocklist:
+  - '0xb0ce18140300f802'
+  - '0xb0ce181403011613'
+  - '0xb0ce18140301d98d'
+passlist: []
+queue: {}
+frontend:
+  enabled: true
+  port: 8099
+availability:
+  enabled: false
+version: 3

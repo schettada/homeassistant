@@ -7,6 +7,7 @@ ignore: |
   custom_components/
   esphome/.esphome/
   esphome/*.yaml
+  esphome/trash/*.yaml
   ip_bans.yaml
   notebooks/
   scenes.yaml

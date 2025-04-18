@@ -361,17 +361,16 @@
 - id: '1677274589664'
   alias: Rack Light On/Off
   description: ''
-  trigger:
-  - platform: state
+  triggers:
+  - trigger: state
     entity_id:
-    - sensor.rack_light_switch_action
-    to: single
-  condition: []
-  action:
-  - service: light.toggle
-    data: {}
+    - event.rack_light_switch_button
+  conditions: []
+  actions:
+  - data: {}
     target:
       device_id: abb44e139e83eb2414e59654c64ee273
+    action: light.toggle
   mode: single
 - id: '1681345612250'
   alias: Front Door Bell
@@ -397,13 +396,14 @@
 - id: '1684639035497'
   alias: Lights On
   description: ''
-  trigger:
-  - platform: sun
-    event: sunset
+  triggers:
+  - event: sunset
     offset: -00:10:00
-  condition: []
-  action:
-  - service: light.turn_on
+    trigger: sun
+  conditions: []
+  actions:
+  - action: light.turn_on
+    metadata: {}
     data: {}
     target:
       entity_id:
@@ -415,172 +415,98 @@
 - id: '1684639231696'
   alias: Lights Off
   description: ''
-  trigger:
-  - platform: time
-    at: '22:00:00'
+  triggers:
+  - at: '22:30:00'
     id: night
-  - platform: time
-    at: '23:30:00'
+    trigger: time
+  - at: '23:30:00'
     id: latenight
-  - platform: sun
-    event: sunrise
+    trigger: time
+  - event: sunrise
     offset: 0
     id: sunrise
-  condition: []
-  action:
+    trigger: sun
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
         id: sunrise
       sequence:
-      - service: light.turn_off
+      - action: light.turn_off
+        metadata: {}
         data: {}
         target:
           entity_id:
-          - light.driveway_light
+          - light.outdoor
     - conditions:
       - condition: trigger
         id: night
       sequence:
-      - service: light.turn_off
+      - action: light.turn_off
+        metadata: {}
         data: {}
         target:
           entity_id:
-          - light.kitchen_light
-          - light.stair_light
+          - light.first_floor
+          - light.basement
     - conditions:
       - condition: trigger
         id:
         - latenight
       sequence:
-      - service: light.turn_off
+      - action: light.turn_off
+        metadata: {}
+        data: {}
         target:
           entity_id: light.porch_light
-        data: {}
-  mode: single
-- id: '1686972244347'
-  alias: Basement Stair Light
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.basement_door_sensor_contact
-    from: 'off'
-    to: 'on'
-    id: open
-  - platform: state
-    entity_id:
-    - binary_sensor.basement_door_sensor_contact
-    from: 'on'
-    to: 'off'
-    id: close
-  - platform: state
-    entity_id:
-    - binary_sensor.basement_door_sensor_contact
-    from: 'off'
-    to: 'on'
-    for:
-      hours: 0
-      minutes: 15
-      seconds: 0
-    id: openlong
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: open
-      - condition: state
-        entity_id: light.basement_stair_light
-        state: 'off'
-      sequence:
-      - service: light.turn_on
-        data: {}
-        target:
-          entity_id: light.basement_stair_light
-    - conditions:
-      - condition: trigger
-        id: close
-      - condition: state
-        entity_id: light.basement_stair_light
-        state: 'on'
-      sequence:
-      - service: light.turn_off
-        data: {}
-        target:
-          entity_id: light.basement_stair_light
-    - conditions:
-      - condition: trigger
-        id: openlong
-      - condition: state
-        entity_id: light.basement_light
-        state: 'on'
-      sequence:
-      - service: light.turn_off
-        data: {}
-        target:
-          entity_id: light.basement_stair_light
   mode: single
 - id: '1690577897483'
   alias: Leak Sensor Notification
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.kitchen_sink_leak_sensor_water_leak
-    - binary_sensor.basement_drain_leak_sensor_water_leak
-    - binary_sensor.recirculation_pump_leak_sensor_water_leak
+  triggers:
+  - entity_id:
+    - binary_sensor.sump_pump_water_leak
+    - binary_sensor.basement_drain_water_leak
+    - binary_sensor.master_bathroom_water_leak
+    - binary_sensor.kitchen_sink
+    - binary_sensor.neeva_bathroom_water_leak
     to: 'on'
     for:
       hours: 0
       minutes: 0
       seconds: 0
-  condition: []
-  action:
-  - service: script.notify_all
-    data:
+    trigger: state
+  conditions: []
+  actions:
+  - data:
       message: '{{ trigger.to_state.attributes.friendly_name }} detected'
       title: Critical Message
-  mode: single
-- id: '1693545939612'
-  alias: Noonlight Update
-  description: ''
-  trigger:
-  - platform: webhook
-    allowed_methods:
-    - POST
-    local_only: false
-    webhook_id: -aRXwprENXVko86XJ_bfMcEmE
-  condition: []
-  action:
-  - service: notify.mobile_app_sj
-    data:
-      message: '{{ trigger.json.event_type }}'
+    action: script.notify_all
   mode: single
 - id: '1702406910255'
   alias: Garage Status
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - cover.ratgdov25i_18fe0b_door
-    - cover.ratgdov25i_18fe0a_door
+  triggers:
+  - entity_id:
+    - cover.garage1_door
+    - cover.garage2_door
     from: closed
     to: opening
     id: open
     enabled: true
-  - platform: state
-    entity_id:
-    - cover.ratgdov25i_18fe0b_door
-    - cover.ratgdov25i_18fe0a_door
+    trigger: state
+  - entity_id:
+    - cover.garage1_door
+    - cover.garage2_door
     from: open
     to: closing
     id: close
     enabled: true
-  - platform: state
-    entity_id:
-    - cover.ratgdov25i_18fe0b_door
-    - cover.ratgdov25i_18fe0a_door
+    trigger: state
+  - entity_id:
+    - cover.garage1_door
+    - cover.garage2_door
     id: longopen
     enabled: true
     to: open
@@ -588,36 +514,37 @@
       hours: 0
       minutes: 5
       seconds: 0
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
         id:
         - open
       sequence:
-      - service: script.notify_all
-        data:
+      - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is {{ trigger.to_state.state
             }}'
+        action: script.notify_all
     - conditions:
       - condition: trigger
         id:
         - close
       sequence:
-      - service: script.notify_all
-        data:
+      - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is {{ trigger.to_state.state
             }}'
+        action: script.notify_all
     - conditions:
       - condition: trigger
         id:
         - longopen
       sequence:
-      - service: script.notify_all
-        data:
+      - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is {{ trigger.to_state.state
             }} for 5 mins.'
+        action: script.notify_all
     enabled: true
   mode: single
 - id: '1704390098395'
@@ -658,209 +585,131 @@
             }}
           title: Security Message
   mode: single
-- id: '1704928174660'
-  alias: Study Lights On/Off
-  description: ''
-  trigger:
-  - type: motion
-    platform: device
-    device_id: 8eb24ac06958179d41b9e54f44553268
-    entity_id: f3b2a5ea13aad341b431767c21bad3ce
-    domain: binary_sensor
-    id: 'on'
-  - type: no_motion
-    platform: device
-    device_id: 8eb24ac06958179d41b9e54f44553268
-    entity_id: f3b2a5ea13aad341b431767c21bad3ce
-    domain: binary_sensor
-    for:
-      hours: 0
-      minutes: 5
-      seconds: 0
-    id: 'off'
-  condition:
-  - condition: sun
-    after: sunset
-    before: sunrise
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - 'on'
-      sequence:
-      - service: light.turn_on
-        metadata: {}
-        data: {}
-        target:
-          entity_id: light.study_light
-    - conditions:
-      - condition: trigger
-        id:
-        - 'off'
-      sequence:
-      - service: light.turn_off
-        metadata: {}
-        data: {}
-        target:
-          entity_id: light.study_light
-  mode: single
 - id: '1711769380993'
   alias: Night Check
   description: ''
-  trigger:
-  - platform: time
-    at: '22:30:00'
-  condition: []
-  action:
-  - service: script.notify_phones
-    data:
+  triggers:
+  - at: '22:30:00'
+    trigger: time
+  conditions: []
+  actions:
+  - data:
       message: There are {{expand(state_attr('light.all_lights', 'entity_id'))| selectattr('state','eq','on')|map(attribute='entity_id')|list|count}}
         light(s) On! - {{expand(state_attr('light.all_lights', 'entity_id'))| selectattr('state','eq','on')|map(attribute='name')|list}}
-  - service: script.notify_phones
-    data:
+    action: script.notify_phones
+  - data:
       message: There are {{expand(state_attr('binary_sensor.doors_windows', 'entity_id'))|
         selectattr('state','eq','on')|map(attribute='entity_id')|list|count}} door(s)/Window(s)
         Open! - {{expand(state_attr('binary_sensor.doors_windows', 'entity_id'))|
         selectattr('state','eq','on')|map(attribute='name')|list}}
-  - service: script.notify_phones
-    data:
+    action: script.notify_phones
+  - data:
       message: There are {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','unlocked')|map(attribute='entity_id')|list|count}}
         door(s) Unlocked! - {{expand(state_attr('lock.all_doors', 'entity_id'))| selectattr('state','eq','unlocked')|map(attribute='name')|list}}
+    action: script.notify_phones
+  - data:
+      message: There are {{expand(state_attr('switch.all_switches', 'entity_id'))|
+        selectattr('state','eq','on')|map(attribute='entity_id')|list|count}} switch(s)
+        On! - {{expand(state_attr('switch.all_switches', 'entity_id'))| selectattr('state','eq','on')|map(attribute='name')|list}}
+    action: script.notify_phones
   mode: single
 - id: '1714447816906'
   alias: Door Lock/Unlock Status
   description: ''
-  trigger:
-  - platform: device
-    device_id: f6fb94ee1b2f598b481ded658a4af30b
+  triggers:
+  - device_id: f6fb94ee1b2f598b481ded658a4af30b
     domain: lock
     entity_id: 191d58b23eef085ccf6f38511077e5cd
     type: unlocked
     id: gd_unlock
-  - platform: device
-    device_id: f6fb94ee1b2f598b481ded658a4af30b
+    trigger: device
+  - device_id: f6fb94ee1b2f598b481ded658a4af30b
     domain: lock
     entity_id: 191d58b23eef085ccf6f38511077e5cd
     type: locked
     id: gd_locked
-  - platform: device
-    device_id: f6fb94ee1b2f598b481ded658a4af30b
+    trigger: device
+  - device_id: f6fb94ee1b2f598b481ded658a4af30b
     domain: lock
     entity_id: 191d58b23eef085ccf6f38511077e5cd
     type: jammed
     id: gd_jammed
-  - platform: device
-    device_id: 154e23b4f1b0a1edd4bd8f5a5957ede9
+    trigger: device
+  - device_id: ffdf93c07bcdcb929e54e064d383b470
     domain: lock
-    entity_id: 837c37232cc27b31f135afdce35fb51c
+    entity_id: b438392b34f145fed27c1ed5aaf709c7
     type: unlocked
+    trigger: device
     id: fd_unlock
-  - platform: device
-    device_id: 154e23b4f1b0a1edd4bd8f5a5957ede9
+  - device_id: ffdf93c07bcdcb929e54e064d383b470
     domain: lock
-    entity_id: 837c37232cc27b31f135afdce35fb51c
+    entity_id: b438392b34f145fed27c1ed5aaf709c7
     type: locked
+    trigger: device
     id: fd_locked
-  - platform: device
-    device_id: 154e23b4f1b0a1edd4bd8f5a5957ede9
+  - device_id: ffdf93c07bcdcb929e54e064d383b470
     domain: lock
-    entity_id: 837c37232cc27b31f135afdce35fb51c
+    entity_id: b438392b34f145fed27c1ed5aaf709c7
     type: jammed
+    trigger: device
     id: fd_jammed
-  - platform: state
-    entity_id:
-    - cover.ratgdov25i_18fe0b_door
-    - cover.ratgdov25i_18fe0a_door
-    from: closed
-    to: opening
-    id: garageopen
-    enabled: false
-  - platform: state
-    entity_id:
-    - cover.ratgdov25i_18fe0b_door
-    - cover.ratgdov25i_18fe0a_door
-    from: open
-    to: closing
-    id: garageclose
-    enabled: false
-  - platform: state
-    entity_id:
-    - cover.ratgdov25i_18fe0b_door
-    - cover.ratgdov25i_18fe0a_door
-    to: open
-    for:
-      hours: 0
-      minutes: 10
-      seconds: 0
-    id: longopen
-    enabled: false
-  condition: []
-  action:
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
         id:
         - gd_unlock
       sequence:
-      - service: script.notify_all
-        data:
+      - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Unlocked'
           title: Security Message
+        action: script.notify_all
     - conditions:
       - condition: trigger
         id:
         - gd_locked
       sequence:
-      - service: script.notify_all
-        data:
+      - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Locked'
           title: Security Message
+        action: script.notify_all
     - conditions:
       - condition: trigger
         id:
         - gd_jammed
       sequence:
-      - service: script.notify_all
-        data:
+      - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Jammed'
           title: Security Message
+        action: script.notify_all
     - conditions:
       - condition: trigger
         id:
         - fd_unlock
       sequence:
-      - service: script.notify_all
-        data:
+      - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Unlocked'
           title: Security Message
+        action: script.notify_all
     - conditions:
       - condition: trigger
         id:
         - fd_locked
       sequence:
-      - service: script.notify_all
-        data:
+      - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Locked'
           title: Security Message
+        action: script.notify_all
     - conditions:
       - condition: trigger
         id:
         - fd_jammed
       sequence:
-      - service: script.notify_all
-        data:
+      - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Jammed'
           title: Security Message
-    - conditions:
-      - condition: trigger
-        id:
-        - garageopen
-        - garageclose
-      sequence:
-      - service: script.notify_all
-        data:
-          message: '{{ trigger.to_state.attributes.friendly_name }} is {{ trigger.to_state.state}}'
+        action: script.notify_all
   mode: single
 - id: '1718425424769'
   alias: Auto Disarm Security
@@ -942,4 +791,240 @@
           - automation.door_lock_unlock_status
           - automation.doors_windows_open_close
         data: {}
+  mode: single
+- id: '1727806768707'
+  alias: Power Status
+  description: ''
+  triggers:
+  - entity_id:
+    - sensor.tripp_lite_status
+    from: Online
+    id: poweroff
+    trigger: state
+  - entity_id:
+    - sensor.tripp_lite_status
+    id: poweron
+    trigger: state
+    from: On Battery Battery Discharging
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - poweroff
+      sequence:
+      - data:
+          message: Power Is Off
+        action: script.notify_phones
+    - conditions:
+      - condition: trigger
+        id:
+        - poweron
+      sequence:
+      - data:
+          message: Power Is On
+        action: script.notify_phones
+  mode: single
+- id: '1733801932803'
+  alias: Holiday Lights
+  description: ''
+  triggers:
+  - trigger: time
+    at: '23:30:00'
+    id: night
+  - trigger: sun
+    event: sunset
+    offset: 0
+    id: eve
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - eve
+      sequence:
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.holiday_lights
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - light.driveway_light
+          - light.porch_light
+    - conditions:
+      - condition: trigger
+        id:
+        - night
+      sequence:
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.holiday_lights
+      - action: light.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.driveway_light
+  mode: single
+- id: '1734902479753'
+  alias: Basement Lights
+  description: ''
+  triggers:
+  - entity_id:
+    - binary_sensor.basement_door_sensor_contact
+    from: 'off'
+    to: 'on'
+    id: open
+    trigger: state
+  - entity_id:
+    - binary_sensor.basement_door_sensor_contact
+    from: 'on'
+    to: 'off'
+    id: close
+    trigger: state
+  - entity_id:
+    - binary_sensor.basement_door_sensor_contact
+    from: 'off'
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+    id: openlong
+    trigger: state
+  - type: not_occupied
+    device_id: fce32ba62b5184c5193c55dc48226f91
+    entity_id: a23bfcd660adc44e9eacd78b1e3b1831
+    domain: binary_sensor
+    trigger: device
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+    id: noone
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: open
+      - condition: state
+        entity_id: light.basement_stair_light
+        state: 'off'
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - light.basement_stair_light
+          - light.basement_light
+    - conditions:
+      - condition: trigger
+        id: close
+      - condition: state
+        entity_id: light.basement_stair_light
+        state: 'on'
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.basement_stair_light
+    - conditions:
+      - condition: trigger
+        id: openlong
+      - condition: state
+        entity_id: light.basement_light
+        state: 'on'
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.basement_stair_light
+    - conditions:
+      - condition: trigger
+        id:
+        - noone
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id:
+          - light.basement_light
+          - light.basement_stair_light
+  mode: single
+- id: '1739472330506'
+  alias: Recirculation Pump Control
+  description: ''
+  triggers:
+  - trigger: time
+    at: 05:30:00
+    id: start
+  - trigger: time
+    at: '23:30:00'
+    id: end
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - start
+      sequence:
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.master_bathroom_outlet_1
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.master_bathroom_outlet_2
+    - conditions:
+      - condition: trigger
+        id:
+        - end
+      sequence:
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.master_bathroom_outlet_1
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.master_bathroom_outlet_2
+  mode: single
+- id: '1741710123085'
+  alias: 'Shutdown Home Assistant '
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.apc_battery_charge
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    below: 25
+  conditions: []
+  actions:
+  - action: script.notify_all
+    data:
+      message: Home Assistant is shutting down due to low UPS battery
+      title: Critical Message
+  - action: hassio.host_shutdown
+    data: {}
   mode: single

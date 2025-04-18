@@ -2,6 +2,8 @@
 homeassistant:
   auth_providers:
     - type: homeassistant
+  auth_mfa_modules:
+    - type: totp
 
 http:
   ssl_certificate: !secret ssl_crt
@@ -14,14 +16,14 @@ http:
 
 # default_config:
 automation: !include automations.yaml
-# backup:
+backup:
 bluetooth:
 cloud:
 config:
 conversation:
 counter:
 dhcp:
-# energy:
+energy:
 frontend:
   themes: !include_dir_merge_named themes
 hardware:
@@ -46,7 +48,7 @@ schedule:
 scene: !include scenes.yaml
 script: !include scripts.yaml
 ssdp:
-# stream:
+stream:
 sun:
 system_health:
 tag:
@@ -71,6 +73,4 @@ recorder:
       - update
       - image
       - image_processing
-
-image_processing: !include image_processing.yaml
-# rest_command: !include rest.yaml
+# image_processing: !include image_processing.yaml
