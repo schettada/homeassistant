@@ -4,8 +4,9 @@
 
 | Version   | Supported          |
 | --------- | ------------------ |
-| 2023.02   | :white_check_mark: |
-| 2023.01   | :white_check_mark: |
-| 2022.12   | :x:                |
+| 2024.08   | :white_check_mark: |
+| 2024.07   | :white_check_mark: |
+| 2024.06   | :x:                |
+| 2024.05   | :x:                |
 
 ## Reporting a Vulnerability
