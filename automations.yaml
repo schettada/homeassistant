@@ -407,10 +407,10 @@
     data: {}
     target:
       entity_id:
-      - light.stair_light
       - light.kitchen_light
       - light.driveway_light
       - light.porch_light
+      - light.staircase_light
   mode: single
 - id: '1684639231696'
   alias: Lights Off
