@@ -691,6 +691,40 @@ const $093edc2594769ee5$export$c6a2d06cc40e579 = (hass, config, deviceId, device
 };
 
 
+/**
+ * Checks if a string matches a pattern which can be:
+ * - Exact match
+ * - Wildcard pattern with * (e.g., "sensor_*")
+ * - Regex pattern enclosed in /.../ (e.g., "/sensor\\.(temp|humid)/")
+ *
+ * @param str - The string to check
+ * @param pattern - The pattern to match against
+ * @returns True if the string matches the pattern
+ */ const $8e9091561798c377$export$78e968efcca6b7ef = (str, pattern)=>{
+    if (str === null) return false;
+    // Check if it's a regex pattern (enclosed in slashes)
+    const regexMatch = pattern.match(/^\/(.+)\/$/);
+    if (regexMatch) try {
+        const regex = new RegExp(regexMatch[1]);
+        return regex.test(str);
+    } catch (e) {
+        // If regex is invalid, fall back to treating it as a literal string
+        console.warn(`Invalid regex pattern: ${pattern}`);
+        return str === pattern;
+    }
+    // Check if it's a wildcard pattern (contains *)
+    if (pattern.includes('*')) {
+        // Convert wildcard pattern to regex
+        const regexPattern = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&') // Escape special regex chars
+        .replace(/\*/g, '.*'); // Convert * to .*
+        const regex = new RegExp(`^${regexPattern}$`);
+        return regex.test(str);
+    }
+    // Default to exact match
+    return str === pattern;
+};
+
+
 const $562e4e067cd81a2b$export$30c823bc834d6ab4 = (hass, config)=>{
     const device = {
         sensors: [],
@@ -719,7 +753,9 @@ const $562e4e067cd81a2b$export$30c823bc834d6ab4 = (hass, config)=>{
  * @param config - The configuration object containing exclusion rules
  * @returns True if the entity should be skipped, false otherwise
  */ const $562e4e067cd81a2b$var$shouldSkipEntity = (entity, config)=>{
-    return config.exclude_entities?.includes(entity.entity_id);
+    if (!config.exclude_entities?.length) return false;
+    // Check if any exclusion pattern matches the entity ID
+    return config.exclude_entities.some((pattern)=>(0, $8e9091561798c377$export$78e968efcca6b7ef)(entity.entity_id, pattern));
 };
 /**
  * Adds an entity to the appropriate category in the device object
@@ -1919,28 +1955,28 @@ const $68e7242076c3e34e$export$120ff0929b202a6d = (hass, config, entity, element
 /**
  * Toggles the expanded state of a section in the device card
  *
- * @param {DeviceCard} element - The device card component instance
+ * @param {Expansions} expansions - The expansion state of the card
  * @param {string} sectionTitle - The title of the section to toggle
  * @param {Event} e - The click event that triggered the toggle
- */ const $2ae7b32fc5b69f7f$var$toggleSection = (element, sectionTitle, e)=>{
-    const expandedSections = element.expandedSections;
+ */ const $2ae7b32fc5b69f7f$var$toggleSection = (expansions, sectionTitle, e)=>{
+    const expandedSections = expansions.expandedSections;
     // Create a new expanded sections object with the toggled section
-    element.expandedSections = {
+    expansions.expandedSections = {
         ...expandedSections,
         [sectionTitle]: !expandedSections[sectionTitle]
     };
 };
-const $2ae7b32fc5b69f7f$export$980c1089c0604ea3 = (element, title, isExpanded)=>(0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<div
+const $2ae7b32fc5b69f7f$export$980c1089c0604ea3 = (expansions, title, isExpanded)=>(0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<div
     class="section-chevron ${isExpanded ? 'expanded' : ''}"
-    @click=${(e)=>$2ae7b32fc5b69f7f$var$toggleSection(element, title, e)}
+    @click=${(e)=>$2ae7b32fc5b69f7f$var$toggleSection(expansions, title, e)}
   >
     <ha-icon icon="mdi:chevron-${isExpanded ? 'up' : 'down'}"></ha-icon>
   </div>`;
-const $2ae7b32fc5b69f7f$export$ae9a281c4379b144 = (element, title, entities, isExpanded, size)=>(0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<div class="section-footer">
+const $2ae7b32fc5b69f7f$export$ae9a281c4379b144 = (expansion, title, entities, isExpanded, size)=>(0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<div class="section-footer">
     ${isExpanded ? (0, $f58f44579a4747ac$export$45b790e32b2810ee) : (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
           <div
             class="show-more"
-            @click=${(e)=>$2ae7b32fc5b69f7f$var$toggleSection(element, title, e)}
+            @click=${(e)=>$2ae7b32fc5b69f7f$var$toggleSection(expansion, title, e)}
           >
             Show ${entities.length - size} more...
           </div>
@@ -1948,7 +1984,7 @@ const $2ae7b32fc5b69f7f$export$ae9a281c4379b144 = (element, title, entities, isE
   </div>`;
 
 
-const $9b8ea5fddc8bd48e$export$4c0287abd2ec956e = (element, hass, config, title, entities)=>{
+const $9b8ea5fddc8bd48e$export$4c0287abd2ec956e = (element, expansions, hass, config, title, entities)=>{
     // Don't render anything if there are no entities to display
     if (!entities || entities.length === 0) return 0, $f58f44579a4747ac$export$45b790e32b2810ee;
     // Determine how many entities to preview based on config
@@ -1956,7 +1992,7 @@ const $9b8ea5fddc8bd48e$export$4c0287abd2ec956e = (element, hass, config, title,
     // Check if this section needs collapsible functionality
     const needsExpansion = entities.length > size;
     // Get the current expanded state from the element
-    const isExpanded = element.expandedSections[title] || false;
+    const isExpanded = expansions.expandedSections[title] || false;
     // Filter entities based on expanded state
     const displayEntities = needsExpansion && !isExpanded ? entities.slice(0, size) : entities;
     // Determine section class based on expanded state, number of items, and compact feature
@@ -1967,15 +2003,15 @@ const $9b8ea5fddc8bd48e$export$4c0287abd2ec956e = (element, hass, config, title,
     return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<div class="${sectionClass}">
     <div class="section-header">
       <div class="section-title">${title}</div>
-      ${needsExpansion ? (0, $2ae7b32fc5b69f7f$export$980c1089c0604ea3)(element, title, isExpanded) : (0, $f58f44579a4747ac$export$45b790e32b2810ee)}
+      ${needsExpansion ? (0, $2ae7b32fc5b69f7f$export$980c1089c0604ea3)(expansions, title, isExpanded) : (0, $f58f44579a4747ac$export$45b790e32b2810ee)}
     </div>
     ${displayEntities.map((entity)=>(0, $68e7242076c3e34e$export$120ff0929b202a6d)(hass, config, entity, element))}
-    ${needsExpansion && !isCompact ? (0, $2ae7b32fc5b69f7f$export$ae9a281c4379b144)(element, title, entities, isExpanded, size) : (0, $f58f44579a4747ac$export$45b790e32b2810ee)}
+    ${needsExpansion && !isCompact ? (0, $2ae7b32fc5b69f7f$export$ae9a281c4379b144)(expansions, title, entities, isExpanded, size) : (0, $f58f44579a4747ac$export$45b790e32b2810ee)}
   </div>`;
 };
 
 
-const $10f7eb590266dd05$export$7dcefa9ef83b8269 = (element, hass, config, device)=>{
+const $10f7eb590266dd05$export$7dcefa9ef83b8269 = (element, expansions, hass, config, device)=>{
     const sectionConfig = [
         {
             name: 'Controls',
@@ -2007,7 +2043,7 @@ const $10f7eb590266dd05$export$7dcefa9ef83b8269 = (element, hass, config, device
         });
     } else // default order
     orderedSections = sectionConfig;
-    return orderedSections.map((section)=>(0, $9b8ea5fddc8bd48e$export$4c0287abd2ec956e)(element, hass, config, section.name, section.entities));
+    return orderedSections.map((section)=>(0, $9b8ea5fddc8bd48e$export$4c0287abd2ec956e)(element, expansions, hass, config, section.name, section.entities));
 };
 
 
@@ -2298,14 +2334,17 @@ class $76efc5be730c974a$export$cee8aa229c046b5e extends (0, $ab210b2da7b39b9d$ex
           </div>
         </div>
 
-        ${(0, $10f7eb590266dd05$export$7dcefa9ef83b8269)(this, this._hass, this._config, this._device)}
+        ${(0, $10f7eb590266dd05$export$7dcefa9ef83b8269)(this, this._expansions, this._hass, this._config, this._device)}
       </ha-card>
     `;
     }
     constructor(...args){
         super(...args), /**
-   * Track expanded state of sections
-   */ this.expandedSections = {}, /**
+   * Track the card's expanded state
+   */ this._expansions = {
+            expandedSections: {},
+            expandedEntities: {}
+        }, /**
    * Track expanded state of entity attributes
    */ this.expandedEntities = {};
     }
@@ -2318,7 +2357,7 @@ class $76efc5be730c974a$export$cee8aa229c046b5e extends (0, $ab210b2da7b39b9d$ex
 ], $76efc5be730c974a$export$cee8aa229c046b5e.prototype, "_device", void 0);
 (0, $24c52f343453d62d$export$29e00dfd3077644b)([
     (0, $04c21ea1ce1f6057$export$ca000e230c0caa3e)()
-], $76efc5be730c974a$export$cee8aa229c046b5e.prototype, "expandedSections", void 0);
+], $76efc5be730c974a$export$cee8aa229c046b5e.prototype, "_expansions", void 0);
 (0, $24c52f343453d62d$export$29e00dfd3077644b)([
     (0, $04c21ea1ce1f6057$export$ca000e230c0caa3e)()
 ], $76efc5be730c974a$export$cee8aa229c046b5e.prototype, "expandedEntities", void 0);
@@ -2399,7 +2438,7 @@ const $84451a3e48ae541f$var$contentSchema = (integration)=>{
                 }
             },
             {
-                name: 'excluded_devices',
+                name: 'exclude_devices',
                 label: 'Devices to exclude',
                 required: false,
                 selector: {
@@ -2472,7 +2511,7 @@ const $84451a3e48ae541f$var$contentSchema = (integration)=>{
         ]
     };
     if (!integration) schema.schema = schema.schema.filter((s)=>![
-            'excluded_devices',
+            'exclude_devices',
             'columns'
         ].includes(s.name));
     return schema;
@@ -2634,6 +2673,14 @@ const $be605d8f132c1e28$export$48cc0f50054c9113 = (device, entryIds)=>device.con
 
 
 
+const $49ae81c1680fcc1f$export$78de33bacfd1396b = (config, deviceId, deviceName)=>{
+    if (!config.exclude_devices?.length) return false;
+    // Check if any exclusion pattern matches the device ID
+    return config.exclude_devices.some((pattern)=>(0, $8e9091561798c377$export$78e968efcca6b7ef)(deviceId, pattern) || (0, $8e9091561798c377$export$78e968efcca6b7ef)(deviceName, pattern));
+};
+
+
+
 const $5d5dec7c32377406$export$d424543ab4012665 = (0, $def2de46b9306e8a$export$dbf350e5966cf602)`
   :host {
     --card-padding: 16px;
@@ -2726,7 +2773,7 @@ class $3bda94c4eb71d8c0$export$ad4bbebd033175bb extends (0, $ab210b2da7b39b9d$ex
             const configEntries = results.map((e)=>e.entry_id);
             Object.values(hass.devices).forEach((device)=>{
                 // Check if device belongs to any of the config entries
-                if (!this._config.excluded_devices?.includes(device.id) && (0, $be605d8f132c1e28$export$48cc0f50054c9113)(device, configEntries)) data.devices.push(device.id);
+                if (!(0, $49ae81c1680fcc1f$export$78de33bacfd1396b)(this._config, device.id, device.name) && (0, $be605d8f132c1e28$export$48cc0f50054c9113)(device, configEntries)) data.devices.push(device.id);
             });
             if (!$30856da572fd852b$exports(data, this._integration)) this._integration = data;
         });
@@ -2948,7 +2995,7 @@ class $bb372a36f92bd9c9$export$9e322cdd8735282 extends (0, $ab210b2da7b39b9d$exp
         if (!config.exclude_entities?.length) delete config.exclude_entities;
         if (!config.exclude_sections?.length) delete config.exclude_sections;
         if (!config.section_order?.length) delete config.section_order;
-        if (!config.excluded_devices?.length) delete config.excluded_devices;
+        if (!config.exclude_devices?.length) delete config.exclude_devices;
         // Remove columns if set to 0 or invalid
         if (!config.columns || config.columns <= 0) delete config.columns;
         // @ts-ignore
@@ -2974,7 +3021,7 @@ class $bb372a36f92bd9c9$export$9e322cdd8735282 extends (0, $ab210b2da7b39b9d$exp
 
 
 var $b06602ab53bd58a3$exports = {};
-$b06602ab53bd58a3$exports = JSON.parse("{\"name\":\"device-card\",\"version\":\"0.8.3\",\"author\":\"Patrick Masters\",\"license\":\"ISC\",\"description\":\"Custom Home Assistant card to show info about your devices.\",\"source\":\"src/index.ts\",\"module\":\"dist/device-card.js\",\"targets\":{\"module\":{\"includeNodeModules\":true}},\"scripts\":{\"watch\":\"parcel watch\",\"build\":\"parcel build\",\"test\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha\",\"test:coverage\":\"nyc npm run test\",\"test:watch\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha --watch\",\"update\":\"npx npm-check-updates -u && npm i\"},\"devDependencies\":{\"@istanbuljs/nyc-config-typescript\":\"^1.0.2\",\"@open-wc/testing\":\"^4.0.0\",\"@parcel/transformer-inline-string\":\"^2.14.4\",\"@testing-library/dom\":\"^10.4.0\",\"@trivago/prettier-plugin-sort-imports\":\"^5.2.2\",\"@types/chai\":\"^5.2.1\",\"@types/jsdom\":\"^21.1.7\",\"@types/mocha\":\"^10.0.10\",\"@types/sinon\":\"^17.0.4\",\"chai\":\"^5.2.0\",\"jsdom\":\"^26.1.0\",\"mocha\":\"^11.1.0\",\"nyc\":\"^17.1.0\",\"parcel\":\"^2.14.4\",\"prettier\":\"3.5.3\",\"prettier-plugin-organize-imports\":\"^4.1.0\",\"proxyquire\":\"^2.1.3\",\"sinon\":\"^20.0.0\",\"ts-node\":\"^10.9.2\",\"tsconfig-paths\":\"^4.2.0\",\"typescript\":\"^5.8.3\"},\"dependencies\":{\"@lit/task\":\"^1.0.2\",\"fast-deep-equal\":\"^3.1.3\",\"lit\":\"^3.3.0\"}}");
+$b06602ab53bd58a3$exports = JSON.parse("{\"name\":\"device-card\",\"version\":\"0.9.1\",\"author\":\"Patrick Masters\",\"license\":\"ISC\",\"description\":\"Custom Home Assistant card to show info about your devices.\",\"source\":\"src/index.ts\",\"module\":\"dist/device-card.js\",\"targets\":{\"module\":{\"includeNodeModules\":true}},\"scripts\":{\"watch\":\"parcel watch\",\"build\":\"parcel build\",\"test\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha\",\"test:coverage\":\"nyc npm run test\",\"test:watch\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha --watch\",\"update\":\"npx npm-check-updates -u && npm i\"},\"devDependencies\":{\"@istanbuljs/nyc-config-typescript\":\"^1.0.2\",\"@open-wc/testing\":\"^4.0.0\",\"@parcel/transformer-inline-string\":\"^2.14.4\",\"@testing-library/dom\":\"^10.4.0\",\"@trivago/prettier-plugin-sort-imports\":\"^5.2.2\",\"@types/chai\":\"^5.2.1\",\"@types/jsdom\":\"^21.1.7\",\"@types/mocha\":\"^10.0.10\",\"@types/sinon\":\"^17.0.4\",\"chai\":\"^5.2.0\",\"jsdom\":\"^26.1.0\",\"mocha\":\"^11.1.0\",\"nyc\":\"^17.1.0\",\"parcel\":\"^2.14.4\",\"prettier\":\"3.5.3\",\"prettier-plugin-organize-imports\":\"^4.1.0\",\"proxyquire\":\"^2.1.3\",\"sinon\":\"^20.0.0\",\"ts-node\":\"^10.9.2\",\"tsconfig-paths\":\"^4.2.0\",\"typescript\":\"^5.8.3\"},\"dependencies\":{\"@lit/task\":\"^1.0.2\",\"fast-deep-equal\":\"^3.1.3\",\"lit\":\"^3.3.0\"}}");
 
 
 // Register the custom elements with the browser
