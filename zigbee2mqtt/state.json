@@ -19,7 +19,7 @@
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 8,
+        "illuminance": 10,
         "linkquality": 120,
         "temperature": 16.82,
         "update": {
