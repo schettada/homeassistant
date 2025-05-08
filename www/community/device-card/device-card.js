@@ -542,6 +542,41 @@ var $24c52f343453d62d$export$2e2bcd8739ae039 = {
  */ const $a64cd1666b27644b$export$805ddaeeece0413e = (config, feature)=>!config || config.features?.includes(feature) || false;
 
 
+/**
+ * Checks if a string matches a pattern which can be:
+ * - Exact match
+ * - Wildcard pattern with * (e.g., "sensor_*")
+ * - Regex pattern enclosed in /.../ (e.g., "/sensor\\.(temp|humid)/")
+ *
+ * @param str - The string to check
+ * @param pattern - The pattern to match against
+ * @returns True if the string matches the pattern
+ */ const $8e9091561798c377$export$78e968efcca6b7ef = (str, pattern)=>{
+    if (str === null) return false;
+    // Check if it's a regex pattern (enclosed in slashes)
+    const regexPattern = /^\/(.+)\/$/;
+    const regexMatch = regexPattern.exec(pattern);
+    if (regexMatch) try {
+        const regex = new RegExp(regexMatch[1]);
+        return regex.test(str);
+    } catch (e) {
+        // If regex is invalid, fall back to treating it as a literal string
+        console.warn(`Invalid regex pattern: ${pattern}`, e);
+        return str === pattern;
+    }
+    // Check if it's a wildcard pattern (contains *)
+    if (pattern.includes('*')) {
+        // Convert wildcard pattern to regex
+        const regexPattern = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&') // Escape special regex chars
+        .replace(/\*/g, '.*'); // Convert * to .*
+        const regex = new RegExp(`^${regexPattern}$`);
+        return regex.test(str);
+    }
+    // Default to exact match
+    return str === pattern;
+};
+
+
 const $5bd3a7e1f19a6de3$export$30c823bc834d6ab4 = (hass, deviceId)=>hass.devices[deviceId];
 
 
@@ -599,7 +634,7 @@ const $fa460070836bbf6d$export$3473ff6928139ced = (0, $2dcc326b5e422db7$export$2
 
 function $043ab5348dd51237$export$c0e85c3982a3daa6(stateObj, state) {
     const domain = (0, $e7dc90bb09bfe22d$export$2044bdc9670769ab)(stateObj.entity_id);
-    const compareState = state !== undefined ? state : stateObj?.state;
+    const compareState = state ?? stateObj?.state;
     if ([
         'button',
         'event',
@@ -691,41 +726,6 @@ const $093edc2594769ee5$export$c6a2d06cc40e579 = (hass, config, deviceId, device
 };
 
 
-/**
- * Checks if a string matches a pattern which can be:
- * - Exact match
- * - Wildcard pattern with * (e.g., "sensor_*")
- * - Regex pattern enclosed in /.../ (e.g., "/sensor\\.(temp|humid)/")
- *
- * @param str - The string to check
- * @param pattern - The pattern to match against
- * @returns True if the string matches the pattern
- */ const $8e9091561798c377$export$78e968efcca6b7ef = (str, pattern)=>{
-    if (str === null) return false;
-    // Check if it's a regex pattern (enclosed in slashes)
-    const regexPattern = /^\/(.+)\/$/;
-    const regexMatch = regexPattern.exec(pattern);
-    if (regexMatch) try {
-        const regex = new RegExp(regexMatch[1]);
-        return regex.test(str);
-    } catch (e) {
-        // If regex is invalid, fall back to treating it as a literal string
-        console.warn(`Invalid regex pattern: ${pattern}`, e);
-        return str === pattern;
-    }
-    // Check if it's a wildcard pattern (contains *)
-    if (pattern.includes('*')) {
-        // Convert wildcard pattern to regex
-        const regexPattern = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&') // Escape special regex chars
-        .replace(/\*/g, '.*'); // Convert * to .*
-        const regex = new RegExp(`^${regexPattern}$`);
-        return regex.test(str);
-    }
-    // Default to exact match
-    return str === pattern;
-};
-
-
 const $562e4e067cd81a2b$export$30c823bc834d6ab4 = (hass, config)=>{
     const device = {
         sensors: [],
@@ -735,7 +735,7 @@ const $562e4e067cd81a2b$export$30c823bc834d6ab4 = (hass, config)=>{
     };
     const hassDevice = (0, $5bd3a7e1f19a6de3$export$30c823bc834d6ab4)(hass, config.device_id);
     if (!hassDevice) return undefined;
-    device.name = hassDevice.name || 'Device';
+    device.name = hassDevice.name ?? 'Device';
     device.model = [
         hassDevice.manufacturer,
         hassDevice.model,
@@ -1425,6 +1425,21 @@ const $fc7b5ec53f835fd3$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
     line-height: 35px;
     border-bottom: 1px solid var(--divider-color);
     margin-bottom: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* Remove bottom border when collapsed */
+  .card-header.collapsed {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .card-header:hover {
+    background-color: var(--secondary-background-color);
   }
 
   .title {
@@ -1432,6 +1447,26 @@ const $fc7b5ec53f835fd3$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
     font-weight: 500;
     display: flex;
     flex-direction: column;
+  }
+
+  /* Entity state in header */
+  .entity-state {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-right: 16px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* For when header is hidden but entity state is shown */
+  .entity-state-only {
+    font-size: 1.5rem;
+    font-weight: 500;
+    text-align: right;
+    margin-right: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--divider-color);
+    margin-bottom: 8px;
   }
 
   /* Style for when card is on fire */
@@ -1654,7 +1689,53 @@ const $fc7b5ec53f835fd3$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
  * This file handles the rendering of collapsible sections within the device card,
  * organizing entities by their type (sensors, controls, etc.) and managing
  * expandable/collapsible behavior.
- */ 
+ */ // src/delegates/utils/sort-entities.ts
+
+const $e1ab409cd148a528$export$4742c54ffa379383 = (entities, sortConfig)=>{
+    if (!sortConfig || !entities.length) return entities;
+    const { type: type, direction: direction = 'asc' } = sortConfig;
+    const isReverse = direction === 'desc';
+    // Create a copy to avoid mutating the original array
+    const result = [
+        ...entities
+    ];
+    // Apply the sorting
+    result.sort((a, b)=>{
+        let valueA;
+        let valueB;
+        switch(type){
+            case 'domain':
+                valueA = (0, $e7dc90bb09bfe22d$export$2044bdc9670769ab)(a.entity_id);
+                valueB = (0, $e7dc90bb09bfe22d$export$2044bdc9670769ab)(b.entity_id);
+                break;
+            case 'entity_id':
+                valueA = a.entity_id;
+                valueB = b.entity_id;
+                break;
+            case 'name':
+                valueA = a.attributes.friendly_name ?? a.entity_id;
+                valueB = b.attributes.friendly_name ?? b.entity_id;
+                break;
+            case 'state':
+                valueA = a.state;
+                valueB = b.state;
+                break;
+            default:
+                return 0;
+        }
+        // Handle null or undefined values
+        valueA ??= '';
+        valueB ??= '';
+        // Standard string comparison
+        if (valueA < valueB) return isReverse ? 1 : -1;
+        if (valueA > valueB) return isReverse ? -1 : 1;
+        return 0;
+    });
+    return result;
+};
+
+
+
 
 /**
  * @file row.ts
@@ -1695,11 +1776,11 @@ const $fc7b5ec53f835fd3$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
 const $9c83ab07519e6203$export$43835e9acf248a15 = (node, type, detail, options)=>{
     options = options || {};
     // @ts-ignore
-    detail = detail === null || detail === undefined ? {} : detail;
+    detail = detail ?? {};
     const event = new Event(type, {
-        bubbles: options.bubbles === undefined ? true : options.bubbles,
+        bubbles: options.bubbles ?? true,
         cancelable: Boolean(options.cancelable),
-        composed: options.composed === undefined ? true : options.composed
+        composed: options.composed ?? true
     });
     event.detail = detail;
     node.dispatchEvent(event);
@@ -1895,11 +1976,20 @@ const $5cc8c88379d13dba$export$16bd37df0047a29c = (attributes)=>{
 
 
 
+/**
+ * Function to determine the color class based on percentage value
+ * @param {number} percentage - The percentage value (0-100)
+ * @return {string} - The color class name
+ */ function $a6a6434f1848f426$var$getColorClass(percentage) {
+    if (percentage > 60) return 'high';
+    else if (percentage > 30) return 'medium';
+    else return 'low';
+}
 const $a6a6434f1848f426$export$40075bc608c4544e = (entity)=>{
     // Extract the percentage value from the entity state
     const percentage = Number(entity.state);
     // Determine the color class based on percentage value
-    const colorClass = percentage > 60 ? 'high' : percentage > 30 ? 'medium' : 'low';
+    const colorClass = $a6a6434f1848f426$var$getColorClass(percentage);
     return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
     <div class="percent-gauge">
       <div
@@ -1992,13 +2082,14 @@ const $9b8ea5fddc8bd48e$export$4c0287abd2ec956e = (element, expansions, hass, co
     // Don't render anything if there are no entities to display
     if (!entities || entities.length === 0) return 0, $f58f44579a4747ac$export$45b790e32b2810ee;
     // Determine how many entities to preview based on config
-    const size = config.preview_count || 3;
+    const size = config.preview_count ?? 3;
     // Check if this section needs collapsible functionality
     const needsExpansion = entities.length > size;
     // Get the current expanded state from the element
     const isExpanded = expansions.expandedSections[title] || false;
-    // Filter entities based on expanded state
-    const displayEntities = needsExpansion && !isExpanded ? entities.slice(0, size) : entities;
+    // Sort and filter entities based on expanded state
+    const sortedEntities = (0, $e1ab409cd148a528$export$4742c54ffa379383)(entities, config.sort);
+    const displayEntities = needsExpansion && !isExpanded ? sortedEntities.slice(0, size) : sortedEntities;
     // Determine section class based on expanded state, number of items, and compact feature
     const isCompact = (0, $a64cd1666b27644b$export$805ddaeeece0413e)(config, 'compact');
     const sectionClass = `section ${isExpanded ? 'expanded' : ''} ${!needsExpansion ? 'few-items' : ''} ${isCompact ? 'compact' : ''}`;
@@ -2061,6 +2152,20 @@ const $856d8633325a4fe5$export$1188214e9d38144e = (device)=>{
       <span>${device.name}</span>
     </div>
   </ha-card>`;
+};
+
+
+
+
+
+const $1ed74ce23f0ef067$export$c18c768bbe3223b7 = (hass, entity)=>(0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<state-display .hass=${hass} .stateObj=${entity}></state-display>`;
+
+
+const $da09c6fad515207c$export$69836945d4c6961f = (hass, entityId)=>{
+    if (!entityId) return 0, $f58f44579a4747ac$export$45b790e32b2810ee;
+    const state = (0, $e24dedcf9e480b2d$export$50fdfeece43146fd)(hass, entityId);
+    if (!state) return 0, $f58f44579a4747ac$export$45b790e32b2810ee;
+    return (0, $1ed74ce23f0ef067$export$c18c768bbe3223b7)(hass, state);
 };
 
 
@@ -2296,7 +2401,10 @@ class $76efc5be730c974a$export$cee8aa229c046b5e extends (0, $ab210b2da7b39b9d$ex
    * Sets up the card configuration
    * @param {Config} config - The card configuration
    */ setConfig(config) {
-        if (!$30856da572fd852b$exports(config, this._config)) this._config = config;
+        if (!$30856da572fd852b$exports(config, this._config)) {
+            this._config = config;
+            this.collapse = (0, $a64cd1666b27644b$export$805ddaeeece0413e)(config, 'collapse');
+        }
     }
     // required for integration card
     set config(config) {
@@ -2327,16 +2435,31 @@ class $76efc5be730c974a$export$cee8aa229c046b5e extends (0, $ab210b2da7b39b9d$ex
         if (!this._device) return 0, $f58f44579a4747ac$export$45b790e32b2810ee;
         if ((0, $a64cd1666b27644b$export$805ddaeeece0413e)(this._config, 'entity_picture')) return (0, $856d8633325a4fe5$export$1188214e9d38144e)(this._device);
         const problem = (0, $8dc66e7a4cb4d971$export$3b8a32145ce395a1)(this._device);
+        const hideTitle = (0, $a64cd1666b27644b$export$805ddaeeece0413e)(this._config, 'hide_title');
+        const hideDeviceModel = (0, $a64cd1666b27644b$export$805ddaeeece0413e)(this._config, 'hide_device_model');
+        const hideHeader = hideTitle && hideDeviceModel;
+        const entity = (0, $da09c6fad515207c$export$69836945d4c6961f)(this._hass, this._config.entity_id);
+        // Prepare header content
+        let headerContent = (0, $f58f44579a4747ac$export$45b790e32b2810ee);
+        if (!hideHeader) {
+            const titleContent = hideTitle ? (0, $f58f44579a4747ac$export$45b790e32b2810ee) : (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<span>${this._config.title ?? this._device.name}</span>`;
+            const modelContent = hideDeviceModel ? (0, $f58f44579a4747ac$export$45b790e32b2810ee) : (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<span class="model">${this._device.model}</span>`;
+            headerContent = (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
+        <div
+          class="card-header ${this.collapse ? 'collapsed' : ''}"
+          @click="${()=>this.collapse = !this.collapse}"
+          title="${this.collapse ? 'Expand' : 'Collapse'}"
+        >
+          <div class="title">${titleContent} ${modelContent}</div>
+          ${entity}
+        </div>
+      `;
+        } else if (entity) // If header is hidden but we have an entity state to show
+        headerContent = (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<div class="entity-state-only">${entity}</div>`;
         return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
       <ha-card class="${problem ? 'problem' : ''}">
-        <div class="card-header">
-          <div class="title">
-            <span>${this._config.title ?? this._device.name}</span>
-            ${(0, $a64cd1666b27644b$export$805ddaeeece0413e)(this._config, 'hide_device_model') ? (0, $f58f44579a4747ac$export$45b790e32b2810ee) : (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<span class="model">${this._device.model}</span>`}
-          </div>
-        </div>
-
-        ${(0, $10f7eb590266dd05$export$7dcefa9ef83b8269)(this, this._expansions, this._hass, this._config, this._device, (e)=>this._expansions = e)}
+        ${headerContent}
+        ${!this.collapse ? (0, $10f7eb590266dd05$export$7dcefa9ef83b8269)(this, this._expansions, this._hass, this._config, this._device, (e)=>this._expansions = e) : (0, $f58f44579a4747ac$export$45b790e32b2810ee)}
       </ha-card>
     `;
     }
@@ -2346,7 +2469,9 @@ class $76efc5be730c974a$export$cee8aa229c046b5e extends (0, $ab210b2da7b39b9d$ex
    */ this._expansions = {
             expandedSections: {},
             expandedEntities: {}
-        };
+        }, /**
+   * Internal collapsed state, separate from the config
+   */ this.collapse = false;
     }
 }
 (0, $24c52f343453d62d$export$29e00dfd3077644b)([
@@ -2358,6 +2483,9 @@ class $76efc5be730c974a$export$cee8aa229c046b5e extends (0, $ab210b2da7b39b9d$ex
 (0, $24c52f343453d62d$export$29e00dfd3077644b)([
     (0, $04c21ea1ce1f6057$export$ca000e230c0caa3e)()
 ], $76efc5be730c974a$export$cee8aa229c046b5e.prototype, "_expansions", void 0);
+(0, $24c52f343453d62d$export$29e00dfd3077644b)([
+    (0, $04c21ea1ce1f6057$export$ca000e230c0caa3e)()
+], $76efc5be730c974a$export$cee8aa229c046b5e.prototype, "collapse", void 0);
 
 
 
@@ -2396,43 +2524,201 @@ class $76efc5be730c974a$export$cee8aa229c046b5e extends (0, $ab210b2da7b39b9d$ex
         }
     ]
 };
-const $84451a3e48ae541f$var$contentSchema = (integration)=>{
-    const schema = {
-        name: 'content',
-        label: 'Content',
+/**
+ * Generates the schema for the device card's content configuration
+ * This includes options for title, preview count, section exclusion,
+ *
+ */ const $84451a3e48ae541f$var$CONTENT_SCHEMA = {
+    name: 'content',
+    label: 'Content',
+    type: 'expandable',
+    flatten: true,
+    icon: 'mdi:text-short',
+    schema: [
+        {
+            name: 'title',
+            required: false,
+            label: 'Card Title',
+            selector: {
+                text: {}
+            }
+        },
+        {
+            name: 'preview_count',
+            required: false,
+            label: 'Preview Count',
+            selector: {
+                text: {
+                    type: 'number'
+                }
+            }
+        },
+        {
+            name: 'exclude_sections',
+            label: 'Sections to exclude',
+            required: false,
+            selector: {
+                select: {
+                    multiple: true,
+                    mode: 'list',
+                    options: [
+                        {
+                            label: 'Controls',
+                            value: 'controls'
+                        },
+                        {
+                            label: 'Configuration',
+                            value: 'configurations'
+                        },
+                        {
+                            label: 'Sensors',
+                            value: 'sensors'
+                        },
+                        {
+                            label: 'Diagnostic',
+                            value: 'diagnostics'
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            name: 'section_order',
+            label: 'Section display order (click in order)',
+            required: false,
+            selector: {
+                select: {
+                    multiple: true,
+                    mode: 'list',
+                    options: [
+                        {
+                            label: 'Controls',
+                            value: 'controls'
+                        },
+                        {
+                            label: 'Configuration',
+                            value: 'configurations'
+                        },
+                        {
+                            label: 'Sensors',
+                            value: 'sensors'
+                        },
+                        {
+                            label: 'Diagnostic',
+                            value: 'diagnostics'
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+};
+/**
+ * Generates the schema for the sort options in the device card
+ * This includes options for sorting by domain, entity ID, name, or state
+ *
+ */ const $84451a3e48ae541f$var$SORT_SCHEMA = {
+    name: 'sort',
+    label: 'Sort Options',
+    type: 'expandable',
+    flatten: false,
+    icon: 'mdi:sort',
+    schema: [
+        {
+            type: 'grid',
+            name: '',
+            label: '',
+            schema: [
+                {
+                    name: 'type',
+                    label: 'Sort Type',
+                    required: true,
+                    selector: {
+                        select: {
+                            options: [
+                                {
+                                    value: 'domain',
+                                    label: 'Domain'
+                                },
+                                {
+                                    value: 'entity_id',
+                                    label: 'Entity ID'
+                                },
+                                {
+                                    value: 'name',
+                                    label: 'Name'
+                                },
+                                {
+                                    value: 'state',
+                                    label: 'State'
+                                }
+                            ],
+                            mode: 'dropdown'
+                        }
+                    }
+                },
+                {
+                    name: 'direction',
+                    label: 'Sort Direction',
+                    selector: {
+                        select: {
+                            options: [
+                                {
+                                    value: 'asc',
+                                    label: 'Ascending'
+                                },
+                                {
+                                    value: 'desc',
+                                    label: 'Descending'
+                                }
+                            ],
+                            mode: 'dropdown'
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+};
+/**
+ * Generates the schema for the integration card's layout configuration
+ * This includes options for the number of columns, device inclusion/exclusion,
+ *
+ * @param {string} integration - The current integration domain (if already selected)
+ * @returns {HaFormSchema} The complete schema for device card content configuration
+ */ const $84451a3e48ae541f$var$layoutSchema = (integration)=>{
+    return {
+        name: 'layout',
+        label: 'Integration Layout',
         type: 'expandable',
         flatten: true,
-        icon: 'mdi:text-short',
+        icon: 'mdi:view-grid-plus',
         schema: [
             {
-                name: 'title',
-                required: false,
-                label: 'Card Title',
-                selector: {
-                    text: {}
-                }
-            },
-            {
-                name: 'preview_count',
-                required: false,
-                label: 'Preview Count',
-                selector: {
-                    text: {
-                        type: 'number'
+                type: 'grid',
+                name: '',
+                label: '',
+                schema: [
+                    {
+                        name: 'columns',
+                        required: false,
+                        label: 'Number of Columns',
+                        selector: {
+                            number: {
+                                min: 1,
+                                max: 6,
+                                mode: 'box'
+                            }
+                        }
+                    },
+                    {
+                        name: 'hide_integration_title',
+                        label: 'Hide Title',
+                        selector: {
+                            boolean: {}
+                        }
                     }
-                }
-            },
-            {
-                name: 'columns',
-                required: false,
-                label: 'Number of Columns',
-                selector: {
-                    number: {
-                        min: 1,
-                        max: 6,
-                        mode: 'slider'
-                    }
-                }
+                ]
             },
             {
                 name: 'include_devices',
@@ -2459,73 +2745,9 @@ const $84451a3e48ae541f$var$contentSchema = (integration)=>{
                         }
                     }
                 }
-            },
-            {
-                name: 'exclude_sections',
-                label: 'Sections to exclude',
-                required: false,
-                selector: {
-                    select: {
-                        multiple: true,
-                        mode: 'list',
-                        options: [
-                            {
-                                label: 'Controls',
-                                value: 'controls'
-                            },
-                            {
-                                label: 'Configuration',
-                                value: 'configurations'
-                            },
-                            {
-                                label: 'Sensors',
-                                value: 'sensors'
-                            },
-                            {
-                                label: 'Diagnostic',
-                                value: 'diagnostics'
-                            }
-                        ]
-                    }
-                }
-            },
-            {
-                name: 'section_order',
-                label: 'Section display order (click in order)',
-                required: false,
-                selector: {
-                    select: {
-                        multiple: true,
-                        mode: 'list',
-                        options: [
-                            {
-                                label: 'Controls',
-                                value: 'controls'
-                            },
-                            {
-                                label: 'Configuration',
-                                value: 'configurations'
-                            },
-                            {
-                                label: 'Sensors',
-                                value: 'sensors'
-                            },
-                            {
-                                label: 'Diagnostic',
-                                value: 'diagnostics'
-                            }
-                        ]
-                    }
-                }
             }
         ]
     };
-    if (!integration) schema.schema = schema.schema.filter((s)=>![
-            'include_devices',
-            'exclude_devices',
-            'columns'
-        ].includes(s.name));
-    return schema;
 };
 const $84451a3e48ae541f$var$featuresSchema = (integration, entities)=>{
     return {
@@ -2553,8 +2775,16 @@ const $84451a3e48ae541f$var$featuresSchema = (integration, entities)=>{
                                 value: 'hide_device_model'
                             },
                             {
+                                label: 'Hide Title',
+                                value: 'hide_title'
+                            },
+                            {
                                 label: 'Compact Layout',
                                 value: 'compact'
+                            },
+                            {
+                                label: 'Start Collapsed',
+                                value: 'collapse'
                             }
                         ]
                     }
@@ -2603,8 +2833,10 @@ const $84451a3e48ae541f$export$66d64ae4fccd6d67 = async (hass, integration)=>{
             required: true,
             label: 'Integration'
         },
-        $84451a3e48ae541f$var$contentSchema(integration),
+        $84451a3e48ae541f$var$CONTENT_SCHEMA,
+        $84451a3e48ae541f$var$layoutSchema(integration),
         $84451a3e48ae541f$var$featuresSchema(integration),
+        $84451a3e48ae541f$var$SORT_SCHEMA,
         $84451a3e48ae541f$var$INTERACTIONS_SCHEMA
     ];
 };
@@ -2619,8 +2851,19 @@ const $84451a3e48ae541f$export$da5c1d4caabd4738 = (hass, config)=>{
             required: true,
             label: `Device`
         },
-        $84451a3e48ae541f$var$contentSchema(),
+        {
+            name: 'entity_id',
+            required: false,
+            label: 'Display Entity State',
+            selector: {
+                entity: {
+                    multiple: false
+                }
+            }
+        },
+        $84451a3e48ae541f$var$CONTENT_SCHEMA,
         $84451a3e48ae541f$var$featuresSchema(undefined, entities),
+        $84451a3e48ae541f$var$SORT_SCHEMA,
         $84451a3e48ae541f$var$INTERACTIONS_SCHEMA
     ];
 };
@@ -2677,7 +2920,7 @@ class $4d8f78da09198f60$export$eb3c6eb92a4f4397 extends (0, $ab210b2da7b39b9d$ex
 const $68e99829eee639f8$export$26c6f48841fe1a8a = (str)=>str.split('_').map((s)=>(0, $1409036132f3ee41$export$d07f57595c356899)(s)).join(' ');
 
 
-const $be605d8f132c1e28$export$48cc0f50054c9113 = (device, entryIds)=>device.config_entries && device.config_entries.some((entryId)=>entryIds.includes(entryId));
+const $be605d8f132c1e28$export$48cc0f50054c9113 = (device, entryIds)=>device.config_entries?.some((entryId)=>entryIds.includes(entryId)) ?? false;
 
 
 
@@ -2776,10 +3019,18 @@ class $3bda94c4eb71d8c0$export$ad4bbebd033175bb extends (0, $ab210b2da7b39b9d$ex
             domain: this._config.integration
         }).then((results)=>{
             const configEntries = results.map((e)=>e.entry_id);
+            // Simplified device inclusion/exclusion logic
             Object.values(hass.devices).forEach((device)=>{
-                var isIncluded = (0, $1f8809714ac7ce41$export$b4dbcc601e3f7204)(this._config, device.id, device.name);
-                var isExcluded = !isIncluded && (0, $49ae81c1680fcc1f$export$78de33bacfd1396b)(this._config, device.id, device.name);
-                if (!isExcluded && (0, $be605d8f132c1e28$export$48cc0f50054c9113)(device, configEntries)) data.devices.push(device.id);
+                // Check if device belongs to the integration first
+                if ((0, $be605d8f132c1e28$export$48cc0f50054c9113)(device, configEntries)) {
+                    const hasIncludeList = !!this._config.include_devices && this._config.include_devices.length > 0;
+                    const isIncluded = hasIncludeList ? (0, $1f8809714ac7ce41$export$b4dbcc601e3f7204)(this._config, device.id, device.name) : true; // If no include list, all devices are considered "included"
+                    const isExcluded = (0, $49ae81c1680fcc1f$export$78de33bacfd1396b)(this._config, device.id, device.name);
+                    // Add device if:
+                    // 1. It passes the inclusion check (either matches a pattern or no patterns specified)
+                    // 2. It doesn't match any exclusion pattern
+                    if (isIncluded && !isExcluded) data.devices.push(device.id);
+                }
             });
             if (!$30856da572fd852b$exports(data, this._integration)) this._integration = data;
         });
@@ -2793,23 +3044,23 @@ class $3bda94c4eb71d8c0$export$ad4bbebd033175bb extends (0, $ab210b2da7b39b9d$ex
    * @param {HomeAssistant} hass - The Home Assistant instance
    */ static async getStubConfig(hass) {
         const device = Object.values(hass.devices).find((device)=>device.identifiers && device.identifiers.length > 0);
-        const integration = device?.identifiers?.[0]?.[0] || '';
+        const integration = device?.identifiers?.[0]?.[0] ?? '';
         return {
             integration: integration
         };
     }
     /**
-   * Renders the lit element card
+   * renders the lit element card
    * @returns {TemplateResult} The rendered HTML template
    */ render() {
-        if (!this._integration?.devices?.length) return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<ha-card>
+        if (!this._integration?.devices?.length) {
+            const message = this._integration ? `No devices found for integration: ${this._config.integration}` : 'Loading...';
+            return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<ha-card>
         <div class="card-content">
-          <div class="no-devices">
-            No devices found for integration:
-            ${this._config.integration || 'not specified'}
-          </div>
+          <div class="no-devices">${message}</div>
         </div>
       </ha-card>`;
+        }
         // For preview, only show one device
         const devicesToShow = this.isPreview ? this._integration?.devices?.slice(0, 1) : this._integration?.devices;
         const title = this._config.title ?? this._integration.name;
@@ -2817,7 +3068,7 @@ class $3bda94c4eb71d8c0$export$ad4bbebd033175bb extends (0, $ab210b2da7b39b9d$ex
         const gridStyles = this._getGridStyles();
         return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
       <div>
-        ${title ? (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<h1 class="integration-title">${title}</h1>` : (0, $f58f44579a4747ac$export$45b790e32b2810ee)}
+        ${title && !this._config.hide_integration_title ? (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<h1 class="integration-title">${title}</h1>` : (0, $f58f44579a4747ac$export$45b790e32b2810ee)}
 
         <div class="devices-container" style=${(0, $19f464fcda7d2482$export$1e5b4ce2fa884e6a)(gridStyles)}>
           ${devicesToShow.map((deviceId)=>{
@@ -2825,7 +3076,15 @@ class $3bda94c4eb71d8c0$export$ad4bbebd033175bb extends (0, $ab210b2da7b39b9d$ex
               <device-card
                 .config=${{
                 device_id: deviceId,
-                ...this._config
+                preview_count: this._config.preview_count,
+                exclude_entities: this._config.exclude_entities,
+                exclude_sections: this._config.exclude_sections,
+                section_order: this._config.section_order,
+                sort: this._config.sort,
+                tap_action: this._config.tap_action,
+                hold_action: this._config.hold_action,
+                double_tap_action: this._config.double_tap_action,
+                features: this._config.features
             }}
                 .hass=${this._hass}
               ></device-card>
@@ -3027,7 +3286,7 @@ class $bb372a36f92bd9c9$export$9e322cdd8735282 extends (0, $ab210b2da7b39b9d$exp
 
 
 var $b06602ab53bd58a3$exports = {};
-$b06602ab53bd58a3$exports = JSON.parse("{\"name\":\"device-card\",\"version\":\"0.11.1\",\"author\":\"Patrick Masters\",\"license\":\"ISC\",\"description\":\"Custom Home Assistant card to show info about your devices.\",\"source\":\"src/index.ts\",\"module\":\"dist/device-card.js\",\"targets\":{\"module\":{\"includeNodeModules\":true}},\"scripts\":{\"watch\":\"parcel watch\",\"build\":\"parcel build\",\"test\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha\",\"test:coverage\":\"nyc npm run test\",\"test:watch\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha --watch\",\"update\":\"npx npm-check-updates -u && npm i\"},\"devDependencies\":{\"@istanbuljs/nyc-config-typescript\":\"^1.0.2\",\"@open-wc/testing\":\"^4.0.0\",\"@parcel/transformer-inline-string\":\"^2.14.4\",\"@testing-library/dom\":\"^10.4.0\",\"@trivago/prettier-plugin-sort-imports\":\"^5.2.2\",\"@types/chai\":\"^5.2.1\",\"@types/jsdom\":\"^21.1.7\",\"@types/mocha\":\"^10.0.10\",\"@types/sinon\":\"^17.0.4\",\"chai\":\"^5.2.0\",\"jsdom\":\"^26.1.0\",\"mocha\":\"^11.1.0\",\"nyc\":\"^17.1.0\",\"parcel\":\"^2.14.4\",\"prettier\":\"3.5.3\",\"prettier-plugin-organize-imports\":\"^4.1.0\",\"proxyquire\":\"^2.1.3\",\"sinon\":\"^20.0.0\",\"ts-node\":\"^10.9.2\",\"tsconfig-paths\":\"^4.2.0\",\"typescript\":\"^5.8.3\"},\"dependencies\":{\"@lit/task\":\"^1.0.2\",\"fast-deep-equal\":\"^3.1.3\",\"lit\":\"^3.3.0\"}}");
+$b06602ab53bd58a3$exports = JSON.parse("{\"name\":\"device-card\",\"version\":\"0.12.5\",\"author\":\"Patrick Masters\",\"license\":\"ISC\",\"description\":\"Custom Home Assistant card to show info about your devices.\",\"source\":\"src/index.ts\",\"module\":\"dist/device-card.js\",\"targets\":{\"module\":{\"includeNodeModules\":true}},\"scripts\":{\"watch\":\"parcel watch\",\"build\":\"parcel build\",\"test\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha\",\"test:coverage\":\"nyc npm run test\",\"test:watch\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha --watch\",\"update\":\"npx npm-check-updates -u && npm i\"},\"devDependencies\":{\"@istanbuljs/nyc-config-typescript\":\"^1.0.2\",\"@open-wc/testing\":\"^4.0.0\",\"@parcel/transformer-inline-string\":\"^2.14.4\",\"@testing-library/dom\":\"^10.4.0\",\"@trivago/prettier-plugin-sort-imports\":\"^5.2.2\",\"@types/chai\":\"^5.2.1\",\"@types/jsdom\":\"^21.1.7\",\"@types/mocha\":\"^10.0.10\",\"@types/sinon\":\"^17.0.4\",\"chai\":\"^5.2.0\",\"jsdom\":\"^26.1.0\",\"mocha\":\"^11.1.0\",\"nyc\":\"^17.1.0\",\"parcel\":\"^2.14.4\",\"prettier\":\"3.5.3\",\"prettier-plugin-organize-imports\":\"^4.1.0\",\"proxyquire\":\"^2.1.3\",\"sinon\":\"^20.0.0\",\"ts-node\":\"^10.9.2\",\"tsconfig-paths\":\"^4.2.0\",\"typescript\":\"^5.8.3\"},\"dependencies\":{\"@lit/task\":\"^1.0.2\",\"fast-deep-equal\":\"^3.1.3\",\"lit\":\"^3.3.0\"}}");
 
 
 // Register the custom elements with the browser
