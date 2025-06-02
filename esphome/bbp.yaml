@@ -25,5 +25,11 @@ time:
 web_server:
   port: 80
 
-ota:
-  platform: esphome
+button:
+  - platform: restart
+    name: Restart
+
+text_sensor:
+  - platform: version
+    name: "ESPHome Version"
+    hide_timestamp: true

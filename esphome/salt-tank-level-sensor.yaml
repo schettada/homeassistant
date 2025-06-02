@@ -39,7 +39,12 @@ time:
 
 button:
   - platform: restart
-    name: restart
+    name: Restart
+
+text_sensor:
+  - platform: version
+    name: "ESPHome Version"
+    hide_timestamp: true
 
 i2c:
   sda: GPIO16
