@@ -4,8 +4,6 @@ esphome:
 
 esp32:
   board: esp32dev
-  framework:
-    type: arduino
 
 # Enable logging
 logger:
@@ -31,7 +29,7 @@ wifi:
 captive_portal:
 
 web_server:
-  port: 80
+  local: true
 
 time:
   - platform: homeassistant
