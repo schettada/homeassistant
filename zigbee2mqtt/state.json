@@ -5,23 +5,23 @@
         "motion_sensitivity": "high",
         "occupancy": false,
         "illuminance": 1,
-        "temperature": 18.31,
+        "temperature": 20.85,
         "update": {
             "state": "available",
             "installed_version": 1107323831,
             "latest_version": 1124102917
         },
         "update_available": false,
-        "linkquality": 87
+        "linkquality": 83
     },
     "0x0017880109197eb3": {
         "battery": 55.5,
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 6,
-        "linkquality": 163,
-        "temperature": 16.96,
+        "illuminance": 1,
+        "linkquality": 76,
+        "temperature": 17.1,
         "update": {
             "state": "available",
             "installed_version": 1107323831,
@@ -30,10 +30,10 @@
         "update_available": false
     },
     "0x00124b0025908789": {
-        "linkquality": 94
+        "linkquality": 109
     },
     "0x00124b002590928c": {
-        "linkquality": 80
+        "linkquality": 87
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
@@ -45,7 +45,7 @@
         "trouble": false,
         "ac_status": false,
         "test": false,
-        "linkquality": 102,
+        "linkquality": 87,
         "battery_defect": false
     },
     "0x000d6f0013e693f9": {
@@ -55,12 +55,12 @@
         "tamper": false,
         "battery_low": false,
         "contact": true,
-        "linkquality": 91,
-        "temperature": 21
+        "linkquality": 98,
+        "temperature": 22
     },
     "0xdc8e95fffe3ed0cd": {
         "state": "OFF",
-        "linkquality": 91,
+        "linkquality": 87,
         "brightness": 254,
         "power_on_behavior": "previous",
         "update": {
@@ -74,7 +74,7 @@
         "battery": 70,
         "state": "LOCK",
         "lock_state": "locked",
-        "linkquality": 76
+        "linkquality": 87
     },
     "0xb0ce1814030101aa": {
         "color_mode": "color_temp",
@@ -87,7 +87,7 @@
         "energy": 2.38,
         "state": "OFF",
         "power": 0,
-        "linkquality": 72,
+        "linkquality": 87,
         "color_temp": 303,
         "color": {
             "x": 0.417,
@@ -101,12 +101,13 @@
     },
     "0x8c6fb9fffe262da7": {
         "occupancy": false,
-        "illuminance": 3,
-        "battery": 90,
+        "illuminance": 1,
+        "battery": 91,
         "update": {
             "state": "available",
             "installed_version": 16777303,
             "latest_version": 16777316
-        }
+        },
+        "linkquality": 145
     }
 }
