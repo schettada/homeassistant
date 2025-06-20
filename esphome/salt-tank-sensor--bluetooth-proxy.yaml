@@ -1,16 +1,21 @@
+substitutions:
+  device_name: stbp
+  device_id: stbp
+  device_friendly_name: Salt Tank Sensor & Bluetooth Proxy
+  device_sampling_time: 30s
+
 packages:
-  esphome.bluetooth-proxy: github://esphome/bluetooth-proxies/esp32-generic/esp32-generic-s3.yaml@main
+  bluetooth-proxy: github://schettada/esphome/esp32-generic-s3.yaml@main
+  sensors: github://schettada/esphome/sensors.yaml@main
+  buttons: github://schettada/esphome/buttons.yaml@main
 
 esphome:
-  name: stbp
-  friendly_name: Salt Tank Sensor & Bluetooth Proxy
+  name: ${device_name}
+  friendly_name: ${device_friendly_name}
   name_add_mac_suffix: false
 
 esp32:
   board: esp32-s3-devkitc-1
-
-# Enable logging
-logger:
 
 # Enable Home Assistant API
 api:
@@ -23,22 +28,6 @@ wifi:
   domain: !secret domain
   fast_connect: True
 
-time:
-  - platform: homeassistant
-    id: homeassistant_time 
-
-web_server:
-  local: true
-
-button:
-  - platform: restart
-    name: Restart
-
-text_sensor:
-  - platform: version
-    name: "ESPHome Version"
-    hide_timestamp: true
-
 i2c:
   sda: GPIO16
   scl: GPIO17
@@ -46,7 +35,7 @@ i2c:
 sensor:
   - platform: vl53l0x
     name: "Salt Level"
-    id: tof_softener_salt_level
+    id: ${device_id}_salt_level
     address: 0x29
     timeout: 60s
     update_interval: 300s

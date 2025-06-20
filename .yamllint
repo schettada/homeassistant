@@ -8,6 +8,7 @@ ignore: |
   esphome/.esphome/
   esphome/*.yaml
   esphome/trash/*.yaml
+  esphome/archive/*.yaml
   ip_bans.yaml
   notebooks/
   scenes.yaml
