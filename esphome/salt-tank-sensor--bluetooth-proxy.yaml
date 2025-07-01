@@ -3,11 +3,13 @@ substitutions:
   device_id: stbp
   device_friendly_name: Salt Tank Sensor & Bluetooth Proxy
   device_sampling_time: 30s
+  gpio_pin: GPIO48
 
 packages:
   bluetooth-proxy: github://schettada/esphome/esp32-generic-s3.yaml@main
   sensors: github://schettada/esphome/sensors.yaml@main
   buttons: github://schettada/esphome/buttons.yaml@main
+  lights: github://schettada/esphome/lights.yaml@main
 
 esphome:
   name: ${device_name}
@@ -46,4 +48,3 @@ sensor:
           window_size: 3
           send_first_at: 1
     accuracy_decimals: 2
-    

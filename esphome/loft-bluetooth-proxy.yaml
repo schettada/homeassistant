@@ -6,11 +6,13 @@ substitutions:
   device_id: loft_bluetooth_proxy
   device_friendly_name: Loft Bluetooth Proxy
   device_sampling_time: 30s
+  gpio_pin: GPIO48
 
 packages:
   bluetooth-proxy: github://schettada/esphome/esp32-generic-s3.yaml@main
   sensors: github://schettada/esphome/sensors.yaml@main
   buttons: github://schettada/esphome/buttons.yaml@main
+  lights: github://schettada/esphome/lights.yaml@main
 
 esphome:
   name: ${device_name}
@@ -30,3 +32,4 @@ wifi:
   password: !secret wifi_password
   domain: !secret domain
   fast_connect: True
+    
