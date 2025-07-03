@@ -1,7 +1,7 @@
 substitutions:
-  device_name: stbp
-  device_id: stbp
-  device_friendly_name: Salt Tank Sensor & Bluetooth Proxy
+  device_name: salt-tank
+  device_id: salt_tank
+  device_friendly_name: Salt Tank
   device_sampling_time: 30s
   gpio_pin: GPIO48
 
