@@ -2,13 +2,13 @@
 # Substitution Variables
 ################################################################################
 substitutions:
-  device_name: great-room-bluetooth-proxy
-  device_id: great_room_bluetooth_proxy
-  device_friendly_name: Great Room Bluetooth Proxy
+  device_name: s3-matrix
+  device_id: s3_matrix
+  device_friendly_name: S3 Matrix
   device_sampling_time: 30s
-  gpio_pin: GPIO48
-  num_leds: 1
-  rgb_order: GRB   
+  gpio_pin: GPIO14
+  num_leds: 64
+  rgb_order: RGB
 
 packages:
   bluetooth-proxy: github://schettada/esphome/esp32-generic-s3.yaml@main
@@ -34,5 +34,3 @@ wifi:
   password: !secret wifi_password
   domain: !secret domain
   fast_connect: True
-    
-    
