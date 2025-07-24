@@ -17,6 +17,7 @@ ignore: |
   themes/mushroom/*.yaml
   zigbee2mqtt/*.yaml
   double-take/*.yml
+  www/community/
 rules:
   braces:
     level: error

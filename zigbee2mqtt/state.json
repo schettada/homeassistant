@@ -19,9 +19,9 @@
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 13,
+        "illuminance": 70,
         "linkquality": 76,
-        "temperature": 16.26,
+        "temperature": 16.4,
         "update": {
             "state": "available",
             "installed_version": 1107323831,
@@ -101,7 +101,7 @@
     },
     "0x8c6fb9fffe262da7": {
         "occupancy": false,
-        "illuminance": 9,
+        "illuminance": 8,
         "battery": 89,
         "update": {
             "state": "available",
