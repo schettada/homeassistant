@@ -1030,3 +1030,26 @@
   - action: hassio.host_shutdown
     data: {}
   mode: single
+- id: '1754606752871'
+  alias: Lock Front Door
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.front_door_sensor_contact
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    from: 'on'
+    to: 'off'
+  conditions:
+  - condition: state
+    entity_id: lock.front_door
+    state: unlocked
+  actions:
+  - device_id: ffdf93c07bcdcb929e54e064d383b470
+    domain: lock
+    entity_id: b438392b34f145fed27c1ed5aaf709c7
+    type: lock
+  mode: single
