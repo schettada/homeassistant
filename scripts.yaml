@@ -26,18 +26,15 @@ notify_all:
       entity_id: input_boolean.guest_mode
       state: 'off'
     then:
-    - service: script.alexa_announcement
-      data:
-        message: '{{ message }}'
-    - service: script.notify_phones
-      data:
+    - data:
         message: '{{ message }}'
         title: '{{ title }}'
+      action: script.notify_phones
     else:
-    - service: script.notify_phones
-      data:
+    - data:
         message: '{{ message }}'
         title: '{{ title }}'
+      action: script.notify_phones
   mode: queued
   icon: mdi:bell-ring
   max: 10
@@ -67,12 +64,17 @@ door_bell:
 door_alert:
   alias: Door Alert
   sequence:
-  - data:
-      media_content_id: clock_01
-      media_content_type: sound
-    action: media_player.play_media
-    target:
-      entity_id: media_player.all_alexa
+  - if:
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+    then:
+    - data:
+        media_content_id: clock_01
+        media_content_type: sound
+      action: media_player.play_media
+      target:
+        entity_id: media_player.all_alexa
   mode: single
   icon: mdi:door-open
 notify_phones:
@@ -91,14 +93,19 @@ notify_phones:
 alexa_announcement:
   alias: Alexa Announcement
   sequence:
-  - data:
-      target:
-      - media_player.loft_echo_show
-      - media_player.great_room_echo_show
-      - media_player.basement_echo_dot
-      - media_player.bedroom_echo_dot
-      - media_player.study_echo_dot
-      message: '"{{ message }}"'
-    action: notify.alexa_media
+  - if:
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+    then:
+    - data:
+        target:
+        - media_player.loft_echo_show
+        - media_player.great_room_echo_show
+        - media_player.basement_echo_dot
+        - media_player.bedroom_echo_dot
+        - media_player.study_echo_dot
+        message: '"{{ message }}"'
+      action: notify.alexa_media
   mode: single
   icon: mdi:bell-ring
