@@ -5,6 +5,8 @@ homeassistant:
   auth_mfa_modules:
     - type: totp
 
+default_config:
+
 http:
   ssl_certificate: !secret ssl_crt
   ssl_key: !secret ssl_key
@@ -14,49 +16,11 @@ http:
   trusted_proxies:
     - 10.2.1.0/24
 
-# default_config:
-automation: !include automations.yaml
-backup:
-bluetooth:
-cloud:
-config:
-conversation:
-counter:
-dhcp:
-energy:
 frontend:
   themes: !include_dir_merge_named themes
-hardware:
-history:
-homeassistant_alerts:
-image_upload:
-input_boolean:
-input_button:
-input_datetime:
-input_number:
-input_select:
-input_text:
-logbook:
+
 logger:
-  default: info
-# map:
-media_source:
-mobile_app:
-my:
-person:
-schedule:
-scene: !include scenes.yaml
-script: !include scripts.yaml
-ssdp:
-stream:
-sun:
-system_health:
-tag:
-timer:
-usb:
-webhook:
-zeroconf:
-zone:
+  default: warning
 
 recorder:
   db_url: !secret mysql
@@ -73,4 +37,8 @@ recorder:
       - update
       - image
       - image_processing
+
+automation: !include automations.yaml
+scene: !include scenes.yaml
+script: !include scripts.yaml
 # image_processing: !include image_processing.yaml
