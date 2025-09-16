@@ -1053,3 +1053,19 @@
     entity_id: b438392b34f145fed27c1ed5aaf709c7
     type: lock
   mode: single
+- id: '1757901543651'
+  alias: Restart Wallpanel
+  description: ''
+  triggers:
+  - trigger: time
+    at: 00:30:00
+    weekday:
+    - sun
+  conditions: []
+  actions:
+  - action: button.press
+    metadata: {}
+    data: {}
+    target:
+      entity_id: button.wallpanel_restart_device
+  mode: single
