@@ -1069,3 +1069,43 @@
     target:
       entity_id: button.wallpanel_restart_device
   mode: single
+- id: '1758151114044'
+  alias: Wallpanel Charge Control
+  description: ''
+  triggers:
+  - type: battery_level
+    device_id: ffd9521a6949932a0138eaf05ddc1b2a
+    entity_id: d8fa970d9d196430a5d1806eb497c839
+    domain: sensor
+    trigger: device
+    above: 79
+    id: full
+  - type: battery_level
+    device_id: ffd9521a6949932a0138eaf05ddc1b2a
+    entity_id: d8fa970d9d196430a5d1806eb497c839
+    domain: sensor
+    trigger: device
+    id: depleted
+    below: 35
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - full
+      sequence:
+      - type: turn_off
+        device_id: 0aa9becf357e16713a20cb2dc564ec17
+        entity_id: cd4681d56082662c7ada1c5e803dfb61
+        domain: switch
+    - conditions:
+      - condition: trigger
+        id:
+        - depleted
+      sequence:
+      - type: turn_on
+        device_id: 0aa9becf357e16713a20cb2dc564ec17
+        entity_id: cd4681d56082662c7ada1c5e803dfb61
+        domain: switch
+  mode: single
