@@ -24,16 +24,20 @@ OSCANGLE_KEY = "oscangle"
 CRUISECONF_KEY = "cruiseconf"
 TEMPERATURE_KEY = "temperature"
 TARGET_TEMPERATURE_KEY = "templevel"
+SLEEPTEMPOFFSET_KEY = "sleeptempoffset"
 VOICEON_KEY = "voiceon"
 LEDALWAYSON_KEY = "ledalwayson"
 LIGHTSENSORON_KEY = "lightsensoron"
 MUTEON_KEY = "muteon"
+PM25_KEY = "pm25"
 FIXEDCONF_KEY = "fixedconf"
 DEVON_KEY = "devon"
 TIMERON_KEY = "timeron"
 COOLDOWN_KEY = "cooldown"
 PTCON_KEY = "ptcon"
 LIGHTON_KEY = "lighton"
+BRIGHTNESS_KEY = "brightness"
+COLORTEMP_KEY = "colortemp"
 CTLSTATUS_KEY = "ctlstatus"
 TIMEROFF_KEY = "timeroff"
 ECOLEVEL_KEY = "ecolevel"
@@ -57,7 +61,7 @@ FANON_KEY = "fanon"
 
 
 DREO_API_URL_FORMAT = (
-    "https://app-api-{0}.dreo-cloud.com"  # {0} is the 2 letter region code
+    "https://app-api-{0}.dreo-tech.com"  # {0} is the 2 letter region code
 )
 
 DREO_API_PATH = "path"
@@ -175,7 +179,7 @@ HUMIDITY_RANGE = "humidity_range"
 
 class TemperatureUnit(Enum):
     """Valid possible temperature units."""
-    CELCIUS = 0
+    CELSIUS = 0
     FAHRENHEIT = 1
 
 # Fan oscillation modes
@@ -216,6 +220,9 @@ PRESET_NONE = "none"
 
 # Device is running an energy-saving mode
 PRESET_ECO = "eco"
+
+# Device is running in sleep mode
+PRESET_SLEEP = "sleep"
 
 class HVACMode(StrEnum):
     """HVAC mode for climate devices."""
@@ -266,4 +273,6 @@ class DreoDeviceType(StrEnum):
     AIR_CONDITIONER = "Air Conditioner"
     CHEF_MAKER = "Chef Maker"
     HUMIDIFIER = "Humidifier"
+    DEHUMIDIFIER = "Dehumidifier"
+    EVAPORATIVE_COOLER = "Evaporative Cooler"
     UNKNOWN = "Unknown"

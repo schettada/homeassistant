@@ -15,10 +15,16 @@ from .dreobasedevice import DreoBaseDeviceHA
 from .pydreo import PyDreo
 from .pydreo.pydreobasedevice import PyDreoBaseDevice
 from .pydreo.constant import (
-    TemperatureUnit,
     HUMIDITY_KEY,
     MODE_KEY,
+    PM25_KEY,
     DreoDeviceType
+)
+
+from .pydreo.pydreoevaporativecooler import (
+    WATER_LEVEL_EMPTY, 
+    WATER_LEVEL_OK, 
+    WATER_LEVEL_STATUS_KEY
 )
 
 from .haimports import *  # pylint: disable=W0401,W0614
@@ -61,7 +67,7 @@ SENSORS: tuple[DreoSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.FAHRENHEIT,
         value_fn=lambda device: device.temperature,
-        exists_fn=lambda device: device.is_feature_supported("temperature"),
+        exists_fn=lambda device: (not device.type in { DreoDeviceType.HEATER, DreoDeviceType.AIR_CONDITIONER }) and device.is_feature_supported("temperature"),
     ),
     DreoSensorEntityDescription(
         key="humidity",
@@ -96,8 +102,48 @@ SENSORS: tuple[DreoSensorEntityDescription, ...] = (
         options=[MODE_STANDBY, MODE_COOKING, MODE_OFF, MODE_PAUSED],
         value_fn=lambda device: device.mode,
         exists_fn=lambda device: device.is_feature_supported(MODE_KEY),
+    ),
+    DreoSensorEntityDescription(
+        key="pm25",
+        translation_key="pm25",
+        device_class=SensorDeviceClass.PM25,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement_fn=lambda device: "%",
+        value_fn=lambda device: device.pm25,
+        exists_fn=lambda device: device.is_feature_supported(PM25_KEY),
+    ),
+    DreoSensorEntityDescription(
+        key="Water Level",
+        translation_key="water",
+        device_class=SensorDeviceClass.ENUM,
+        options=[WATER_LEVEL_OK, WATER_LEVEL_EMPTY],
+        value_fn=lambda device: device.water_level,
+        exists_fn=lambda device: device.is_feature_supported(WATER_LEVEL_STATUS_KEY),
     )
 )
+
+def get_entries(pydreo_devices : list[PyDreoBaseDevice]) -> list[DreoSensorHA]:
+    """Add Sensor entries for Dreo devices."""
+    sensor_ha_collection : list[DreoSensorHA] = []
+
+    for pydreo_device in pydreo_devices:
+        _LOGGER.debug("Sensor:get_entries: Adding Sensors for %s", pydreo_device.name)
+        sensor_keys : list[str] = []
+        
+        for sensor_definition in SENSORS:
+            _LOGGER.debug("Sensor:get_entries: checking exists fn: %s on %s", sensor_definition.key, pydreo_device.name)
+
+            if sensor_definition.exists_fn(pydreo_device):
+                if (sensor_definition.key in sensor_keys):
+                    _LOGGER.error("Sensor:get_entries: Duplicate sensor key %s", sensor_definition.key)
+                    continue
+
+                _LOGGER.debug("Sensor:get_entries: Adding Sensor %s", sensor_definition.key)
+                sensor_keys.append(sensor_definition.key)
+
+                sensor_ha_collection.append(DreoSensorHA(pydreo_device, sensor_definition))
+
+    return sensor_ha_collection
 
 
 async def async_setup_entry(
@@ -105,36 +151,12 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the Dreo sensor platform."""
+    """Set up the Dreo Sensor platform."""
     _LOGGER.info("Starting Dreo Sensor Platform")
 
     pydreo_manager : PyDreo = hass.data[DOMAIN][PYDREO_MANAGER]
 
-    sensor_has : list[SensorEntity] = []
-    for pydreo_device in pydreo_manager.devices:
-
-        if (pydreo_device.type == DreoDeviceType.TOWER_FAN or
-            pydreo_device.type == DreoDeviceType.AIR_CIRCULATOR or
-            pydreo_device.type == DreoDeviceType.AIR_PURIFIER):
-            # Really ugly hack since there is just one sensor for now...
-            sensor_has.append(DreoSensorHA(pydreo_device, SENSORS[0]))
-
-        if pydreo_device.type == DreoDeviceType.HEATER:
-            # Really ugly hack since there is just one sensor for now...
-            sensor_has.append(DreoSensorHA(pydreo_device, SENSORS[0]))
-
-        if pydreo_device.type == DreoDeviceType.AIR_CONDITIONER:
-            # Really ugly hack...
-            sensor_has.append(DreoSensorHA(pydreo_device, SENSORS[0]))
-            sensor_has.append(DreoSensorHA(pydreo_device, SENSORS[1]))
-            sensor_has.append(DreoSensorHA(pydreo_device, SENSORS[2]))
-            sensor_has.append(DreoSensorHA(pydreo_device, SENSORS[3]))
-
-        if pydreo_device.type == DreoDeviceType.CHEF_MAKER:
-            # Really ugly hack...
-            sensor_has.append(DreoSensorHA(pydreo_device, SENSORS[4]))
-
-    async_add_entities(sensor_has)
+    async_add_entities(get_entries(pydreo_manager.devices))
 
 
 class DreoSensorHA(DreoBaseDeviceHA, SensorEntity):
@@ -156,6 +178,11 @@ class DreoSensorHA(DreoBaseDeviceHA, SensorEntity):
             )
         if description.options is not None:
             self._attr_options = description.options
+
+        _LOGGER.info(
+            "new DreoSensorHA instance(%s), unique ID %s",
+            self._attr_name,
+            self._attr_unique_id)
 
     @property
     def native_value(self) -> StateType:

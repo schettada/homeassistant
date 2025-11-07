@@ -15,7 +15,7 @@ from homeassistant.const import (
     PERCENTAGE,
 )
 
-__version__ = "5.7.0"
+__version__ = "5.7.5"
 PROJECT_URL = "https://github.com/alandtse/alexa_media_player/"
 ISSUE_URL = f"{PROJECT_URL}issues"
 NOTIFY_URL = f"{PROJECT_URL}wiki/Configuration%3A-Notification-Component#use-the-notifyalexa_media-service"
@@ -144,8 +144,20 @@ ALEXA_ICON_CONVERSION = {
     "Alexa.AirQuality.CarbonMonoxide": "mdi:molecule-co",
     "Alexa.AirQuality.Humidity": "mdi:water-percent",
     "Alexa.AirQuality.IndoorAirQuality": "mdi:numeric",
+    "Alexa.AirQuality.ParticulateMatter": "mdi:blur",
+    "Alexa.AirQuality.VolatileOrganicCompounds": "mdi:air-filter",
 }
 ALEXA_ICON_DEFAULT = "mdi:molecule"
+
+# Device class mapping for air quality sensors
+# Maps Alexa sensor types to Home Assistant SensorDeviceClass
+ALEXA_AIR_QUALITY_DEVICE_CLASS = {
+    "Alexa.AirQuality.ParticulateMatter": "pm25",
+    "Alexa.AirQuality.CarbonMonoxide": "carbon_monoxide",
+    "Alexa.AirQuality.IndoorAirQuality": "aqi",
+    "Alexa.AirQuality.VolatileOrganicCompounds": "volatile_organic_compounds",
+    "Alexa.AirQuality.Humidity": "humidity",
+}
 
 UPLOAD_PATH = "www/alexa_tts"
 
@@ -230,7 +242,7 @@ MODEL_IDS = {
     "A2RU4B77X9R9NZ": "Echo Link Amp",
     "A2TF17PFR55MTB": "Alexa Mobile Voice Android",
     "A2TTLILJHVNI9X": "LG TV",
-    "A2U21SRK4QGSE1": "Echo Dot Clock (Gen4)",
+    "A2U21SRK4QGSE1": "Echo Dot (Gen4)",
     "A2UONLFQW0PADH": "Echo Show 8 (Gen3)",
     "A2V9UEGZ82H4KZ": "Fire Tablet HD 10",
     "A2VAXZ7UNGY4ZH": "Wyze Headphones",

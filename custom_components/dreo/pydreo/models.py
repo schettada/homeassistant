@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 from .constant import (
+    SPEED_RANGE,
     HEATER_MODE_COOLAIR,
     HEATER_MODE_HOTAIR,
     HEATER_MODE_ECO,
@@ -22,6 +23,7 @@ from .constant import (
     FAN_HIGH,
     PRESET_NONE,
     PRESET_ECO,
+    PRESET_SLEEP,
     HVACMode,
     DreoDeviceType
 )
@@ -109,7 +111,9 @@ SUPPORTED_MODEL_PREFIXES = {
     "DR-HSH",
     "WH",
     "DR-HAC",
-    "DR-HHM"
+    "DR-HHM",
+    "DR-HDH",
+    "DR-HEC"
 }
 
 SUPPORTED_DEVICES = {
@@ -119,12 +123,15 @@ SUPPORTED_DEVICES = {
     # Air Circulators
     "DR-HAF": DreoDeviceDetails(device_type=DreoDeviceType.AIR_CIRCULATOR),
     "DR-HPF": DreoDeviceDetails(device_type=DreoDeviceType.AIR_CIRCULATOR),
+    "DR-HPF008S": DreoDeviceDetails(
+        device_type=DreoDeviceType.AIR_CIRCULATOR,
+        device_ranges={SPEED_RANGE: (1, 9)}),
 
     # Ceiling Fans
     "DR-HCF": DreoDeviceDetails(device_type=DreoDeviceType.CEILING_FAN),
 
     # Air Purifiers
-    "DR-HAP003S": DreoDeviceDetails(device_type=DreoDeviceType.AIR_PURIFIER),
+    "DR-HAP": DreoDeviceDetails(device_type=DreoDeviceType.AIR_PURIFIER),
 
     # Heaters
     "DR-HSH017BS": DreoDeviceDetails(
@@ -199,7 +206,7 @@ SUPPORTED_DEVICES = {
     "DR-HSH017S": DreoDeviceDetails(
         device_type=DreoDeviceType.HEATER,
         preset_modes=["H1", "H2", "H3"],
-        device_ranges={HEAT_RANGE: (1, 3), ECOLEVEL_RANGE: (41, 85)},
+        device_ranges={HEAT_RANGE: (1, 3), ECOLEVEL_RANGE: (41, 95)},
         hvac_modes=[
             HEATER_MODE_COOLAIR,
             HEATER_MODE_HOTAIR,
@@ -245,38 +252,27 @@ SUPPORTED_DEVICES = {
     ),
 
     # Air Conditioners
-    "DR-HAC005S": DreoDeviceDetails(
+    # Note we had HAC-005S and HAC-006S in the list but they are identical.
+    "DR-HAC": DreoDeviceDetails(
         device_type=DreoDeviceType.AIR_CONDITIONER,
         device_ranges={
-            TEMP_RANGE: (60, 95),
+            TEMP_RANGE: (60, 86),
             TARGET_TEMP_RANGE: (64, 86),
             TARGET_TEMP_RANGE_ECO: (75, 86),
             HUMIDITY_RANGE: (30, 80),
         },
         # TODO Eco is a Present, not HVAC mode (HVACMode.AUTO)
-        hvac_modes=[HVACMode.COOL, HVACMode.FAN_ONLY, HVACMode.DRY],
+        hvac_modes=[
+            HVACMode.OFF,
+            HVACMode.COOL, 
+            HVACMode.FAN_ONLY, 
+            HVACMode.DRY
+        ],
         swing_modes=[SWING_OFF, SWING_ON],
-        preset_modes=[PRESET_NONE, PRESET_ECO],
+        preset_modes=[PRESET_NONE, PRESET_ECO, PRESET_SLEEP],
         # TODO Add fan modes, windlevel: 1,2,3,4 (Auto)
         fan_modes=[FAN_LOW, FAN_MEDIUM, FAN_HIGH, FAN_AUTO],
     ),
-
-    # Air Conditioners
-    "DR-HAC006S": DreoDeviceDetails(
-        device_type=DreoDeviceType.AIR_CONDITIONER,
-        device_ranges={
-            TEMP_RANGE: (60, 95),
-            TARGET_TEMP_RANGE: (64, 86),
-            TARGET_TEMP_RANGE_ECO: (75, 86),
-            HUMIDITY_RANGE: (30, 80),
-        },
-        # TODO Eco is a Present, not HVAC mode (HVACMode.AUTO)
-        hvac_modes=[HVACMode.COOL, HVACMode.FAN_ONLY, HVACMode.DRY],
-        swing_modes=[SWING_OFF, SWING_ON],
-        preset_modes=[PRESET_NONE, PRESET_ECO],
-        # TODO Add fan modes, windlevel: 1,2,3,4 (Auto)
-        fan_modes=[FAN_LOW, FAN_MEDIUM, FAN_HIGH, FAN_AUTO],
-    ),    
 
     "DR-KCM001S": DreoDeviceDetails(
         device_type=DreoDeviceType.CHEF_MAKER,
@@ -285,4 +281,21 @@ SUPPORTED_DEVICES = {
     ),
 
     "DR-HHM": DreoDeviceDetails(device_type=DreoDeviceType.HUMIDIFIER),
+
+    # Dehumidifiers
+    "DR-HDH001S": DreoDeviceDetails(
+        device_type=DreoDeviceType.DEHUMIDIFIER,
+        device_ranges={
+            HUMIDITY_RANGE: (30, 85),
+            SPEED_RANGE: (1, 3)
+        }
+    ),
+
+    # Evaporative Coolers
+    "DR-HEC": DreoDeviceDetails(
+        device_type=DreoDeviceType.EVAPORATIVE_COOLER,
+        device_ranges={
+            SPEED_RANGE: (1, 4)
+        },
+    )
 }

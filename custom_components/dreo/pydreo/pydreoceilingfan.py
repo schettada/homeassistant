@@ -9,6 +9,9 @@ from .constant import (
     LIGHTON_KEY,
     WINDLEVEL_KEY,
     SPEED_RANGE,
+    BRIGHTNESS_KEY,
+    COLORTEMP_KEY,
+    POWERON_KEY
 )
 
 from .pydreofanbase import PyDreoFanBase
@@ -37,7 +40,9 @@ class PyDreoCeilingFan(PyDreoFanBase):
             self._preset_modes = self.parse_preset_modes(details)
 
         self._fan_speed = None
-        self._light_on = None
+        self._light_on : bool = None
+        self._brightness : int = None
+        self._color_temp : int = None
 
         self._wind_type = None
         self._wind_mode = None
@@ -72,7 +77,7 @@ class PyDreoCeilingFan(PyDreoFanBase):
         self._send_command(FANON_KEY, value)
 
     @property
-    def light_on(self):
+    def light_on(self) -> bool | None:
         """Returns `True` if the device light is on, `False` otherwise."""
         return self._light_on
 
@@ -80,6 +85,9 @@ class PyDreoCeilingFan(PyDreoFanBase):
     def light_on(self, value: bool):
         """Set if the fan is on or off"""
         _LOGGER.debug("PyDreoCeilingFan:light_on.setter - %s", value)
+        if (self._light_on is None):
+            _LOGGER.error("Light control not supported by this fan model.")
+            return
         self._send_command(LIGHTON_KEY, value)
 
     @property
@@ -89,6 +97,34 @@ class PyDreoCeilingFan(PyDreoFanBase):
     @oscillating.setter
     def oscillating(self, value: bool) -> None:
         raise NotImplementedError(f"Attempting to set oscillating on a device that doesn't support ({value})")
+
+    @property
+    def brightness(self) -> int | None:
+        """Returns the brightness of the light, or None if not supported."""
+        return self._brightness
+
+    @brightness.setter
+    def brightness(self, value: int):
+        """Set the brightness of the light on the fan."""
+        _LOGGER.debug("PyDreoCeilingFan:brightness.setter - %s", value)
+        if (self._brightness is None):
+            _LOGGER.error("Brightness not supported by this fan model.")
+            return
+        self._send_command(BRIGHTNESS_KEY, value)
+
+    @property
+    def color_temperature(self) -> int | None:
+        """Returns the color temperature of the light, or None if not supported."""
+        return self._color_temp
+
+    @color_temperature.setter
+    def color_temperature(self, value: int):
+        """Set the color temperature of the light on the fan."""
+        _LOGGER.debug("PyDreoCeilingFan:color_temperature.setter - %s", value)
+        if (self._color_temp is None):
+            _LOGGER.error("Color temperature not supported by this fan model.")
+            return
+        self._send_command(COLORTEMP_KEY, value)        
     
     def update_state(self, state: dict):
         """Process the state dictionary from the REST API."""
@@ -101,6 +137,8 @@ class PyDreoCeilingFan(PyDreoFanBase):
 
         self._is_on = self.get_state_update_value(state, FANON_KEY)
         self._light_on = self.get_state_update_value(state, LIGHTON_KEY)
+        self._brightness = self.get_state_update_value(state, BRIGHTNESS_KEY)
+        self._color_temp = self.get_state_update_value(state, COLORTEMP_KEY)
 
     def handle_server_update(self, message):
         """Process a websocket update"""
@@ -113,4 +151,27 @@ class PyDreoCeilingFan(PyDreoFanBase):
 
         val_light_on = self.get_server_update_key_value(message, LIGHTON_KEY)
         if isinstance(val_light_on, bool):
-            self._light_on = val_light_on            
+            self._light_on = val_light_on        
+
+        val_brightness = self.get_server_update_key_value(message, BRIGHTNESS_KEY)
+        if isinstance(val_brightness, int):
+            self._brightness = val_brightness   
+
+        val_color_temp = self.get_server_update_key_value(message, COLORTEMP_KEY)
+        if isinstance(val_color_temp, int):
+            self._color_temp = val_color_temp    
+
+    def _handle_power_state_update(self, message):
+        """Override power state handling for ceiling fans"""
+        # Handle poweron: False = turn off entire device (both fan and light)
+        val_poweron = self.get_server_update_key_value(message, POWERON_KEY)
+        if val_poweron is False:
+            self._is_on = False
+            self._light_on = False
+            _LOGGER.debug("PyDreoCeilingFan: Device powered off - fan and light off")
+            
+        # Handle fanon: True/False = specific fan motor control
+        val_fan_on = self.get_server_update_key_value(message, FANON_KEY)
+        if isinstance(val_fan_on, bool):
+            self._is_on = val_fan_on
+            _LOGGER.debug("PyDreoCeilingFan: Fan state updated from fanon: %s", val_fan_on)

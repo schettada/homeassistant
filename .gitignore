@@ -23,3 +23,5 @@ shell/*.sh
 www/amazon-rekognition/*.png
 public_key.pem
 tesla_fleet.key
+.ha_run.lock
+*ha_run.lock

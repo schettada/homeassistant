@@ -32,9 +32,8 @@
 - id: '1663217810869'
   alias: Doors & Windows Open/Close
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.front_door_sensor_contact
     - binary_sensor.garage_door_sensor_contact
     - binary_sensor.loft_window_sensor_contact
@@ -43,10 +42,11 @@
     - binary_sensor.basement_window_sensor_contact
     - binary_sensor.deck_sliding_door_sensor_contact
     - binary_sensor.neeva_windows
+    - binary_sensor.yard_gate_door
     to: 'on'
     id: doorwindowopen
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - binary_sensor.front_door_sensor_contact
     - binary_sensor.garage_door_sensor_contact
     - binary_sensor.loft_window_sensor_contact
@@ -55,28 +55,30 @@
     - binary_sensor.basement_window_sensor_contact
     - binary_sensor.deck_sliding_door_sensor_contact
     - binary_sensor.neeva_windows
+    - binary_sensor.yard_gate_door
     to: 'off'
     id: doorwindowclose
-  condition: []
-  action:
-  - service: script.door_alert
-    data: {}
+    trigger: state
+  conditions: []
+  actions:
+  - data: {}
+    action: script.door_alert
   - choose:
     - conditions:
       - condition: trigger
         id: doorwindowopen
       sequence:
-      - service: script.notify_all
-        data:
+      - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Open'
+        action: script.notify_all
     - conditions:
       - condition: trigger
         id: doorwindowclose
       sequence:
-      - service: script.notify_all
-        data:
+      - data:
           message: '{{ trigger.to_state.attributes.friendly_name }} is Closed'
           title: Security Message
+        action: script.notify_all
   mode: single
 - id: '1663995445012'
   alias: Alarmo
@@ -407,10 +409,10 @@
     data: {}
     target:
       entity_id:
-      - light.stair_light
       - light.kitchen_light
       - light.driveway_light
       - light.porch_light
+      - light.staircase_light
   mode: single
 - id: '1684639231696'
   alias: Lights Off
@@ -1027,4 +1029,83 @@
       title: Critical Message
   - action: hassio.host_shutdown
     data: {}
+  mode: single
+- id: '1754606752871'
+  alias: Lock Front Door
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.front_door_sensor_contact
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    from: 'on'
+    to: 'off'
+  conditions:
+  - condition: state
+    entity_id: lock.front_door
+    state: unlocked
+  actions:
+  - device_id: ffdf93c07bcdcb929e54e064d383b470
+    domain: lock
+    entity_id: b438392b34f145fed27c1ed5aaf709c7
+    type: lock
+  mode: single
+- id: '1757901543651'
+  alias: Restart Wallpanel
+  description: ''
+  triggers:
+  - trigger: time
+    at: 00:30:00
+    weekday:
+    - sun
+  conditions: []
+  actions:
+  - action: button.press
+    metadata: {}
+    data: {}
+    target:
+      entity_id: button.wallpanel_restart_device
+  mode: single
+- id: '1758151114044'
+  alias: Wallpanel Charge Control
+  description: ''
+  triggers:
+  - type: battery_level
+    device_id: ffd9521a6949932a0138eaf05ddc1b2a
+    entity_id: d8fa970d9d196430a5d1806eb497c839
+    domain: sensor
+    trigger: device
+    above: 79
+    id: full
+  - type: battery_level
+    device_id: ffd9521a6949932a0138eaf05ddc1b2a
+    entity_id: d8fa970d9d196430a5d1806eb497c839
+    domain: sensor
+    trigger: device
+    id: depleted
+    below: 35
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - full
+      sequence:
+      - type: turn_off
+        device_id: 0aa9becf357e16713a20cb2dc564ec17
+        entity_id: cd4681d56082662c7ada1c5e803dfb61
+        domain: switch
+    - conditions:
+      - condition: trigger
+        id:
+        - depleted
+      sequence:
+      - type: turn_on
+        device_id: 0aa9becf357e16713a20cb2dc564ec17
+        entity_id: cd4681d56082662c7ada1c5e803dfb61
+        domain: switch
   mode: single

@@ -25,6 +25,8 @@ from .pydreoheater import PyDreoHeater
 from .pydreoairconditioner import PyDreoAC
 from .pydreochefmaker import PyDreoChefMaker
 from .pydreohumidifier import PyDreoHumidifier
+from .pydreodehumidifier import PyDreoDehumidifier
+from .pydreoevaporativecooler import PyDreoEvaporativeCooler
 
 _LOGGER = logging.getLogger(LOGGER_NAME)
 
@@ -36,13 +38,20 @@ _DREO_DEVICE_TYPE_TO_CLASS = {
     DreoDeviceType.HEATER: PyDreoHeater,
     DreoDeviceType.AIR_CONDITIONER: PyDreoAC,
     DreoDeviceType.CHEF_MAKER: PyDreoChefMaker,
-    DreoDeviceType.HUMIDIFIER: PyDreoHumidifier
+    DreoDeviceType.HUMIDIFIER: PyDreoHumidifier,
+    DreoDeviceType.DEHUMIDIFIER: PyDreoDehumidifier,
+    DreoDeviceType.EVAPORATIVE_COOLER: PyDreoEvaporativeCooler
 }
 
 class PyDreo:  # pylint: disable=function-redefined
     """Dreo API functions."""
 
-    def __init__(self, username, password, redact=True):
+    def __init__(self, 
+                 username, 
+                 password, 
+                 redact=True, 
+                 debug_test_mode=False,
+                 debug_test_mode_payload=None) -> None:
         self._transport = CommandTransport(self._transport_consume_message)
 
         """Initialize Dreo class with username, password and time zone."""
@@ -52,8 +61,8 @@ class PyDreo:  # pylint: disable=function-redefined
         if redact:
             self.redact = redact
         self.raw_response = None
-        self.username = username
-        self.password = password
+        self.username : str = username
+        self.password : str  = password
         self.token = None
         self.account_id = None
         self.devices = None
@@ -62,6 +71,14 @@ class PyDreo:  # pylint: disable=function-redefined
         self._dev_list = {}
         self._device_list_by_sn = {}
         self.devices: list[PyDreoBaseDevice] = []
+        
+        self.debug_test_mode : bool = debug_test_mode
+        self.debug_test_mode_payload : dict = debug_test_mode_payload
+
+        if self.debug_test_mode:
+            _LOGGER.error("Debug Test Mode is enabled!")
+            if self.debug_test_mode_payload is None:
+                _LOGGER.error("Debug Test Mode payload is None!")
 
     @property
     def api_server_region(self) -> str:
@@ -200,7 +217,14 @@ class PyDreo:  # pylint: disable=function-redefined
 
         self.in_process = True
         proc_return = False
-        response, _ = self.call_dreo_api(DREO_API_DEVICELIST)
+
+        response = None
+
+        if self.debug_test_mode:
+            _LOGGER.debug("Debug Test Mode is enabled.  Using test payload.")
+            response = self.debug_test_mode_payload.get("get_devices", None)    
+        else:
+            response, _ = self.call_dreo_api(DREO_API_DEVICELIST)
 
         # Stash the raw response for use by the diagnostics system, so we don't have to pull
         # logs
@@ -227,9 +251,16 @@ class PyDreo:  # pylint: disable=function-redefined
 
         self.in_process = True
         proc_return = False
-        response, _ = self.call_dreo_api(
-            DREO_API_DEVICESTATE, {DEVICESN_KEY: device.serial_number}
-        )
+
+        response = None
+
+        if self.debug_test_mode:
+            _LOGGER.debug("Debug Test Mode is enabled.  Using test payload.")
+            response = self.debug_test_mode_payload.get(device.serial_number, None)    
+        else:
+            response, _ = self.call_dreo_api(
+                DREO_API_DEVICESTATE, {DEVICESN_KEY: device.serial_number}
+            )
 
         # stash the raw return value from the devicestate api call
         device.raw_state = response
@@ -250,6 +281,11 @@ class PyDreo:  # pylint: disable=function-redefined
 
     def login(self) -> bool:
         """Return True if log in request succeeds."""
+
+        if self.debug_test_mode:
+            self.enabled = True
+            _LOGGER.debug("Debug Test Mode is enabled.  Skipping login.")  
+            return True
 
         user_check = isinstance(self.username, str) and len(self.username) > 0
         pass_check = isinstance(self.password, str) and len(self.password) > 0
@@ -371,17 +407,21 @@ class PyDreo:  # pylint: disable=function-redefined
 
     def start_transport(self) -> None:
         """Initialize the websocket and start transport"""
-        self._transport.start_transport(self.api_server_region, self.token)
+        if not self.debug_test_mode:
+            self._transport.start_transport(self.api_server_region, self.token)
 
     def stop_transport(self) -> None:
         """Close down the transport socket"""
-        self._transport.stop_transport()
+        if not self.debug_test_mode:
+            self._transport.stop_transport()
 
     def testonly_interrupt_transport(self) -> None:
         """Close down the transport socket"""
         self._transport.testonly_interrupt_transport()
 
     def _transport_consume_message(self, message):
+        _LOGGER.debug("pydreo._transport_consume_message: %s", message)
+
         message_device_sn = message["devicesn"]
 
         if message_device_sn in self._device_list_by_sn:
@@ -406,4 +446,11 @@ class PyDreo:  # pylint: disable=function-redefined
         content = json.dumps(full_params)
         _LOGGER.debug(content)
 
-        self._transport.send_message(content)
+        if self.debug_test_mode:
+            _LOGGER.debug("Debug Test Mode is enabled.  Pretending we received the message...")
+            self._transport_consume_message({"devicesn": device.serial_number, 
+                                             "method": "report", 
+                                             "reported": params})
+        else:
+            # Send the message to the transport, which will then send it to the Dreo servers
+            self._transport.send_message(content)

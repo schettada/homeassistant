@@ -8,6 +8,7 @@ ignore: |
   esphome/.esphome/
   esphome/*.yaml
   esphome/trash/*.yaml
+  esphome/archive/*.yaml
   ip_bans.yaml
   notebooks/
   scenes.yaml
@@ -16,6 +17,7 @@ ignore: |
   themes/mushroom/*.yaml
   zigbee2mqtt/*.yaml
   double-take/*.yml
+  www/community/
 rules:
   braces:
     level: error
