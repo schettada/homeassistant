@@ -1,0 +1,34 @@
+################################################################################
+substitutions:
+  device_name: garage-multi-sensor
+  device_id: garage_multi_sensor
+  device_friendly_name: Garage Multi Sensor
+  device_sampling_time: 30s
+#  gpio_pin: GPIO48
+#  num_leds: 1
+#  rgb_order: GRB   
+
+packages:
+  bluetooth-proxy: github://schettada/esphome/esp32-generic-s3.yaml@main
+  sensors: github://schettada/esphome/sensors.yaml@main
+  buttons: github://schettada/esphome/buttons.yaml@main
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${device_friendly_name}
+  name_add_mac_suffix: false
+
+esp32:
+  board: esp32-s3-devkitc-1
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "NkqPORUAn7U1w2BUbM+abVJquCKuG+04+7fKV0HLXaI="
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  domain: !secret domain
+  fast_connect: True
+  
