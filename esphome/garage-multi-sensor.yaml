@@ -4,24 +4,23 @@ substitutions:
   device_id: garage_multi_sensor
   device_friendly_name: Garage Multi Sensor
   device_sampling_time: 30s
-#  gpio_pin: GPIO48
-#  num_leds: 1
-#  rgb_order: GRB   
+  ld24_tx: GPIO43
+  ld24_rx: GPIO44
+  bme280_sda: GPIO08
+  bme280_scl: GPIO09
+  bh1750_sda: GPIO10
+  bh1750_scl: GPIO11  # flip SCL & SCA Pins
 
 packages:
-  bluetooth-proxy: github://schettada/esphome/esp32-generic-s3.yaml@main
-  sensors: github://schettada/esphome/sensors.yaml@main
-  buttons: github://schettada/esphome/buttons.yaml@main
-
+  multi-sensor: github://schettada/esphome/esp32_multi_sensor_bluetooth_proxy.yaml
+  sensors: github://schettada/esphome/sensors.yaml
+  buttons: github://schettada/esphome/buttons.yaml
+  
 esphome:
   name: ${device_name}
   friendly_name: ${device_friendly_name}
   name_add_mac_suffix: false
 
-esp32:
-  board: esp32-s3-devkitc-1
-
-# Enable Home Assistant API
 api:
   encryption:
     key: "NkqPORUAn7U1w2BUbM+abVJquCKuG+04+7fKV0HLXaI="
@@ -32,3 +31,10 @@ wifi:
   domain: !secret domain
   fast_connect: True
   
+esp32_ble_tracker:
+  scan_parameters:
+    active: false
+
+bluetooth_proxy:
+  active: false
+ 
