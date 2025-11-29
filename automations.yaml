@@ -847,11 +847,6 @@
         id:
         - eve
       sequence:
-      - action: switch.turn_on
-        metadata: {}
-        data: {}
-        target:
-          entity_id: switch.holiday_lights
       - action: light.turn_off
         metadata: {}
         data: {}
@@ -859,6 +854,16 @@
           entity_id:
           - light.driveway_light
           - light.porch_light
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.holiday_lights
+      - action: light.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.outdoor_spolights
     - conditions:
       - condition: trigger
         id:
@@ -869,6 +874,11 @@
         data: {}
         target:
           entity_id: switch.holiday_lights
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.outdoor_spolights
       - action: light.turn_on
         metadata: {}
         data: {}
