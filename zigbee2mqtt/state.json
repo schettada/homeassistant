@@ -21,7 +21,7 @@
         "occupancy": false,
         "illuminance": 1,
         "linkquality": 76,
-        "temperature": 18.23,
+        "temperature": 18.52,
         "update": {
             "state": "available",
             "installed_version": 1107323831,
@@ -101,7 +101,7 @@
     },
     "0x8c6fb9fffe262da7": {
         "occupancy": false,
-        "illuminance": 4,
+        "illuminance": 6,
         "battery": 81,
         "update": {
             "state": "available",
