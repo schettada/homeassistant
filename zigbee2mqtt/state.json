@@ -15,7 +15,7 @@
         "linkquality": 83
     },
     "0x0017880109197eb3": {
-        "battery": 40,
+        "battery": 41,
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
@@ -30,10 +30,10 @@
         "update_available": false
     },
     "0x00124b0025908789": {
-        "linkquality": 69
+        "linkquality": 91
     },
     "0x00124b002590928c": {
-        "linkquality": 83
+        "linkquality": 87
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
