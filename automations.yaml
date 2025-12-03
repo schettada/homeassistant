@@ -491,27 +491,32 @@
   description: ''
   triggers:
   - entity_id:
-    - cover.garage1_door
-    - cover.garage2_door
-    from: closed
-    to: opening
+    - cover.garage_1
+    - cover.garage_2
+    from:
+    - closed
+    to:
+    - opening
     id: open
     enabled: true
     trigger: state
   - entity_id:
-    - cover.garage1_door
-    - cover.garage2_door
-    from: open
-    to: closing
+    - cover.garage_1
+    - cover.garage_2
+    from:
+    - open
+    to:
+    - closing
     id: close
     enabled: true
     trigger: state
   - entity_id:
-    - cover.garage1_door
-    - cover.garage2_door
+    - cover.garage_1
+    - cover.garage_2
     id: longopen
     enabled: true
-    to: open
+    to:
+    - open
     for:
       hours: 0
       minutes: 5
@@ -847,11 +852,6 @@
         id:
         - eve
       sequence:
-      - action: switch.turn_on
-        metadata: {}
-        data: {}
-        target:
-          entity_id: switch.holiday_lights
       - action: light.turn_off
         metadata: {}
         data: {}
@@ -859,6 +859,16 @@
           entity_id:
           - light.driveway_light
           - light.porch_light
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.holiday_lights
+      - action: light.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.outdoor_spolights
     - conditions:
       - condition: trigger
         id:
@@ -869,6 +879,11 @@
         data: {}
         target:
           entity_id: switch.holiday_lights
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.outdoor_spolights
       - action: light.turn_on
         metadata: {}
         data: {}
