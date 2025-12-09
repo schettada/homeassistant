@@ -5,7 +5,7 @@
         "motion_sensitivity": "high",
         "occupancy": false,
         "illuminance": 1,
-        "temperature": 19.16,
+        "temperature": 18.31,
         "update": {
             "state": "available",
             "installed_version": 1107323831,
@@ -21,7 +21,7 @@
         "occupancy": false,
         "illuminance": 1,
         "linkquality": 76,
-        "temperature": 16.96,
+        "temperature": 17.39,
         "update": {
             "state": "available",
             "installed_version": 1107323831,
@@ -33,7 +33,7 @@
         "linkquality": 98
     },
     "0x00124b002590928c": {
-        "linkquality": 80
+        "linkquality": 83
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
@@ -102,7 +102,7 @@
     "0x8c6fb9fffe262da7": {
         "occupancy": false,
         "illuminance": 1,
-        "battery": 81,
+        "battery": 80,
         "update": {
             "state": "available",
             "installed_version": 16777303,

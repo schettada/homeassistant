@@ -13,7 +13,7 @@
 
 MIT License
 
-Copyright (c) 2020-2024 Sooraj Chettada
+Copyright (c) 2020-2026 Sooraj Chettada
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,7 @@ SOFTWARE.
 [home-assistant]: https://home-assistant.io
 [issue]: https://github.com/schettada/homeassistant/issues
 [license-shield]: https://img.shields.io/github/license/schettada/homeassistant.svg
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2024
+[maintenance-shield]: https://img.shields.io/maintenance/yes/2025
 [last-commit-shield]: https://img.shields.io/github/last-commit/schettada/homeassistant.svg
 [stars-shield]: https://img.shields.io/github/stars/schettada/homeassistant.svg?style=social&label=Stars
 [forks-shield]: https://img.shields.io/github/forks/schettada/homeassistant.svg?style=social&label=Forks
