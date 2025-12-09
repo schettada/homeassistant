@@ -1,13 +1,14 @@
-// Person Tracker Card v1.2.0 - Multilanguage Version
+// Person Tracker Card v1.2.4 - Multilanguage Version
 // Full support for all editor options
 // Languages: Italian (default), English, French, German
+// v1.2.4 Fix Language fr,ge. Hide Activity Status when unknown
 // v1.2.2: Bug fix, battery state, animation,fixed light theme
 // v1.2.0: Added Modern layout with circular progress indicators for battery and travel time
 // v1.1.2: Added dynamic unit of measurement for distance sensor
 // v1.1.2: Activity icon now follows entity's icon attribute with fallback to predefined mapping
 // v1.1.2: Fixed WiFi detection for Android (case-insensitive check for "wifi", "Wi-Fi", etc.)
 
-console.log("Person Tracker Card v1.2.0 Multilanguage loading...");
+console.log("Person Tracker Card v1.2.4 Multilanguage loading...");
 
 const LitElement = Object.getPrototypeOf(
   customElements.get("ha-panel-lovelace") || customElements.get("hui-view")
@@ -484,20 +485,32 @@ class PersonTrackerCard extends LitElement {
     }
 
     // Activity
+    // Activity - NASCONDE se stato è unknown, unavailable o simili, senza distinzione tra maiuscole/minuscole
     if (this.config.show_activity) {
       const activityEntityId = this.config.activity_sensor || `sensor.phone_${entityBase}_activity`;
       const activityEntity = this.hass.states[activityEntityId];
-      if (activityEntity) {
+
+      // Lista stati da escludere (case insensitive)
+      const invalidStates = ['unknown', 'unavailable', 'none', 'null', ''];
+
+      if (
+        activityEntity &&
+        !invalidStates.includes((activityEntity.state || '').toLowerCase().trim())
+      ) {
         this._activity = activityEntity.state;
         // Legge l'icona dall'attributo icon dell'entità, se non presente usa il mapping hardcoded
         if (activityEntity.attributes?.icon) {
           this._activityIcon = activityEntity.attributes.icon;
         } else {
-          // Fallback alle icone predefinite
           this._activityIcon = this._getActivityIcon();
         }
+      } else {
+        // Reset per valori non validi
+        this._activity = 'unknown';
+        this._activityIcon = '';
       }
     }
+
 
     // Connection
     if (this.config.show_connection) {
@@ -882,7 +895,7 @@ class PersonTrackerCard extends LitElement {
               </div>
             ` : ''}
 
-            ${this.config.show_activity ? html`
+            ${this.config.show_activity && this._activity !== 'unknown' ? html`
               <div class="custom-field activity clickable"
                    @click=${() => this._showMoreInfo(this._getSensorEntityId('activity'))}
                    style="font-size: ${this.config.activity_font_size};
@@ -988,7 +1001,7 @@ class PersonTrackerCard extends LitElement {
           </div>
 
           <div class="compact-icons" style="gap: ${badgeGap}px;">
-            ${this.config.show_activity ? html`
+           ${this.config.show_activity && this._activity !== 'unknown' ? html`
               <div class="compact-icon-badge clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('activity'))} style="width: ${badgeSize}px; height: ${badgeSize}px;">
                 <ha-icon icon="${activityIcon}" style="--mdc-icon-size: ${iconSize}px; color: ${activityColor};"></ha-icon>
               </div>
@@ -1170,7 +1183,7 @@ class PersonTrackerCard extends LitElement {
             ` : ''}
 
             <!-- Activity -->
-            ${this.config.show_activity ? html`
+            ${this.config.show_activity && this._activity !== 'unknown' ? html`
               <div class="ring-container ring-icon-only clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('activity'))} style="width: ${ringSize}px; height: ${ringSize}px;">
                 <ha-icon icon="${activityIcon}" style="--mdc-icon-size: ${ringIconSize}px;"></ha-icon>
               </div>
@@ -1632,7 +1645,7 @@ class PersonTrackerCard extends LitElement {
 if (!customElements.get('person-tracker-card')) {
   customElements.define('person-tracker-card', PersonTrackerCard);
   console.info(
-    '%c PERSON-TRACKER-CARD %c v1.2.2 %c! ',
+    '%c PERSON-TRACKER-CARD %c v1.2.4 %c! ',
     'background-color: #7DDA9F; color: black; font-weight: bold;',
     'background-color: #93ADCB; color: white; font-weight: bold;',
     'background-color: #FFD700; color: black; font-weight: bold;'
