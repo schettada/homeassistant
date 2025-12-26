@@ -18,13 +18,14 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.dispatcher import async_dispatcher_connect, async_dispatcher_send
 
 from homeassistant.components.diagnostics import REDACTED 
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import ConfigEntry, OptionsFlow, ConfigFlowResult
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity_registry import async_entries_for_config_entry
+from homeassistant.helpers.device_registry import DeviceEntry
 from homeassistant.helpers.selector import (
     TextSelector,
     TextSelectorConfig,
@@ -52,8 +53,25 @@ from homeassistant.components.climate import (
     ClimateEntity,
     ClimateEntityFeature,
     ClimateEntityDescription,
-    FAN_ON,
-    FAN_OFF
+    FAN_AUTO,
+    FAN_LOW,
+    FAN_MEDIUM,
+    FAN_HIGH,
+    PRESET_NONE,
+    PRESET_ECO,
+    SWING_OFF,
+    SWING_ON,
+    SWING_VERTICAL,
+    SWING_HORIZONTAL,
+    SWING_BOTH,
+    HVACAction,
+    HVACMode
+)
+
+from homeassistant.components.humidifier import (
+    HumidifierEntity,
+    HumidifierEntityFeature,
+    HumidifierDeviceClass
 )
 
 from homeassistant.components.switch import (
@@ -79,7 +97,8 @@ from homeassistant.components.light import (
     LightEntityFeature,
     ColorMode,
     ATTR_COLOR_TEMP_KELVIN,
-    ATTR_BRIGHTNESS
+    ATTR_BRIGHTNESS,
+    ATTR_RGB_COLOR
 )
 
 from homeassistant.util.color import (
@@ -96,22 +115,7 @@ from homeassistant.const import (
     PRECISION_WHOLE,
     STATE_OFF,
     STATE_ON,
-    UnitOfTemperature)
-
-from homeassistant.components.climate import (
-    FAN_AUTO,
-    FAN_LOW,
-    FAN_MEDIUM,
-    FAN_HIGH,
-    PRESET_NONE,
-    PRESET_ECO,
-    SWING_OFF,
-    SWING_ON,
-    SWING_VERTICAL,
-    SWING_HORIZONTAL,
-    SWING_BOTH,
-    HVACAction,
-    HVACMode,
-)
+    UnitOfTemperature,
+    CONCENTRATION_MICROGRAMS_PER_CUBIC_METER)
 
 from homeassistant.helpers import entity_platform
