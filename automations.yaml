@@ -1140,11 +1140,6 @@
     entity_id: 7a521262192b7b542eeaee8947694e46
     type: pressed
     trigger: device
-  - type: not_connected
-    device_id: 33ed53184a653c084aea7748b25d6b52
-    entity_id: 57c3ef0e395c54c4b79ac65f869bd90f
-    domain: binary_sensor
-    trigger: device
   conditions: []
   actions:
   - action: script.notify_all
