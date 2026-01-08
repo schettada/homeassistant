@@ -18,7 +18,7 @@
         "battery": 38,
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
-        "occupancy": true,
+        "occupancy": false,
         "illuminance": 45,
         "linkquality": 116,
         "temperature": 17.24,
