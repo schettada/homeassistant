@@ -1110,19 +1110,21 @@
         id:
         - full
       sequence:
-      - type: turn_off
-        device_id: 0aa9becf357e16713a20cb2dc564ec17
-        entity_id: cd4681d56082662c7ada1c5e803dfb61
-        domain: switch
+      - action: switch.turn_off
+        metadata: {}
+        target:
+          entity_id: switch.usw_pro_24_poe_port_10_poe
+        data: {}
     - conditions:
       - condition: trigger
         id:
         - depleted
       sequence:
-      - type: turn_on
-        device_id: 0aa9becf357e16713a20cb2dc564ec17
-        entity_id: cd4681d56082662c7ada1c5e803dfb61
-        domain: switch
+      - action: switch.turn_on
+        metadata: {}
+        target:
+          entity_id: switch.usw_pro_24_poe_port_10_poe
+        data: {}
   mode: single
 - id: '1767579592893'
   alias: Fireplace Monitoring

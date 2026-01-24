@@ -341,6 +341,8 @@ class CrealityWebRTCCamera(_BaseCamera):
         coordinator, 
         signaling_url: str, 
         use_proxy: bool = False,
+        go2rtc_url: str | None = None,
+        go2rtc_port: int | None = None,
     ) -> None:
         """Initialize the WebRTC camera.
         
@@ -348,10 +350,14 @@ class CrealityWebRTCCamera(_BaseCamera):
             coordinator: The printer coordinator
             signaling_url: WebRTC signaling URL from the printer
             use_proxy: Whether to use proxy (deprecated, kept for compatibility)
+            go2rtc_url: Custom go2rtc server URL (optional)
+            go2rtc_port: Custom go2rtc server port (optional)
         """
         super().__init__(coordinator, "Printer Camera", "camera")
         self._upstream_signaling_url = signaling_url
         self._use_proxy = use_proxy  # Deprecated, kept for compatibility
+        self._custom_go2rtc_url = go2rtc_url
+        self._custom_go2rtc_port = go2rtc_port
         self._stream_name: str | None = None
         self._last_error: str | None = None
         
@@ -467,6 +473,44 @@ class CrealityWebRTCCamera(_BaseCamera):
             )
             return False
         
+        # Custom go2rtc configuration
+        if self._custom_go2rtc_url:
+            try:
+                # Use default session
+                session = async_get_clientsession(self.hass)
+                
+                # Format URL: http://host:port/
+                url = self._custom_go2rtc_url
+                if "://" not in url:
+                    url = f"http://{url}"
+                
+                if self._custom_go2rtc_port and ":" not in url.split("://")[1]:
+                    url = f"{url}:{self._custom_go2rtc_port}"
+                
+                # Ensure trailing slash for client compatibility
+                if not url.endswith("/"):
+                    url += "/"
+                    
+                self._go2rtc_client = Go2RtcRestClient(session, url)
+                self._go2rtc_server_url = url
+                
+                # Validate server version
+                version = await self._go2rtc_client.validate_server_version()
+                self._go2rtc_version = str(version)
+                
+                _LOGGER.info(
+                    "ha_creality_ws: Connected to custom go2rtc %s at %s",
+                    self._go2rtc_version, self._go2rtc_server_url
+                )
+                return True
+                
+            except Exception as exc:
+                _LOGGER.error(
+                    "ha_creality_ws: Failed to connect to custom go2rtc at %s: %s",
+                    self._custom_go2rtc_url, exc
+                )
+                return False
+
         # Get HA's go2rtc configuration
         go2rtc_data = self.hass.data.get(GO2RTC_DOMAIN)
         if not go2rtc_data:
@@ -878,6 +922,8 @@ async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities):
                 coord, 
                 WEBRTC_URL_TEMPLATE.format(host=host), 
                 use_proxy=use_proxy,
+                go2rtc_url=entry.options.get(CONF_GO2RTC_URL),
+                go2rtc_port=entry.options.get(CONF_GO2RTC_PORT),
             )
         ])
         return
@@ -898,6 +944,8 @@ async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities):
                 coord, 
                 webrtc_url, 
                 use_proxy=use_proxy,
+                go2rtc_url=entry.options.get(CONF_GO2RTC_URL),
+                go2rtc_port=entry.options.get(CONF_GO2RTC_PORT),
             )
         ])
         return
