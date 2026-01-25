@@ -1112,9 +1112,9 @@
       sequence:
       - action: switch.turn_off
         metadata: {}
-        target:
-          entity_id: switch.usw_pro_24_poe_port_10_poe
         data: {}
+        target:
+          entity_id: switch.usw_pro_24_poe_arleepta_office_poe
     - conditions:
       - condition: trigger
         id:
@@ -1122,9 +1122,9 @@
       sequence:
       - action: switch.turn_on
         metadata: {}
-        target:
-          entity_id: switch.usw_pro_24_poe_port_10_poe
         data: {}
+        target:
+          entity_id: switch.usw_pro_24_poe_arleepta_office_poe
   mode: single
 - id: '1767579592893'
   alias: Fireplace Monitoring

@@ -1,4 +1,5 @@
 import logging
+import time
 from pathlib import Path
 from homeassistant.core import HomeAssistant
 
@@ -9,7 +10,8 @@ PRINTER_CARD_NAME = "k_printer_card.js"
 CFS_CARD_NAME = "k_cfs_card.js"
 CARDS = [PRINTER_CARD_NAME, CFS_CARD_NAME]
 INTEGRATION_URL_BASE = f"/{LOCAL_SUBDIR}/"
-_VERSION = "1"
+# Use timestamp to bust cache on every load
+_VERSION = str(int(time.time()))
 
 
 def _register_static_path(hass: HomeAssistant, url_path: str, path: str) -> None:

@@ -1,14 +1,16 @@
+"""Coordinator for Creality 3D printers."""
 from __future__ import annotations
 import logging
 import asyncio
+import json
 from typing import Any, Iterable
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.dispatcher import async_dispatcher_send
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator  # type: ignore[import]
+from homeassistant.helpers.aiohttp_client import async_get_clientsession  # type: ignore[import]
+from homeassistant.helpers.dispatcher import async_dispatcher_send  # type: ignore[import]
 from .ws_client import KClient
 from .utils import ModelDetection
 from .const import (
-    DOMAIN, 
+    DOMAIN,
     STALE_AFTER_SECS,
     CONF_NOTIFY_DEVICE,
     CONF_NOTIFY_COMPLETED,
@@ -28,7 +30,9 @@ _LOGGER = logging.getLogger(__name__)
 
 class KCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Coordinator to manage connection and data for the printer."""
-    def __init__(self, hass, host: str, power_switch: str | None = None, config_entry_id: str | None = None):
+    def __init__(
+        self, hass, host: str, power_switch: str | None = None, config_entry_id: str | None = None
+    ):
         super().__init__(hass, _LOGGER, name=f"{DOMAIN}@{host}", update_interval=None)
         self.client = KClient(host, self._handle_message)
         self.data: dict[str, Any] = {}
@@ -105,11 +109,13 @@ class KCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Enable or disable power detection based on new config
         if self._power_switch_entity and not old_entity:
             # Power switch was just configured
+            # pylint: disable=protected-access
             self.client._check_power_status = self.power_is_off
             self._last_power_off = self.power_is_off()
             _LOGGER.info("Power switch enabled: %s", self._power_switch_entity)
         elif not self._power_switch_entity and old_entity:
             # Power switch was just removed
+            # pylint: disable=protected-access
             self.client._check_power_status = None
             self._last_power_off = False
             _LOGGER.info("Power switch disabled; connection will retry continuously")
@@ -118,6 +124,11 @@ class KCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         
     def power_is_off(self) -> bool:
         """Check if the power switch is off."""
+        # If we are actively connected via WebSocket, trust the connection over the switch state.
+        # This allows manual "Reconnect" to work even if the switch entity is lagging or wrong.
+        if self.client.is_connected:
+            return False
+
         eid = self._power_switch_entity
         if not eid:
             return False
@@ -143,6 +154,7 @@ class KCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Ensure WebSocket connection is active, restart if needed."""
         if self.power_is_off():
             return False
+        # pylint: disable=protected-access
         if not self.client._task or self.client._task.done():
             _LOGGER.info("WebSocket connection lost, restarting...")
             await self.client.start()
@@ -200,6 +212,7 @@ class KCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         elif not now_off and was_off:
             _LOGGER.info("Power ON detected; starting WebSocket client")
             # Ensure any stale task is stopped first
+            # pylint: disable=protected-access
             if self.client._task and not self.client._task.done():
                 _LOGGER.debug("Stopping existing task before restart")
                 await self.client.stop()
@@ -326,15 +339,23 @@ class KCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         has_cfs = "boxsInfo" in self.data
         
         if has_cfs and not had_cfs:
-            _LOGGER.info("CFS detected in telemetry, triggering dynamic discovery")
+            _LOGGER.info("CFS detected in telemetry (first time), triggering dynamic discovery")
+            _LOGGER.debug("CFS Raw Data: %s", json.dumps(payload.get("boxsInfo"), default=str))
             async_dispatcher_send(self.hass, f"{DOMAIN}_new_entities_{self._config_entry_id}")
+        
+        # Log if CFS is connected but we are missing boxsInfo
+        if payload.get("cfsConnect") == 1 and not has_cfs:
+             # Only log this occasionally or if it's a change to avoid spam? 
+             # For now, let's log it if we expected it.
+             pass
+
 
         self._recompute_paused_from_telemetry()
         
         # Try queued actions if state allows
         try:
             await self._flush_pending()
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             _LOGGER.exception("flush_pending failed")
 
         # --- Notifications ---
@@ -466,6 +487,7 @@ class KCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     async def _poll_moonraker_extras(self):
         """Poll Moonraker for missing telemetry fields (e.g. chamber target)."""
+        # pylint: disable=protected-access
         host = self.client._host
         # Only poll if we have a host and integration is still active
         if not host or self.power_is_off():
