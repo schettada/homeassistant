@@ -1,0 +1,32 @@
+{
+  "updated_at": "2026-01-27T16:55:14Z",
+  "persons": {
+    "Sooraj": [
+      {
+        "image_id": "afcc4f1685",
+        "face_id": "61e13e86-e4e5-49aa-bca7-8e0b585eec1a",
+        "name": "Sooraj",
+        "file": "/config/amazon_face_gallery/training_cache/Sooraj/afcc4f1685.png",
+        "created_at": "2026-01-27T16:54:47Z"
+      }
+    ],
+    "Arleepta": [
+      {
+        "image_id": "e21bbca5dd",
+        "face_id": "fa6e9f86-8201-4631-8be9-6f904be3cfc0",
+        "name": "Arleepta",
+        "file": "/config/amazon_face_gallery/training_cache/Arleepta/e21bbca5dd.png",
+        "created_at": "2026-01-27T16:55:02Z"
+      }
+    ],
+    "Neeva": [
+      {
+        "image_id": "30489dc3d0",
+        "face_id": "ef524ce7-2ee2-4362-81f3-0f21ada03128",
+        "name": "Neeva",
+        "file": "/config/amazon_face_gallery/training_cache/Neeva/30489dc3d0.png",
+        "created_at": "2026-01-27T16:55:14Z"
+      }
+    ]
+  }
+}

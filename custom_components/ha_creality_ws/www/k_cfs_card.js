@@ -55,6 +55,7 @@ class KCFSCard extends HTMLElement {
     const cfg = {
       name: "CFS",
       compact_view: false,
+      show_type_in_mini: false,
       external_filament: "",
       external_color: "",
       external_percent: "",
@@ -350,6 +351,25 @@ class KCFSCard extends HTMLElement {
 
       .spool-mini.active::after {
         inset: 3px;
+      }
+
+      .spool-mini-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+      }
+
+      .spool-mini-type {
+        font-size: 8px;
+        color: var(--secondary-text-color);
+        text-transform: uppercase;
+        font-weight: 600;
+        max-width: 40px;
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .env-mini {
@@ -671,20 +691,23 @@ class KCFSCard extends HTMLElement {
     // External section
     let externalSection = '';
     if (external) {
-      const pct = external.percent !== null ? external.percent : 100;
-      const safeType = external.type && !["unknown", "unavailable"].includes(String(external.type).toLowerCase()) ? external.type : "PLA";
-      const safeName = external.name && !["unknown", "unavailable"].includes(String(external.name).toLowerCase()) ? external.name : "Generic";
+      const safeType = external.type && !["unknown", "unavailable", "—", "-"].includes(String(external.type).toLowerCase()) ? external.type : "—";
+      const safeName = external.name && !["unknown", "unavailable", "—", "-"].includes(String(external.name).toLowerCase()) ? external.name : "—";
+      const hasFilament = safeType !== "—" && safeName !== "—";
+      const pct = hasFilament && external.percent !== null ? external.percent : 0;
+      const percentTextDisplay = hasFilament ? (external.percentText || '—') : '—';
+      const displayName = hasFilament ? `${safeName} ${safeType}` : '—';
       externalSection = `
         <div class="external-section">
           <div class="external-normal" data-eid="${external.entity_id}">
             <div class="ext-icon">EXT</div>
             <div class="ext-info">
-              <div class="ext-name">${safeName} ${safeType}</div>
+              <div class="ext-name">${displayName}</div>
               <div class="ext-bar">
                 <div class="ext-fill" style="width: ${pct}%"></div>
               </div>
             </div>
-            <div class="ext-percent">${external.percentText || '—'}</div>
+            <div class="ext-percent">${percentTextDisplay}</div>
           </div>
         </div>
       `;
@@ -711,15 +734,18 @@ class KCFSCard extends HTMLElement {
     // External section
     let externalSection = '';
     if (external) {
-      const safeType = external.type && !["unknown", "unavailable"].includes(String(external.type).toLowerCase()) ? external.type : "PLA";
-      const safeName = external.name && !["unknown", "unavailable"].includes(String(external.name).toLowerCase()) ? external.name : "Generic";
+      const safeType = external.type && !["unknown", "unavailable", "—", "-"].includes(String(external.type).toLowerCase()) ? external.type : "—";
+      const safeName = external.name && !["unknown", "unavailable", "—", "-"].includes(String(external.name).toLowerCase()) ? external.name : "—";
+      const hasFilament = safeType !== "—" && safeName !== "—";
+      const percentTextDisplay = hasFilament ? (external.percentText || '—') : '—';
+      const displayName = hasFilament ? `${safeName} ${safeType}` : '—';
       externalSection = `
         <div class="external-section">
           <div class="external-compact" data-eid="${external.entity_id}">
             <div class="ext-dot">EXT</div>
             <div class="ext-compact-info">
-              <div>${safeName} ${safeType}</div>
-              <div>${external.percentText || '—'}</div>
+              <div>${displayName}</div>
+              <div>${percentTextDisplay}</div>
             </div>
           </div>
         </div>
@@ -761,10 +787,14 @@ class KCFSCard extends HTMLElement {
 
     const isActive = slot.selected === 1 || slot.selected === true;
     const color = slot.color || '#cccccc';
-    const pct = slot.percent !== null ? slot.percent : 0;
-    const pctDisplay = slot.percent !== null ? Math.round(slot.percent) : 0;
-    const safeType = slot.type && !["unknown", "unavailable"].includes(String(slot.type).toLowerCase()) ? slot.type : "PLA";
-    const safeName = slot.name && !["unknown", "unavailable"].includes(String(slot.name).toLowerCase()) ? slot.name : "—";
+    const safeType = slot.type && !["unknown", "unavailable", "—", "-"].includes(String(slot.type).toLowerCase()) ? slot.type : "—";
+    const safeName = slot.name && !["unknown", "unavailable", "—", "-"].includes(String(slot.name).toLowerCase()) ? slot.name : "—";
+    
+    // If no filament (type is "—" or name is "—"), show 0% regardless of actual value
+    const hasFilament = safeType !== "—" && safeName !== "—";
+    const pct = hasFilament && slot.percent !== null ? slot.percent : 0;
+    const pctDisplay = hasFilament && slot.percent !== null ? Math.round(slot.percent) : 0;
+    const percentTextDisplay = hasFilament ? (slot.percentText || '—') : '—';
 
     const badge = isActive ? '<div class="status-badge"></div>' : '';
 
@@ -779,20 +809,43 @@ class KCFSCard extends HTMLElement {
           </div>
         </div>
         <div class="material-name">${safeName}</div>
-        <div class="color-name">${slot.percentText || '—'}</div>
+        <div class="color-name">${percentTextDisplay}</div>
       </div>
     `;
   }
 
   _renderSpoolMini(slot) {
+    const showType = this._cfg.show_type_in_mini;
+    
     if (!slot) {
+      if (showType) {
+        return `<div class="spool-mini-wrapper"><div class="spool-mini" style="--spool-color: #333; --spool-pct: 0%"><span>—</span></div><div class="spool-mini-type">—</div></div>`;
+      }
       return `<div class="spool-mini" style="--spool-color: #333; --spool-pct: 0%"><span>—</span></div>`;
     }
 
     const isActive = slot.selected === 1 || slot.selected === true;
     const color = slot.color || '#cccccc';
-    const pct = slot.percent !== null ? slot.percent : 0;
-    const pctDisplay = slot.percent !== null ? Math.round(slot.percent) : 0;
+    const safeType = slot.type && !["unknown", "unavailable", "—", "-"].includes(String(slot.type).toLowerCase()) ? slot.type : "—";
+    const safeName = slot.name && !["unknown", "unavailable", "—", "-"].includes(String(slot.name).toLowerCase()) ? slot.name : null;
+    
+    // If no filament (type is "—" or name is empty/dash), show 0% regardless of actual value
+    const hasFilament = safeType !== "—" && safeName !== null;
+    const pct = hasFilament && slot.percent !== null ? slot.percent : 0;
+    const pctDisplay = hasFilament && slot.percent !== null ? Math.round(slot.percent) : 0;
+
+    if (showType) {
+      return `
+        <div class="spool-mini-wrapper">
+          <div class="spool-mini ${isActive ? 'active' : ''}" 
+               style="--spool-color: ${color}; --spool-pct: ${pct}%" 
+               data-eid="${slot.entity_id}">
+            <span>${pctDisplay}</span>
+          </div>
+          <div class="spool-mini-type">${safeType}</div>
+        </div>
+      `;
+    }
 
     return `
       <div class="spool-mini ${isActive ? 'active' : ''}" 
@@ -816,7 +869,7 @@ class KCFSCard extends HTMLElement {
     });
 
     // Spool cards and mini spools - show more info
-    this._root.querySelectorAll('.spool-card, .spool-mini, .external-normal, .external-compact').forEach(el => {
+    this._root.querySelectorAll('.spool-card, .spool-mini, .spool-mini-wrapper .spool-mini, .external-normal, .external-compact').forEach(el => {
       const eid = el.dataset.eid;
       if (!eid) return;
       
@@ -966,9 +1019,11 @@ class KCFSCardEditor extends HTMLElement {
     themeForm.data = this._cfg;
     themeForm.schema = [
       { name: "compact_view", selector: { boolean: {} } },
+      { name: "show_type_in_mini", selector: { boolean: {} } },
     ];
     themeForm.computeLabel = (s) => ({
       compact_view: "Compact View (Mini Mode)",
+      show_type_in_mini: "Show Filament Type in Mini Mode",
     }[s.name] || s.name);
 
     themeForm.addEventListener("value-changed", (ev) => {
