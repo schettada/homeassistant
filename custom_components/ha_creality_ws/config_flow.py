@@ -16,6 +16,7 @@ from .const import (
     WS_PORT,
     WEBRTC_URL_TEMPLATE,
     CONF_POWER_SWITCH,
+    CONF_POWER_SWITCH_ENABLED,
     CONF_CAMERA_MODE,
     CAM_MODE_AUTO,
     CAM_MODE_MJPEG,
@@ -24,6 +25,13 @@ from .const import (
     CONF_GO2RTC_PORT,
     DEFAULT_GO2RTC_URL,
     DEFAULT_GO2RTC_PORT,
+    CONF_NOTIFY_DEVICE,
+    CONF_NOTIFY_COMPLETED,
+    CONF_NOTIFY_ERROR,
+    CONF_NOTIFY_MINUTES_TO_END,
+    CONF_MINUTES_TO_END_VALUE,
+    CONF_POLLING_RATE,
+    DEFAULT_POLLING_RATE,
 )
 from .utils import ModelDetection
 
@@ -100,10 +108,34 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_zeroconf(self, discovery_info: Any) -> FlowResult:
-        host = _extract_host_from_zeroconf(discovery_info)
+        from .utils import extract_info_from_zeroconf
+        host, mac = extract_info_from_zeroconf(discovery_info)
+        
         if not host:
             return self.async_abort(reason="cannot_connect")
+            
+        # Robust Update Check:
+        # Check if an existing entry has this MAC address but a different IP.
+        # If so, update it automatically and abort this new flow.
+        if mac:
+            for entry in self.hass.config_entries.async_entries(DOMAIN):
+                cached_mac = entry.data.get("_cached_mac")
+                if cached_mac and cached_mac.upper() == mac.upper():
+                    if entry.data.get(CONF_HOST) != host:
+                        _LOGGER.warning(
+                            "Discovered printer with known MAC %s at new IP %s. Updating existing entry.", 
+                            mac, host
+                        )
+                        self.hass.config_entries.async_update_entry(
+                            entry, 
+                            data={**entry.data, CONF_HOST: host, "_last_ip": host}
+                        )
+                        self.hass.async_create_task(
+                            self.hass.config_entries.async_reload(entry.entry_id)
+                        )
+                    return self.async_abort(reason="already_configured")
 
+        # Standard check: if we already have this IP configured, abort
         if not await _probe_tcp(host, WS_PORT):
             return self.async_abort(reason="not_K")
 
@@ -111,7 +143,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._abort_if_unique_id_configured()
 
         title = f"{DEFAULT_NAME} ({host})"
-        return self.async_create_entry(title=title, data={CONF_HOST: host})
+        return self.async_create_entry(title=title, data={CONF_HOST: host, "_cached_mac": mac})
 
 
 # --------- Options Flow ---------
@@ -161,15 +193,35 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         if user_input is not None:
-            # Clean up power switch - remove if empty (text input now)
-            if CONF_POWER_SWITCH in user_input:
-                power_switch = user_input.get(CONF_POWER_SWITCH)
-                if not power_switch or not str(power_switch).strip():
-                    # Empty string - remove the key
-                    user_input.pop(CONF_POWER_SWITCH, None)
-                else:
-                    # Valid value - keep it trimmed
+            # Handle IP/Host update
+            new_host = user_input.pop(CONF_HOST, None)
+            if new_host and new_host != self._entry.data.get(CONF_HOST):
+                 # Update the MAIN config entry, not the options
+                 self.hass.config_entries.async_update_entry(
+                     self._entry,
+                     data={**self._entry.data, CONF_HOST: new_host}
+                 )
+                 # Reload entry to apply new IP potentially
+                 self.hass.async_create_task(
+                     self.hass.config_entries.async_reload(self._entry.entry_id)
+                 )
+
+            # Handle power switch - only use entity if enabled
+            power_enabled = user_input.get(CONF_POWER_SWITCH_ENABLED, False)
+            power_switch = user_input.get(CONF_POWER_SWITCH)
+            
+            if power_enabled:
+                if power_switch and str(power_switch).strip():
                     user_input[CONF_POWER_SWITCH] = str(power_switch).strip()
+                    user_input[CONF_POWER_SWITCH_ENABLED] = True
+                else:
+                    # Enabled but no entity provided; keep enabled and clear entity
+                    user_input[CONF_POWER_SWITCH] = None
+                    user_input[CONF_POWER_SWITCH_ENABLED] = True
+            else:
+                # Not enabled - ensure entity cleared
+                user_input[CONF_POWER_SWITCH] = None
+                user_input[CONF_POWER_SWITCH_ENABLED] = False
             
             # If camera mode is auto, detect the actual camera type and replace it
             camera_mode = user_input.get(CONF_CAMERA_MODE)
@@ -195,6 +247,13 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
         # Get current values with defaults  
         current_power_switch_raw = self._entry.options.get(CONF_POWER_SWITCH)
+        current_power_enabled = self._entry.options.get(CONF_POWER_SWITCH_ENABLED, False)
+        
+        # Handle migration: if power_switch exists but enabled flag doesn't, enable it
+        if current_power_switch_raw and not isinstance(current_power_switch_raw, type(None)):
+            if CONF_POWER_SWITCH_ENABLED not in self._entry.options:
+                current_power_enabled = True
+        
         # Clean up any empty lists or invalid values - normalize to None or string
         current_power_switch = None
         if current_power_switch_raw:
@@ -212,21 +271,54 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         # Build schema - show go2rtc options if WebRTC mode is selected or if in auto mode
         show_go2rtc = current_camera_mode in (CAM_MODE_WEBRTC, CAM_MODE_AUTO)
         
-        # Build schema - power switch as text input (entity_id)
-        # Using text input instead of EntitySelector to allow truly optional/empty values
+        # Get notification & performance settings
+        notify_device = self._entry.options.get(CONF_NOTIFY_DEVICE)
+        notify_completed = self._entry.options.get(CONF_NOTIFY_COMPLETED, False)
+        notify_error = self._entry.options.get(CONF_NOTIFY_ERROR, False)
+        notify_minutes_to_end = self._entry.options.get(CONF_NOTIFY_MINUTES_TO_END, False)
+        minutes_to_end_value = self._entry.options.get(CONF_MINUTES_TO_END_VALUE, 5)
+        polling_rate = self._entry.options.get(CONF_POLLING_RATE, DEFAULT_POLLING_RATE)
+
+        
+        # Build list of notify services for the selector
+        notify_services = self.hass.services.async_services().get("notify", {})
+        notify_service_options = []
+        for service_name in notify_services.keys():
+            # Filter out utility services if desired, but general list is better
+            full_name = f"notify.{service_name}"
+            notify_service_options.append(selector.SelectOptionDict(value=full_name, label=service_name))
+        
+        # Ensure current value is in options if set
+        if notify_device and notify_device not in [o["value"] for o in notify_service_options]:
+            notify_service_options.append(selector.SelectOptionDict(value=notify_device, label=notify_device))
+
+        # Build schema (entity selector always present; default only when enabled to avoid None validation)
+
         schema_dict: dict[str, Any] = {
             vol.Optional(
-                CONF_POWER_SWITCH,
-                default=current_power_switch or "",
+                CONF_HOST,
+                default=self._entry.data.get(CONF_HOST, ""),
             ): selector.TextSelector(
                 selector.TextSelectorConfig(
                     type=selector.TextSelectorType.TEXT,
-                    multiline=False,
                     autocomplete="off",
                 )
             ),
+            vol.Optional(
+                CONF_POWER_SWITCH_ENABLED,
+                default=current_power_enabled,
+            ): selector.BooleanSelector(),
+            vol.Optional(
+                CONF_POWER_SWITCH,
+                # Always show; default only when a value exists to avoid None validation
+                default=(current_power_switch if current_power_switch else vol.UNDEFINED),
+            ): selector.EntitySelector(
+                selector.EntitySelectorConfig(
+                    domain=["switch", "input_boolean", "light"],
+                )
+            ),
         }
-        
+
         schema_dict.update({
             vol.Optional(
                 CONF_CAMERA_MODE,
@@ -253,6 +345,26 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     selector.NumberSelectorConfig(min=1, max=65535, mode=selector.NumberSelectorMode.BOX)
                 ),
             })
+
+        # Add Notification & Performance settings
+        schema_dict.update({
+             vol.Optional(CONF_POLLING_RATE, default=polling_rate): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=60, mode=selector.NumberSelectorMode.BOX, unit_of_measurement="sec")
+            ),
+             vol.Optional(CONF_NOTIFY_DEVICE, default=notify_device or vol.UNDEFINED): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=notify_service_options,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    custom_value=True # Allow keeping old value or custom input if needed
+                )
+            ),
+             vol.Optional(CONF_NOTIFY_COMPLETED, default=notify_completed): selector.BooleanSelector(),
+             vol.Optional(CONF_NOTIFY_ERROR, default=notify_error): selector.BooleanSelector(),
+             vol.Optional(CONF_NOTIFY_MINUTES_TO_END, default=notify_minutes_to_end): selector.BooleanSelector(),
+             vol.Optional(CONF_MINUTES_TO_END_VALUE, default=minutes_to_end_value): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=1, max=60, mode=selector.NumberSelectorMode.BOX, unit_of_measurement="min")
+            ),
+        })
         
         schema = vol.Schema(schema_dict)
         return self.async_show_form(

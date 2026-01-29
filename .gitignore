@@ -26,3 +26,6 @@ tesla_fleet.key
 .ha_run.lock
 *.ha_run.lock*
 .ha_run.lock
+amazon_face_gallery/training_cache/Arleepta/e21bbca5dd.png
+amazon_face_gallery/training_cache/Neeva/30489dc3d0.png
+amazon_face_gallery/training_cache/Sooraj/afcc4f1685.png

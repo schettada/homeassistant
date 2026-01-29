@@ -5,12 +5,14 @@
 # Suppress warnings about unused function arguments
 # pylint: disable=W0613
 from __future__ import annotations
+from collections.abc import Callable
 from dataclasses import dataclass
 import logging
 
 from .haimports import * # pylint: disable=W0401,W0614
 from .pydreo import PyDreo
 from .pydreo.pydreobasedevice import PyDreoBaseDevice
+from .pydreo.constant import DreoDeviceType
 from .dreobasedevice import DreoBaseDeviceHA
 
 from .const import (
@@ -26,6 +28,7 @@ class DreoNumberEntityDescription(NumberEntityDescription):
     """Describe Dreo Number entity."""
     attr_name: str = None
     icon: str = None
+    exists_fn: Callable[[PyDreoBaseDevice], bool] = None
 
     def __repr__(self):
         # Representation string of object.
@@ -40,6 +43,7 @@ NUMBERS: tuple[DreoNumberEntityDescription, ...] = (
         icon="mdi:angle-acute",
         min_value=-60,
         max_value=60,
+        exists_fn=lambda device: device.is_feature_supported("horizontal_angle"),
     ),
     DreoNumberEntityDescription(
         key="Vertical Angle",
@@ -47,17 +51,8 @@ NUMBERS: tuple[DreoNumberEntityDescription, ...] = (
         attr_name="vertical_angle",
         icon="mdi:angle-acute",
         min_value=0,
-        max_value=90
-    ),
-    DreoNumberEntityDescription(
-        key="Target Temperature",
-        translation_key="target_temp",
-        attr_name="ecolevel",
-        native_unit_of_measurement=UnitOfTemperature.FAHRENHEIT,
-        icon="mdi:thermometer",
-        min_value=0,
-        max_value=100,
-        device_class=NumberDeviceClass.TEMPERATURE,
+        max_value=90,
+        exists_fn=lambda device: device.is_feature_supported("vertical_angle"),
     ),
     DreoNumberEntityDescription(
         key="Horizontal Oscillation Angle Left",
@@ -66,6 +61,7 @@ NUMBERS: tuple[DreoNumberEntityDescription, ...] = (
         icon="mdi:vector-radius",
         min_value=-60,
         max_value=60,
+        exists_fn=lambda device: device.is_feature_supported("horizontal_osc_angle_left"),
     ),
     DreoNumberEntityDescription(
         key="Horizontal Oscillation Angle Right",
@@ -74,6 +70,7 @@ NUMBERS: tuple[DreoNumberEntityDescription, ...] = (
         icon="mdi:vector-radius",
         min_value=-60,
         max_value=60,
+        exists_fn=lambda device: device.is_feature_supported("horizontal_osc_angle_right"),
     ),
     DreoNumberEntityDescription(
         key="Vertical Oscillation Angle Top",
@@ -81,7 +78,8 @@ NUMBERS: tuple[DreoNumberEntityDescription, ...] = (
         attr_name="vertical_osc_angle_top",
         icon="mdi:vector-radius",
         min_value=0,
-        max_value=90
+        max_value=90,
+        exists_fn=lambda device: device.is_feature_supported("vertical_osc_angle_top"),
     ),
     DreoNumberEntityDescription(
         key="Vertical Oscillation Angle Bottom",
@@ -89,7 +87,8 @@ NUMBERS: tuple[DreoNumberEntityDescription, ...] = (
         attr_name="vertical_osc_angle_bottom",
         icon="mdi:vector-radius",
         min_value=0,
-        max_value=90
+        max_value=90,
+        exists_fn=lambda device: device.is_feature_supported("vertical_osc_angle_bottom"),
     ),
     DreoNumberEntityDescription(
         key="Oscillation Angle",
@@ -98,7 +97,26 @@ NUMBERS: tuple[DreoNumberEntityDescription, ...] = (
         icon="mdi:angle-acute",
         min_value=30,
         max_value=120,
-        step = 30
+        step = 30,
+        exists_fn=lambda device: device.is_feature_supported("shakehorizonangle"),
+    ),
+    DreoNumberEntityDescription(
+        key="Horizontal Oscillation Angle",
+        translation_key="horizontal_oscillation_angle",
+        attr_name="horizontal_oscillation_angle",
+        icon="mdi:angle-acute",
+        min_value=-60,
+        max_value=60,
+        exists_fn=lambda device: device.is_feature_supported("horizontal_oscillation_angle"),
+    ),
+    DreoNumberEntityDescription(
+        key="Vertical Oscillation Angle",
+        translation_key="vertical_oscillation_angle",
+        attr_name="vertical_oscillation_angle",
+        icon="mdi:angle-acute",
+        min_value=0,
+        max_value=90,
+        exists_fn=lambda device: device.is_feature_supported("vertical_oscillation_angle"),
     ),
     DreoNumberEntityDescription(
         key="Target Humidity",
@@ -107,9 +125,9 @@ NUMBERS: tuple[DreoNumberEntityDescription, ...] = (
         icon="mdi:water-percent",
         min_value=40,
         max_value=90,
+        exists_fn=lambda device: device.type != DreoDeviceType.HUMIDIFIER and device.is_feature_supported("target_humidity"),
     )
 )
-
 
 def get_entries(pydreo_devices : list[PyDreoBaseDevice]) -> list[DreoNumberHA]:
     """Add Number entries for Dreo devices."""
@@ -120,9 +138,9 @@ def get_entries(pydreo_devices : list[PyDreoBaseDevice]) -> list[DreoNumberHA]:
         number_keys : list[str] = []
         
         for number_definition in NUMBERS:
-            _LOGGER.debug("Number:get_entries: checking attribute: %s on %s", number_definition.attr_name, pydreo_device.name)
+            _LOGGER.debug("Number:get_entries: checking exists fn: %s on %s", number_definition.key, pydreo_device.name)
 
-            if pydreo_device.is_feature_supported(number_definition.attr_name):
+            if number_definition.exists_fn(pydreo_device):
                 if (number_definition.key in number_keys):
                     _LOGGER.error("Number:get_entries: Duplicate number key %s", number_definition.key)
                     continue
@@ -141,6 +159,7 @@ def get_entries(pydreo_devices : list[PyDreoBaseDevice]) -> list[DreoNumberHA]:
                         max_value=device_range[1],
                         device_class=number_definition.device_class,
                         native_unit_of_measurement=number_definition.native_unit_of_measurement,
+                        exists_fn=number_definition.exists_fn,
                     )
                     number_ha_collection.append(DreoNumberHA(pydreo_device, dned))
                 else:
@@ -204,6 +223,10 @@ class DreoNumberHA(DreoBaseDeviceHA, NumberEntity): # pylint: disable=abstract-m
             self._attr_name,
             self._attr_unique_id)
 
+    def __repr__(self):
+        # Representation string of object.
+        return f"<{self.__class__.__name__}:{self.entity_description}"
+    
     @property
     def native_value(self) -> float:
         """Return the state of the number."""

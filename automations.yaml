@@ -1110,17 +1110,43 @@
         id:
         - full
       sequence:
-      - type: turn_off
-        device_id: 0aa9becf357e16713a20cb2dc564ec17
-        entity_id: cd4681d56082662c7ada1c5e803dfb61
-        domain: switch
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.usw_pro_24_poe_arleepta_office_poe
     - conditions:
       - condition: trigger
         id:
         - depleted
       sequence:
-      - type: turn_on
-        device_id: 0aa9becf357e16713a20cb2dc564ec17
-        entity_id: cd4681d56082662c7ada1c5e803dfb61
-        domain: switch
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.usw_pro_24_poe_arleepta_office_poe
+  mode: single
+- id: '1767579592893'
+  alias: Fireplace Monitoring
+  description: ''
+  triggers:
+  - type: changed_states
+    device_id: 33ed53184a653c084aea7748b25d6b52
+    entity_id: 808b274deaf0aaa6124b76acb14c1709
+    domain: switch
+    metadata:
+      secondary: false
+    trigger: device
+  - device_id: 33ed53184a653c084aea7748b25d6b52
+    domain: button
+    entity_id: 7a521262192b7b542eeaee8947694e46
+    type: pressed
+    trigger: device
+  conditions: []
+  actions:
+  - action: script.notify_all
+    metadata: {}
+    data:
+      message: '{{ trigger.to_state.attributes.friendly_name }} is {{ trigger.to_state.state
+        }}'
   mode: single

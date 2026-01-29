@@ -1,0 +1,30 @@
+{
+  "updated_at": "2026-01-25T05:07:57Z",
+  "items": [
+    {
+      "file": "recognition_20260124_220757.jpg",
+      "timestamp": "2026-01-25T05:07:57Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "car": 1,
+        "wheel": 2
+      },
+      "plates": [],
+      "camera_entity": "camera.driveway_fluent"
+    },
+    {
+      "file": "recognition_20260124_220554.jpg",
+      "timestamp": "2026-01-25T05:05:55Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "building": 1,
+        "car": 5,
+        "wheel": 1
+      },
+      "plates": [],
+      "camera_entity": "camera.front_door_clear"
+    }
+  ]
+}
