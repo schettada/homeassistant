@@ -1,30 +1,232 @@
 {
-  "updated_at": "2026-01-25T05:07:57Z",
+  "updated_at": "2026-02-02T18:22:08Z",
   "items": [
     {
-      "file": "recognition_20260124_220757.jpg",
-      "timestamp": "2026-01-25T05:07:57Z",
+      "file": "recognition_20260202_112208.jpg",
+      "timestamp": "2026-02-02T18:22:08Z",
       "recognized": [],
       "unknown_person_found": false,
       "objects": {
-        "car": 1,
-        "wheel": 2
+        "car": 2,
+        "wheel": 1
       },
       "plates": [],
       "camera_entity": "camera.driveway_fluent"
     },
     {
-      "file": "recognition_20260124_220554.jpg",
-      "timestamp": "2026-01-25T05:05:55Z",
+      "file": "recognition_20260202_112203.jpg",
+      "timestamp": "2026-02-02T18:22:03Z",
       "recognized": [],
       "unknown_person_found": false,
       "objects": {
-        "building": 1,
-        "car": 5,
+        "car": 2
+      },
+      "plates": [
+        {
+          "plate": "NEEVA",
+          "confidence": 98.89,
+          "owner": "Jeep",
+          "vehicle_label": "car",
+          "vehicle_confidence": 89.94
+        }
+      ],
+      "camera_entity": "camera.driveway_fluent"
+    },
+    {
+      "file": "recognition_20260202_112136.jpg",
+      "timestamp": "2026-02-02T18:21:36Z",
+      "recognized": [],
+      "unknown_person_found": true,
+      "objects": {
+        "car": 3,
+        "person": 1,
+        "chair": 1
+      },
+      "plates": [],
+      "camera_entity": "camera.front_door_fluent"
+    },
+    {
+      "file": "recognition_20260202_112131.jpg",
+      "timestamp": "2026-02-02T18:21:31Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "car": 1,
         "wheel": 1
       },
       "plates": [],
-      "camera_entity": "camera.front_door_clear"
+      "camera_entity": "camera.driveway_fluent"
+    },
+    {
+      "file": "recognition_20260202_111532.jpg",
+      "timestamp": "2026-02-02T18:15:32Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "car": 1
+      },
+      "plates": [],
+      "camera_entity": "camera.driveway_fluent"
+    },
+    {
+      "file": "recognition_20260202_111359.jpg",
+      "timestamp": "2026-02-02T18:13:59Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "car": 1
+      },
+      "plates": [],
+      "camera_entity": "camera.driveway_fluent"
+    },
+    {
+      "file": "recognition_20260202_111128.jpg",
+      "timestamp": "2026-02-02T18:11:28Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "car": 1
+      },
+      "plates": [],
+      "camera_entity": "camera.front_door_fluent"
+    },
+    {
+      "file": "recognition_20260202_111127.jpg",
+      "timestamp": "2026-02-02T18:11:27Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "car": 2
+      },
+      "plates": [],
+      "camera_entity": "camera.driveway_fluent"
+    },
+    {
+      "file": "recognition_20260202_104053.jpg",
+      "timestamp": "2026-02-02T17:40:53Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "car": 2
+      },
+      "plates": [],
+      "camera_entity": "camera.driveway_fluent"
+    },
+    {
+      "file": "recognition_20260202_100920.jpg",
+      "timestamp": "2026-02-02T17:09:20Z",
+      "recognized": [],
+      "unknown_person_found": true,
+      "objects": {
+        "person": 1,
+        "car": 2,
+        "dog": 1
+      },
+      "plates": [],
+      "camera_entity": "camera.front_door_fluent"
+    },
+    {
+      "file": "recognition_20260202_100908.jpg",
+      "timestamp": "2026-02-02T17:09:08Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "car": 2,
+        "gate": 1
+      },
+      "plates": [],
+      "camera_entity": "camera.front_door_fluent"
+    },
+    {
+      "file": "recognition_20260202_100906.jpg",
+      "timestamp": "2026-02-02T17:09:06Z",
+      "recognized": [],
+      "unknown_person_found": true,
+      "objects": {
+        "person": 3,
+        "car": 4
+      },
+      "plates": [],
+      "camera_entity": "camera.driveway_fluent"
+    },
+    {
+      "file": "recognition_20260202_100853.jpg",
+      "timestamp": "2026-02-02T17:08:53Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "car": 2
+      },
+      "plates": [],
+      "camera_entity": "camera.front_door_fluent"
+    },
+    {
+      "file": "recognition_20260202_100849.jpg",
+      "timestamp": "2026-02-02T17:08:49Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "car": 3,
+        "wheel": 1
+      },
+      "plates": [],
+      "camera_entity": "camera.driveway_fluent"
+    },
+    {
+      "file": "recognition_20260202_100231.jpg",
+      "timestamp": "2026-02-02T17:02:31Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "car": 2
+      },
+      "plates": [],
+      "camera_entity": "camera.driveway_fluent"
+    },
+    {
+      "file": "recognition_20260202_100213.jpg",
+      "timestamp": "2026-02-02T17:02:13Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "car": 2
+      },
+      "plates": [],
+      "camera_entity": "camera.driveway_fluent"
+    },
+    {
+      "file": "recognition_20260202_095814.jpg",
+      "timestamp": "2026-02-02T16:58:14Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "car": 1
+      },
+      "plates": [],
+      "camera_entity": "camera.front_door_fluent"
+    },
+    {
+      "file": "recognition_20260202_095813.jpg",
+      "timestamp": "2026-02-02T16:58:13Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "car": 2
+      },
+      "plates": [],
+      "camera_entity": "camera.driveway_fluent"
+    },
+    {
+      "file": "recognition_20260202_094355.jpg",
+      "timestamp": "2026-02-02T16:43:55Z",
+      "recognized": [],
+      "unknown_person_found": false,
+      "objects": {
+        "pickup truck": 1,
+        "car": 3
+      },
+      "plates": [],
+      "camera_entity": "camera.driveway_fluent"
     }
   ]
 }

@@ -5,35 +5,39 @@
         "motion_sensitivity": "high",
         "occupancy": false,
         "illuminance": 1,
-        "temperature": 18.45,
+        "temperature": 18.59,
+        "update_available": false,
+        "linkquality": 76,
         "update": {
             "state": "available",
             "installed_version": 1107323831,
-            "latest_version": 1124102917
-        },
-        "update_available": false,
-        "linkquality": 76
+            "latest_version": 1124102917,
+            "latest_source": "https://raw.githubusercontent.com/Koenkk/zigbee-OTA/master/images/Hue/Sensor-ATmega_0012.sbl-ota",
+            "latest_release_notes": null
+        }
     },
     "0x0017880109197eb3": {
-        "battery": 35.5,
+        "battery": 33.5,
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 1,
+        "illuminance": 3,
         "linkquality": 76,
-        "temperature": 17.1,
+        "temperature": 17.53,
+        "update_available": false,
         "update": {
             "state": "available",
             "installed_version": 1107323831,
-            "latest_version": 1124102917
-        },
-        "update_available": false
+            "latest_version": 1124102917,
+            "latest_source": "https://raw.githubusercontent.com/Koenkk/zigbee-OTA/master/images/Hue/Sensor-ATmega_0012.sbl-ota",
+            "latest_release_notes": null
+        }
     },
     "0x00124b0025908789": {
-        "linkquality": 98
+        "linkquality": 61
     },
     "0x00124b002590928c": {
-        "linkquality": 72
+        "linkquality": 69
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
@@ -56,33 +60,30 @@
         "battery_low": false,
         "contact": true,
         "linkquality": 83,
-        "temperature": 19
+        "temperature": 18
     },
     "0xdc8e95fffe3ed0cd": {
         "state": "OFF",
         "linkquality": 72,
         "brightness": 254,
         "power_on_behavior": "previous",
+        "update_available": false,
         "update": {
             "state": "idle",
             "installed_version": 16842759,
-            "latest_version": 16842759
-        },
-        "update_available": false
+            "latest_version": 16842759,
+            "latest_source": "https://raw.githubusercontent.com/Koenkk/zigbee-OTA/master/images/IKEA/10082264-zingo_lds_stoftmoln-1.1.7.ota.ota.signed",
+            "latest_release_notes": "https://ww8.ikea.com/ikeahomesmart/releasenotes/releasenotes.html"
+        }
     },
     "0x002446fffd09435b": {
         "battery": 100,
-        "state": "LOCK",
-        "lock_state": "locked",
+        "state": "UNLOCK",
+        "lock_state": "unlocked",
         "linkquality": 83
     },
     "0xb0ce1814030101aa": {
         "color_mode": "color_temp",
-        "update": {
-            "state": "idle",
-            "installed_version": 46,
-            "latest_version": 46
-        },
         "update_available": false,
         "energy": 2.52,
         "state": "OFF",
@@ -101,13 +102,15 @@
     },
     "0x8c6fb9fffe262da7": {
         "occupancy": false,
-        "illuminance": 1,
-        "battery": 63,
+        "illuminance": 5,
+        "battery": 61,
+        "linkquality": 87,
         "update": {
             "state": "available",
             "installed_version": 16777303,
-            "latest_version": 16777316
-        },
-        "linkquality": 87
+            "latest_version": 16777316,
+            "latest_source": "https://raw.githubusercontent.com/Koenkk/zigbee-OTA/master/images/IKEA/motionsensor-lds-mg21a_release_prod_v16777316_3a00064a-cc29-4aac-bdb6-c4fa1fb445d5.ota",
+            "latest_release_notes": "https://ww8.ikea.com/ikeahomesmart/releasenotes/releasenotes.html"
+        }
     }
 }
