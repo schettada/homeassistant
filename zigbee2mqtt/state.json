@@ -34,10 +34,10 @@
         }
     },
     "0x00124b0025908789": {
-        "linkquality": 80
+        "linkquality": 87
     },
     "0x00124b002590928c": {
-        "linkquality": 36
+        "linkquality": 0
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
@@ -60,7 +60,7 @@
         "battery_low": false,
         "contact": true,
         "linkquality": 83,
-        "temperature": 19
+        "temperature": 18
     },
     "0xdc8e95fffe3ed0cd": {
         "state": "OFF",
@@ -78,8 +78,8 @@
     },
     "0x002446fffd09435b": {
         "battery": 100,
-        "state": "UNLOCK",
-        "lock_state": "unlocked",
+        "state": "LOCK",
+        "lock_state": "locked",
         "linkquality": 83
     },
     "0xb0ce1814030101aa": {
