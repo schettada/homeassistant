@@ -100,11 +100,10 @@ alexa_announcement:
     then:
     - data:
         target:
-        - media_player.loft_echo_show
+        - media_player.loft_echo_dot
         - media_player.great_room_echo_show
         - media_player.basement_echo_dot
         - media_player.bedroom_echo_dot
-        - media_player.study_echo_dot
         message: '"{{ message }}"'
       action: notify.alexa_media
   mode: single
