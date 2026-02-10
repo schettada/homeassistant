@@ -5,7 +5,7 @@
         "motion_sensitivity": "high",
         "occupancy": false,
         "illuminance": 1,
-        "temperature": 18.31,
+        "temperature": 18.17,
         "update_available": false,
         "linkquality": 76,
         "update": {
@@ -17,7 +17,7 @@
         }
     },
     "0x0017880109197eb3": {
-        "battery": 33.5,
+        "battery": 32.5,
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
@@ -34,10 +34,10 @@
         }
     },
     "0x00124b0025908789": {
-        "linkquality": 80
+        "linkquality": 65
     },
     "0x00124b002590928c": {
-        "linkquality": 116
+        "linkquality": 123
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
