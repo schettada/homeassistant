@@ -5,7 +5,7 @@
         "motion_sensitivity": "high",
         "occupancy": false,
         "illuminance": 1,
-        "temperature": 18.73,
+        "temperature": 18.17,
         "update_available": false,
         "linkquality": 76,
         "update": {
@@ -17,13 +17,13 @@
         }
     },
     "0x0017880109197eb3": {
-        "battery": 32.5,
+        "battery": 31.5,
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
-        "illuminance": 3,
+        "illuminance": 1,
         "linkquality": 76,
-        "temperature": 18.52,
+        "temperature": 17.1,
         "update_available": false,
         "update": {
             "state": "available",
@@ -34,10 +34,10 @@
         }
     },
     "0x00124b0025908789": {
-        "linkquality": 43
+        "linkquality": 98
     },
     "0x00124b002590928c": {
-        "linkquality": 123
+        "linkquality": 134
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
@@ -60,7 +60,7 @@
         "battery_low": false,
         "contact": true,
         "linkquality": 83,
-        "temperature": 19
+        "temperature": 18
     },
     "0xdc8e95fffe3ed0cd": {
         "state": "OFF",
@@ -77,9 +77,9 @@
         }
     },
     "0x002446fffd09435b": {
-        "battery": 100,
-        "state": "UNLOCK",
-        "lock_state": "unlocked",
+        "battery": 90,
+        "state": "LOCK",
+        "lock_state": "locked",
         "linkquality": 83
     },
     "0xb0ce1814030101aa": {
@@ -102,8 +102,8 @@
     },
     "0x8c6fb9fffe262da7": {
         "occupancy": false,
-        "illuminance": 8,
-        "battery": 55,
+        "illuminance": 1,
+        "battery": 54,
         "linkquality": 87,
         "update": {
             "state": "available",
