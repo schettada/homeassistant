@@ -1,13 +1,13 @@
 {
     "0x0017880109196488": {
-        "battery": 41,
+        "battery": 39.5,
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
         "illuminance": 1,
-        "temperature": 18.17,
+        "temperature": 19.16,
         "update_available": false,
-        "linkquality": 76,
+        "linkquality": 131,
         "update": {
             "state": "available",
             "installed_version": 1107323831,
@@ -17,13 +17,13 @@
         }
     },
     "0x0017880109197eb3": {
-        "battery": 31.5,
+        "battery": 30,
         "occupancy_timeout": 0,
         "motion_sensitivity": "high",
         "occupancy": false,
         "illuminance": 1,
-        "linkquality": 76,
-        "temperature": 17.1,
+        "linkquality": 131,
+        "temperature": 16.68,
         "update_available": false,
         "update": {
             "state": "available",
@@ -34,7 +34,7 @@
         }
     },
     "0x00124b0025908789": {
-        "linkquality": 98
+        "linkquality": 61
     },
     "0x00124b002590928c": {
         "linkquality": 134
@@ -49,7 +49,7 @@
         "trouble": false,
         "ac_status": false,
         "test": false,
-        "linkquality": 72,
+        "linkquality": 116,
         "battery_defect": false
     },
     "0x000d6f0013e693f9": {
@@ -59,12 +59,12 @@
         "tamper": false,
         "battery_low": false,
         "contact": true,
-        "linkquality": 83,
-        "temperature": 18
+        "linkquality": 72,
+        "temperature": 20
     },
     "0xdc8e95fffe3ed0cd": {
         "state": "OFF",
-        "linkquality": 72,
+        "linkquality": 127,
         "brightness": 254,
         "power_on_behavior": "previous",
         "update_available": false,
@@ -80,7 +80,7 @@
         "battery": 90,
         "state": "LOCK",
         "lock_state": "locked",
-        "linkquality": 83
+        "linkquality": 72
     },
     "0xb0ce1814030101aa": {
         "color_mode": "color_temp",
@@ -103,8 +103,8 @@
     "0x8c6fb9fffe262da7": {
         "occupancy": false,
         "illuminance": 1,
-        "battery": 54,
-        "linkquality": 87,
+        "battery": 52,
+        "linkquality": 120,
         "update": {
             "state": "available",
             "installed_version": 16777303,
