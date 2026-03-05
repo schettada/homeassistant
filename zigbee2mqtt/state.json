@@ -23,7 +23,7 @@
         "occupancy": false,
         "illuminance": 1,
         "linkquality": 131,
-        "temperature": 16.68,
+        "temperature": 16.82,
         "update_available": false,
         "update": {
             "state": "available",
@@ -37,7 +37,7 @@
         "linkquality": 61
     },
     "0x00124b002590928c": {
-        "linkquality": 134
+        "linkquality": 131
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
