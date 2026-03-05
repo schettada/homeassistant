@@ -327,9 +327,8 @@
 - id: '1664594503267'
   alias: Auto Arm Security
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - person.arleepta
     - person.sooraj_chettada
     to: not_home
@@ -337,7 +336,8 @@
       hours: 0
       minutes: 5
       seconds: 0
-  condition:
+    trigger: state
+  conditions:
   - condition: and
     conditions:
     - condition: state
@@ -349,14 +349,14 @@
     - condition: state
       entity_id: person.sooraj_chettada
       state: not_home
-  action:
-  - service: alarmo.arm
-    data:
+  actions:
+  - data:
       code: '1985'
       mode: away
       force: true
       skip_delay: true
       entity_id: alarm_control_panel.home
+    action: alarmo.arm
   - device_id: f6fb94ee1b2f598b481ded658a4af30b
     domain: lock
     entity_id: 191d58b23eef085ccf6f38511077e5cd
