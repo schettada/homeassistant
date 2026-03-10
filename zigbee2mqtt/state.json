@@ -5,9 +5,9 @@
         "motion_sensitivity": "high",
         "occupancy": false,
         "illuminance": 1,
-        "temperature": 18.45,
+        "temperature": 19.3,
         "update_available": false,
-        "linkquality": 131,
+        "linkquality": 127,
         "update": {
             "state": "available",
             "installed_version": 1107323831,
@@ -23,7 +23,7 @@
         "occupancy": false,
         "illuminance": 1,
         "linkquality": 131,
-        "temperature": 17.53,
+        "temperature": 17.1,
         "update_available": false,
         "update": {
             "state": "available",
@@ -34,10 +34,10 @@
         }
     },
     "0x00124b0025908789": {
-        "linkquality": 83
+        "linkquality": 87
     },
     "0x00124b002590928c": {
-        "linkquality": 127
+        "linkquality": 109
     },
     "0x84fd27fffe696daf": {
         "battery": 100,
@@ -49,7 +49,7 @@
         "trouble": false,
         "ac_status": false,
         "test": false,
-        "linkquality": 116,
+        "linkquality": 127,
         "battery_defect": false
     },
     "0x000d6f0013e693f9": {
@@ -59,12 +59,12 @@
         "tamper": false,
         "battery_low": false,
         "contact": true,
-        "linkquality": 72,
-        "temperature": 19
+        "linkquality": 83,
+        "temperature": 20
     },
     "0xdc8e95fffe3ed0cd": {
         "state": "OFF",
-        "linkquality": 127,
+        "linkquality": 131,
         "brightness": 254,
         "power_on_behavior": "previous",
         "update_available": false,
@@ -80,7 +80,7 @@
         "battery": 90,
         "state": "UNLOCK",
         "lock_state": "unlocked",
-        "linkquality": 72
+        "linkquality": 83
     },
     "0xb0ce1814030101aa": {
         "color_mode": "color_temp",
@@ -103,8 +103,8 @@
     "0x8c6fb9fffe262da7": {
         "occupancy": false,
         "illuminance": 1,
-        "battery": 50,
-        "linkquality": 120,
+        "battery": 48,
+        "linkquality": 131,
         "update": {
             "state": "available",
             "installed_version": 16777303,
