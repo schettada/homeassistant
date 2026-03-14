@@ -1,5 +1,10 @@
 // Person Tracker Card Editor - Multilanguage Version
 // Languages: Italian (default), English, French, German
+// v1.3.6: Version badge added to editor UI top-right
+// v1.3.3: No editor changes
+// v1.3.2: Full IT/EN/FR/DE translations for neon/weather sections; auto-detect sensors via mobile_app prefix; editor fields auto-populated
+// v1.3.1: Animated weather background editor section (weather_entity + show_weather toggle)
+// v1.3.0: Fix #20 load ha-entity-picker via hui-glance-card.getConfigElement(); distance_precision field added
 // v1.2.4: Bug fix language, add hide state unknown activity status.
 
 const LitElement = Object.getPrototypeOf(
@@ -96,7 +101,10 @@ class EditorLocalizationHelper {
         'editor.watch_battery_charging_value': 'Valore stato in carica watch (opzionale)',
         'editor.charging_helper': 'Lascia vuoto per rilevamento automatico (charging, full, on, true...)',
         'section.automatic_sensors': 'Sensori Automatici',
-        'section.sensors_description': 'I sensori vengono rilevati automaticamente in base all\'entitÃ  persona selezionata. Pattern predefinito: sensor.phone_',
+        'section.sensors_description': 'I sensori vengono rilevati automaticamente dall\'app mobile collegata all\'entità persona. Prefisso rilevato:',
+        'section.auto_detect_btn': 'Rileva automaticamente',
+        'section.auto_detect_found': 'sensori trovati',
+        'section.auto_detect_none': 'Nessun sensore trovato',
         'section.element_positions': 'Posizioni Elementi',
         'section.positions_description': 'Configura la posizione di ogni elemento sulla card. Disponibile solo nel layout Classic.',
         'section.custom_states': 'Stati Personalizzati',
@@ -105,6 +113,32 @@ class EditorLocalizationHelper {
         'section.modern_options': 'Opzioni Layout Modern',
         'section.classic_options': 'Opzioni Layout Classic',
         'section.compact_options': 'Opzioni Layout Compact',
+        'section.neon_options': 'Opzioni Layout Neon',
+        'section.neon_description': 'Tema cyberpunk scuro con anello luminoso animato e badge neon. I colori si adattano automaticamente allo stato della persona (verde = casa, rosso = fuori).',
+        'section.glass_options': 'Opzioni Layout Glass',
+        'section.glass_description': 'Tema glassmorphism scuro con chip traslucidi, orbs colorati e dot di stato animato. Il colore accent si adatta automaticamente alla zona corrente della persona.',
+        'section.weather': '🌤 Meteo',
+        'editor.show_weather': 'Mostra sfondo meteo',
+        'editor.weather_entity': 'Entità meteo',
+        'section.weather_description': 'Aggiunge uno sfondo animato alla card (pioggia, neve, sole, stelle, fulmini…). Funziona su tutti i layout.',
+        'section.travel_sensor_2': '🏢 Sensori Casa ↔ Lavoro',
+        'section.travel_sensor_2_description': 'Sensori 1 (casa→lavoro): visibili a casa e in transito, nascosti al lavoro. Sensori 2 (lavoro→casa): visibili al lavoro e in transito, nascosti a casa. Disattiva la modalità smart per mostrare sempre entrambi.',
+        'editor.travel_sensor_2': 'Sensore tempo di viaggio (lavoro → casa)',
+        'editor.zone_2': 'Zona lavoro',
+        'editor.show_travel_time_2': 'Mostra tempo di viaggio (Lavoro → Casa)',
+        'editor.smart_travel_mode': 'Modalità smart (nascondi in base alla posizione)',
+        'editor.distance_precision': 'Decimali distanza (0=intero, 1=un decimale, 2=due decimali)',
+        'editor.distance_unit': 'Unità distanza (es. km, mi)',
+        'editor.distance_unit_description': 'Lascia vuoto per rilevamento automatico. Per sensori Waze/Google usa km o mi.',
+        'editor.direction_home_work': 'Casa → Lavoro',
+        'editor.direction_work_home': 'Lavoro → Casa',
+        'editor.travel_sensor_home_work': 'Sensore tempo viaggio (Casa → Lavoro)',
+        'editor.travel_sensor_work_home': 'Sensore tempo viaggio (Lavoro → Casa)',
+        'editor.distance_sensor_home_work': 'Sensore distanza (Casa → Lavoro)',
+        'editor.distance_sensor_work_home': 'Sensore distanza (Lavoro → Casa)',
+        'editor.show_distance_2': 'Mostra distanza',
+        'section.distance_optional': '📍 Distanza (Opzionale)',
+        'section.distance_optional_description': 'Mostra la distanza in km. Sempre visibile indipendentemente dalla posizione.',
         'position.battery': 'Posizione batteria',
         'position.watch_battery': 'Posizione batteria smartwatch',
         'position.activity': 'Posizione attività ',
@@ -188,7 +222,10 @@ class EditorLocalizationHelper {
         'editor.watch_battery_charging_value': 'Watch charging state value (optional)',
         'editor.charging_helper': 'Leave empty for auto-detection (charging, full, on, true...)',
         'section.automatic_sensors': 'Automatic Sensors',
-        'section.sensors_description': 'Sensors are detected automatically based on the selected person entity. Default pattern: sensor.phone_',
+        'section.sensors_description': 'Sensors are auto-detected from the mobile app linked to the person entity. Detected prefix:',
+        'section.auto_detect_btn': 'Auto-detect sensors',
+        'section.auto_detect_found': 'sensors found',
+        'section.auto_detect_none': 'No matching sensors found',
         'section.element_positions': 'Element Positions',
         'section.positions_description': 'Configure the position of each element on the card. Available only in Classic layout.',
         'section.custom_states': 'Custom States',
@@ -197,6 +234,32 @@ class EditorLocalizationHelper {
         'section.modern_options': 'Modern Layout Options',
         'section.classic_options': 'Classic Layout Options',
         'section.compact_options': 'Compact Layout Options',
+        'section.neon_options': 'Neon Layout Options',
+        'section.neon_description': 'Dark cyberpunk theme with animated glow ring and neon badges. Colors adapt automatically to person state (green = home, red = away).',
+        'section.glass_options': 'Glass Layout Options',
+        'section.glass_description': 'Dark glassmorphism theme with translucent chips, colored orbs and animated status dot. Accent color adapts automatically to the person\'s current zone.',
+        'section.weather': '🌤 Weather',
+        'editor.show_weather': 'Show weather background',
+        'editor.weather_entity': 'Weather entity',
+        'section.weather_description': 'Adds an animated weather background to the card (rain, snow, sun, stars, lightning…). Works on all layouts.',
+        'section.travel_sensor_2': '🏢 Home ↔ Work Sensors',
+        'section.travel_sensor_2_description': 'Sensor 1 (home→work): visible at home and in transit, hidden at work. Sensor 2 (work→home): visible at work and in transit, hidden at home. Disable smart mode to always show both.',
+        'editor.travel_sensor_2': 'Travel time sensor (work → home)',
+        'editor.zone_2': 'Work zone',
+        'editor.show_travel_time_2': 'Show travel time (Work → Home)',
+        'editor.smart_travel_mode': 'Smart mode (hide based on location)',
+        'editor.distance_precision': 'Distance decimal places (0=integer, 1=one decimal, 2=two decimals)',
+        'editor.distance_unit': 'Distance unit (e.g. km, mi)',
+        'editor.distance_unit_description': 'Leave empty for auto-detection. For Waze/Google sensors use km or mi.',
+        'editor.direction_home_work': 'Home → Work',
+        'editor.direction_work_home': 'Work → Home',
+        'editor.travel_sensor_home_work': 'Travel time sensor (Home → Work)',
+        'editor.travel_sensor_work_home': 'Travel time sensor (Work → Home)',
+        'editor.distance_sensor_home_work': 'Distance sensor (Home → Work)',
+        'editor.distance_sensor_work_home': 'Distance sensor (Work → Home)',
+        'editor.show_distance_2': 'Show distance',
+        'section.distance_optional': '📍 Distance (Optional)',
+        'section.distance_optional_description': 'Show distance in km. Always visible regardless of position.',
         'position.battery': 'Battery position',
         'position.watch_battery': 'Watch battery position',
         'position.activity': 'Activity position',
@@ -280,7 +343,10 @@ class EditorLocalizationHelper {
         'editor.watch_battery_charging_value': 'Valeur état en charge montre (optionnel)',
         'editor.charging_helper': 'Laisser vide pour détection auto (charging, full, on, true...)',
         'section.automatic_sensors': 'Capteurs Automatiques',
-        'section.sensors_description': 'Les capteurs sont détectés automatiquement selon l\'entité personne sélectionnée. Modèle par défaut: sensor.phone_',
+        'section.sensors_description': 'Les capteurs sont détectés automatiquement depuis l\'app mobile liée à l\'entité personne. Préfixe détecté:',
+        'section.auto_detect_btn': 'Détecter automatiquement',
+        'section.auto_detect_found': 'capteurs trouvés',
+        'section.auto_detect_none': 'Aucun capteur trouvé',
         'section.element_positions': 'Positions éléments',
         'section.positions_description': 'Configurer la position de chaque élément sur la carte. Disponible uniquement en mode Classic.',
         'section.custom_states': 'États Personnalisés',
@@ -289,6 +355,32 @@ class EditorLocalizationHelper {
         'section.modern_options': 'Options Layout Moderne',
         'section.classic_options': 'Options Layout Classic',
         'section.compact_options': 'Options Layout Compact',
+        'section.neon_options': 'Options Layout Néon',
+        'section.neon_description': 'Thème cyberpunk sombre avec anneau lumineux animé et badges neon. Les couleurs s\'adaptent automatiquement à l\'état de la personne (vert = maison, rouge = absent).',
+        'section.glass_options': 'Options Layout Glass',
+        'section.glass_description': 'Thème glassmorphisme sombre avec chips translucides, orbes colorés et point de statut animé. La couleur accent s\'adapte automatiquement à la zone actuelle.',
+        'section.weather': '🌤 Météo',
+        'editor.show_weather': 'Afficher fond météo',
+        'editor.weather_entity': 'Entité météo',
+        'section.weather_description': 'Ajoute un fond animé à la carte (pluie, neige, soleil, étoiles, foudre…). Fonctionne sur tous les layouts.',
+        'section.travel_sensor_2': '🏢 Capteurs Maison ↔ Travail',
+        'section.travel_sensor_2_description': 'Capteur 1 (maison→travail): visible à la maison et en transit, masqué au travail. Capteur 2 (travail→maison): visible au travail et en transit, masqué à la maison. Désactivez le mode smart pour toujours afficher les deux.',
+        'editor.travel_sensor_2': 'Capteur temps de trajet (travail → maison)',
+        'editor.zone_2': 'Zone travail',
+        'editor.show_travel_time_2': 'Afficher temps trajet (Travail → Maison)',
+        'editor.smart_travel_mode': 'Mode smart (masquer selon la position)',
+        'editor.distance_precision': 'Décimales distance (0=entier, 1=une décimale, 2=deux décimales)',
+        'editor.distance_unit': 'Unité de distance (ex. km, mi)',
+        'editor.distance_unit_description': 'Laisser vide pour détection auto. Pour Waze/Google utiliser km ou mi.',
+        'editor.direction_home_work': 'Maison → Travail',
+        'editor.direction_work_home': 'Travail → Maison',
+        'editor.travel_sensor_home_work': 'Capteur temps trajet (Maison → Travail)',
+        'editor.travel_sensor_work_home': 'Capteur temps trajet (Travail → Maison)',
+        'editor.distance_sensor_home_work': 'Capteur distance (Maison → Travail)',
+        'editor.distance_sensor_work_home': 'Capteur distance (Travail → Maison)',
+        'editor.show_distance_2': 'Afficher distance',
+        'section.distance_optional': '📍 Distance (Optionnel)',
+        'section.distance_optional_description': 'Afficher la distance en km. Toujours visible quelle que soit la position.',
         'position.battery': 'Position batterie',
         'position.watch_battery': 'Position batterie montre',
         'position.activity': 'Position activité',
@@ -372,7 +464,10 @@ class EditorLocalizationHelper {
         'editor.watch_battery_charging_value': 'Uhr-Ladezustandswert (optional)',
         'editor.charging_helper': 'Leer lassen für Auto-Erkennung (charging, full, on, true...)',
         'section.automatic_sensors': 'Automatische Sensoren',
-        'section.sensors_description': 'Sensoren werden automatisch basierend auf der ausgewählten Personenentität erkannt. Standardmuster: sensor.phone_',
+        'section.sensors_description': 'Sensoren werden automatisch aus der mit der Personenentität verknüpften mobilen App erkannt. Erkanntes Präfix:',
+        'section.auto_detect_btn': 'Automatisch erkennen',
+        'section.auto_detect_found': 'Sensoren gefunden',
+        'section.auto_detect_none': 'Keine passenden Sensoren gefunden',
         'section.element_positions': 'Elementpositionen',
         'section.positions_description': 'Konfigurieren Sie die Position jedes Elements auf der Karte. Nur im Classic-Layout verfügbar.',
         'section.custom_states': 'Benutzerdefinierte Zustände',
@@ -381,6 +476,32 @@ class EditorLocalizationHelper {
         'section.modern_options': 'Moderne Layout-Optionen',
         'section.classic_options': 'Classic Layout-Optionen',
         'section.compact_options': 'Compact Layout-Optionen',
+        'section.neon_options': 'Neon Layout-Optionen',
+        'section.neon_description': 'Dunkles Cyberpunk-Thema mit animiertem Leuchtring und Neon-Badges. Farben passen sich automatisch dem Personenstatus an (grün = zuhause, rot = abwesend).',
+        'section.glass_options': 'Glass Layout-Optionen',
+        'section.glass_description': 'Dunkles Glassmorphismus-Thema mit durchscheinenden Chips, farbigen Orbs und animiertem Statuspunkt. Die Akzentfarbe passt sich automatisch der aktuellen Zone an.',
+        'section.weather': '🌤 Wetter',
+        'editor.show_weather': 'Wetterhintergrund anzeigen',
+        'editor.weather_entity': 'Wetterentität',
+        'section.weather_description': 'Fügt der Karte einen animierten Wetterhintergrund hinzu (Regen, Schnee, Sonne, Sterne, Blitze…). Funktioniert auf allen Layouts.',
+        'section.travel_sensor_2': '🏢 Zuhause ↔ Arbeit Sensoren',
+        'section.travel_sensor_2_description': 'Sensor 1 (zuhause→arbeit): sichtbar zuhause und unterwegs, versteckt bei der Arbeit. Sensor 2 (arbeit→zuhause): sichtbar bei der Arbeit und unterwegs, versteckt zuhause. Smart-Modus deaktivieren um immer beide anzuzeigen.',
+        'editor.travel_sensor_2': 'Reisezeitssensor (Arbeit → Zuhause)',
+        'editor.zone_2': 'Arbeitszone',
+        'editor.show_travel_time_2': 'Reisezeit anzeigen (Arbeit → Zuhause)',
+        'editor.smart_travel_mode': 'Smart-Modus (je nach Standort ausblenden)',
+        'editor.distance_precision': 'Entfernungs-Dezimalstellen (0=ganz, 1=eine, 2=zwei)',
+        'editor.distance_unit': 'Entfernungseinheit (z.B. km, mi)',
+        'editor.distance_unit_description': 'Leer lassen für Auto-Erkennung. Für Waze/Google km oder mi verwenden.',
+        'editor.direction_home_work': 'Zuhause → Arbeit',
+        'editor.direction_work_home': 'Arbeit → Zuhause',
+        'editor.travel_sensor_home_work': 'Reisezeitssensor (Zuhause → Arbeit)',
+        'editor.travel_sensor_work_home': 'Reisezeitssensor (Arbeit → Zuhause)',
+        'editor.distance_sensor_home_work': 'Entfernungssensor (Zuhause → Arbeit)',
+        'editor.distance_sensor_work_home': 'Entfernungssensor (Arbeit → Zuhause)',
+        'editor.show_distance_2': 'Entfernung anzeigen',
+        'section.distance_optional': '📍 Entfernung (Optional)',
+        'section.distance_optional_description': 'Entfernung in km anzeigen. Immer sichtbar unabhängig vom Standort.',
         'position.battery': 'Batterieposition',
         'position.watch_battery': 'Uhr-Batterieposition',
         'position.activity': 'Aktivitätsposition',
@@ -435,6 +556,29 @@ class PersonTrackerCardEditor extends LitElement {
     super();
     this._selectedTab = 'base';
     this._localize = null;
+  }
+
+  async connectedCallback() {
+    super.connectedCallback();
+    // Fix #20: load ha-entity-picker by requesting config element of hui-glance-card
+    // hui-glance-card depends on ha-entity-picker, so this forces it to load.
+    // See: https://community.home-assistant.io/t/re-using-existing-frontend-components-in-lovelace-card-editor/103415
+    if (!customElements.get('ha-entity-picker')) {
+      const GlanceCard = customElements.get('hui-glance-card');
+      if (GlanceCard) {
+        await GlanceCard.getConfigElement();
+      } else {
+        // hui-glance-card not yet registered — wait for it (with 3s timeout)
+        await Promise.race([
+          customElements.whenDefined('hui-glance-card').then(async () => {
+            const Card = customElements.get('hui-glance-card');
+            if (Card) await Card.getConfigElement();
+          }),
+          new Promise(resolve => setTimeout(resolve, 3000))
+        ]);
+      }
+      this.requestUpdate();
+    }
   }
 
   _initLocalization() {
@@ -513,6 +657,18 @@ class PersonTrackerCardEditor extends LitElement {
     return css`
       .card-config {
         padding: 16px;
+      }
+
+      .editor-version-badge {
+        font-size: 10px;
+        color: var(--secondary-text-color, #888);
+        text-align: right;
+        margin-bottom: 10px;
+        letter-spacing: 0.5px;
+      }
+      .editor-version-badge span {
+        font-weight: 700;
+        color: var(--primary-color, #03a9f4);
       }
 
       .tabs {
@@ -708,6 +864,36 @@ class PersonTrackerCardEditor extends LitElement {
         line-height: 1.4;
       }
 
+      .auto-detect-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 8px 0 4px;
+      }
+
+      .auto-detect-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--primary-color);
+        color: var(--text-primary-color, white);
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        white-space: nowrap;
+      }
+      .auto-detect-btn:hover:not(:disabled) { opacity: 0.82; }
+      .auto-detect-btn:disabled { opacity: 0.40; cursor: not-allowed; }
+      .auto-detect-btn ha-icon { --mdc-icon-size: 15px; }
+
+      .auto-detect-msg {
+        font-size: 12px;
+        color: var(--secondary-text-color);
+      }
+
       .position-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -743,6 +929,7 @@ class PersonTrackerCardEditor extends LitElement {
 
     return html`
       <div class="card-config">
+        <div class="editor-version-badge">Person Tracker Card <span>v1.3.6</span></div>
         <div class="tabs">
           <button
             class="tab ${this._selectedTab === 'base' ? 'active' : ''}"
@@ -810,10 +997,12 @@ class PersonTrackerCardEditor extends LitElement {
         <ha-select
           label="${this._t('editor.layout')}"
           .value=${this._config.layout || 'classic'}
-          @closed=${(e) => this._handleLayoutChange(e)}>
+          @request-selected=${(e) => this._handleLayoutChange(e)}>
           <mwc-list-item value="classic">Classic</mwc-list-item>
           <mwc-list-item value="compact">Compact</mwc-list-item>
           <mwc-list-item value="modern">Modern</mwc-list-item>
+          <mwc-list-item value="neon">Neon ✦</mwc-list-item>
+          <mwc-list-item value="glass">Glass ◈</mwc-list-item>
         </ha-select>
 
         ${this._config.layout === 'compact' ? html`
@@ -900,21 +1089,97 @@ class PersonTrackerCardEditor extends LitElement {
           </div>
         ` : ''}
       </div>
+
+      <div class="section">
+        <div class="section-title">Tap Action</div>
+
+        <ha-select
+          label="On tap"
+          .value=${this._config.tap_action?.action || 'more-info'}
+          @request-selected=${(e) => this._handleTapActionChange(e)}>
+          <mwc-list-item value="more-info">More Info (default)</mwc-list-item>
+          <mwc-list-item value="navigate">Navigate</mwc-list-item>
+          <mwc-list-item value="url">Open URL</mwc-list-item>
+          <mwc-list-item value="call-service">Call Service</mwc-list-item>
+          <mwc-list-item value="none">None</mwc-list-item>
+        </ha-select>
+
+        ${(this._config.tap_action?.action === 'more-info') ? html`
+          <ha-entity-picker
+            .hass=${this.hass}
+            .value=${this._config.tap_action?.entity || ''}
+            label="Entity (leave empty for person entity)"
+            allow-custom-entity
+            @value-changed=${(e) => this._updateTapAction('entity', e.detail?.value || '')}>
+          </ha-entity-picker>
+        ` : ''}
+
+        ${(this._config.tap_action?.action === 'navigate') ? html`
+          <ha-textfield
+            label="Navigation path (e.g. /lovelace/home)"
+            .value=${this._config.tap_action?.navigation_path || ''}
+            @input=${(e) => this._updateTapAction('navigation_path', e.target.value)}>
+          </ha-textfield>
+        ` : ''}
+
+        ${(this._config.tap_action?.action === 'url') ? html`
+          <ha-textfield
+            label="URL"
+            .value=${this._config.tap_action?.url_path || ''}
+            @input=${(e) => this._updateTapAction('url_path', e.target.value)}>
+          </ha-textfield>
+        ` : ''}
+
+        ${(this._config.tap_action?.action === 'call-service') ? html`
+          <ha-textfield
+            label="Service (e.g. light.turn_on)"
+            .value=${this._config.tap_action?.service || ''}
+            @input=${(e) => this._updateTapAction('service', e.target.value)}>
+          </ha-textfield>
+        ` : ''}
+      </div>
     `;
   }
 
+
+  _handleTapActionChange(ev) {
+    if (!this._config || !this.hass) return;
+    ev.stopPropagation();
+    const value = ev.target && ev.target.getAttribute ? ev.target.getAttribute('value') : null;
+    if (!value) return;
+    this._config = { ...this._config, tap_action: { action: value } };
+    this._fireEvent('config-changed', { config: this._config });
+    this.requestUpdate();
+  }
+
+  _updateTapAction(key, value) {
+    const tapAction = { ...(this._config.tap_action || { action: 'more-info' }), [key]: value };
+    this._config = { ...this._config, tap_action: tapAction };
+    this._fireEvent('config-changed', { config: this._config });
+  }
 
   _renderSensorsTab() {
     const entityBase = this._config.entity
       ? this._config.entity.replace('person.', '')
       : 'example';
+    const p = this._config.entity ? this._resolveDevicePrefixEditor() : null;
+    const auto = this._config.entity ? this._getAutoSensorIds() : {};
 
     return html`
       <div class="section">
         <div class="section-title">${this._t('section.automatic_sensors')}</div>
         <p class="info-text">
-          ${this._t('section.sensors_description')}${entityBase}_* e sensor.watch_${entityBase}_*
+          ${this._t('section.sensors_description')}${p ? `sensor.${p}_*` : `sensor.phone_${entityBase}_* / sensor.watch_${entityBase}_*`}
         </p>
+        <div class="auto-detect-row">
+          <button class="auto-detect-btn"
+            ?disabled=${!this._config?.entity}
+            @click=${() => this._autoDetectSensors()}>
+            <ha-icon icon="mdi:radar"></ha-icon>
+            ${this._t('section.auto_detect_btn')}
+          </button>
+          ${this._autoDetectMsg ? html`<span class="auto-detect-msg">${this._autoDetectMsg}</span>` : ''}
+        </div>
 
         <!-- Battery -->
         <div class="sensor-group">
@@ -929,8 +1194,8 @@ class PersonTrackerCardEditor extends LitElement {
 
           <ha-entity-picker
             .hass=${this.hass}
-            .value=${this._config.battery_sensor || ''}
-            .label=${'sensor.phone_' + entityBase + '_battery_level'}
+            .value=${this._config.battery_sensor || auto.battery_sensor || ''}
+            .label=${auto.battery_sensor || 'sensor.phone_' + entityBase + '_battery_level'}
             .includeDomains=${['sensor', 'input_number']}
             allow-custom-entity
             @value-changed=${(e) => this._valueChanged(e, 'battery_sensor')}>
@@ -939,8 +1204,8 @@ class PersonTrackerCardEditor extends LitElement {
           <!-- Battery charging state sensor -->
           <ha-entity-picker
             .hass=${this.hass}
-            .value=${this._config.battery_state_sensor || ''}
-            .label=${'sensor.phone_' + entityBase + '_battery_state'}
+            .value=${this._config.battery_state_sensor || auto.battery_state_sensor || ''}
+            .label=${auto.battery_state_sensor || 'sensor.phone_' + entityBase + '_battery_state'}
             .includeDomains=${['sensor', 'binary_sensor']}
             allow-custom-entity
             @value-changed=${(e) => this._entityPickerChanged(e, 'battery_state_sensor')}>
@@ -967,8 +1232,8 @@ class PersonTrackerCardEditor extends LitElement {
 
           <ha-entity-picker
             .hass=${this.hass}
-            .value=${this._config.watch_battery_sensor || ''}
-            .label=${'sensor.watch_' + entityBase + '_battery_level'}
+            .value=${this._config.watch_battery_sensor || auto.watch_battery_sensor || ''}
+            .label=${auto.watch_battery_sensor || 'sensor.watch_' + entityBase + '_battery_level'}
             .includeDomains=${['sensor', 'input_number']}
             allow-custom-entity
             @value-changed=${(e) => this._valueChanged(e, 'watch_battery_sensor')}>
@@ -977,8 +1242,8 @@ class PersonTrackerCardEditor extends LitElement {
           <!-- Watch battery charging state sensor -->
           <ha-entity-picker
             .hass=${this.hass}
-            .value=${this._config.watch_battery_state_sensor || ''}
-            .label=${'sensor.watch_' + entityBase + '_battery_state'}
+            .value=${this._config.watch_battery_state_sensor || auto.watch_battery_state_sensor || ''}
+            .label=${auto.watch_battery_state_sensor || 'sensor.watch_' + entityBase + '_battery_state'}
             .includeDomains=${['sensor', 'binary_sensor']}
             allow-custom-entity
             @value-changed=${(e) => this._entityPickerChanged(e, 'watch_battery_state_sensor')}>
@@ -1005,8 +1270,8 @@ class PersonTrackerCardEditor extends LitElement {
 
           <ha-entity-picker
             .hass=${this.hass}
-            .value=${this._config.activity_sensor || ''}
-            .label=${'sensor.phone_' + entityBase + '_activity'}
+            .value=${this._config.activity_sensor || auto.activity_sensor || ''}
+            .label=${auto.activity_sensor || 'sensor.phone_' + entityBase + '_activity'}
             .includeDomains=${['sensor']}
             allow-custom-entity
             @value-changed=${(e) => this._valueChanged(e, 'activity_sensor')}>
@@ -1026,55 +1291,143 @@ class PersonTrackerCardEditor extends LitElement {
 
           <ha-entity-picker
             .hass=${this.hass}
-            .value=${this._config.connection_sensor || ''}
-            .label=${'sensor.phone_' + entityBase + '_connection_type'}
+            .value=${this._config.connection_sensor || auto.connection_sensor || ''}
+            .label=${auto.connection_sensor || 'sensor.phone_' + entityBase + '_connection_type'}
             .includeDomains=${['sensor', 'binary_sensor']}
             allow-custom-entity
             @value-changed=${(e) => this._valueChanged(e, 'connection_sensor')}>
           </ha-entity-picker>
         </div>
 
-        <!-- Distance -->
+      </div>
+
+      <!-- Bidirectional Travel Time (Issue #22) -->
+      <div class="section">
+        <div class="section-title">${this._t('section.travel_sensor_2')}</div>
+        <p class="info-text">${this._t('section.travel_sensor_2_description')}</p>
+
+        <!-- Smart travel mode toggle -->
         <div class="sensor-group">
           <div class="sensor-header">
-            <ha-icon icon="mdi:home-map-marker" class="sensor-icon"></ha-icon>
-            <span class="sensor-title">${this._t('editor.show_distance')}</span>
+            <ha-icon icon="mdi:swap-horizontal" class="sensor-icon"></ha-icon>
+            <span class="sensor-title">${this._t('editor.smart_travel_mode')}</span>
+            <ha-switch
+              .checked=${this._config.smart_travel_mode !== false}
+              @change=${(e) => this._valueChanged(e, 'smart_travel_mode')}>
+            </ha-switch>
+          </div>
+        </div>
+
+        <!-- Travel time Casa → Lavoro (sensor 1) -->
+        <div class="sensor-group">
+          <div class="sensor-header">
+            <ha-icon icon="mdi:home-export-outline" class="sensor-icon"></ha-icon>
+            <span class="sensor-title">${this._t('editor.show_travel_time')} (${this._t('editor.direction_home_work')})</span>
+            <ha-switch
+              .checked=${this._config.show_travel_time !== false}
+              @change=${(e) => this._valueChanged(e, 'show_travel_time')}>
+            </ha-switch>
+          </div>
+          <ha-entity-picker
+            .hass=${this.hass}
+            .value=${this._config.travel_sensor || ''}
+            .label=${this._t('editor.travel_sensor_home_work')}
+            .includeDomains=${['sensor', 'input_number']}
+            allow-custom-entity
+            @value-changed=${(e) => this._valueChanged(e, 'travel_sensor')}>
+          </ha-entity-picker>
+        </div>
+
+        <!-- Travel time Lavoro → Casa (sensor 2) -->
+        <div class="sensor-group">
+          <div class="sensor-header">
+            <ha-icon icon="mdi:home-import-outline" class="sensor-icon"></ha-icon>
+            <span class="sensor-title">${this._t('editor.show_travel_time')} (${this._t('editor.direction_work_home')})</span>
+            <ha-switch
+              .checked=${this._config.show_travel_time_2 !== false}
+              @change=${(e) => this._valueChanged(e, 'show_travel_time_2')}>
+            </ha-switch>
+          </div>
+          <ha-entity-picker
+            .hass=${this.hass}
+            .value=${this._config.travel_sensor_2 || ''}
+            .label=${this._t('editor.travel_sensor_work_home')}
+            .includeDomains=${['sensor', 'input_number']}
+            allow-custom-entity
+            @value-changed=${(e) => this._valueChanged(e, 'travel_sensor_2')}>
+          </ha-entity-picker>
+        </div>
+
+        <!-- Zone 2 (work zone) -->
+        <ha-entity-picker
+          .hass=${this.hass}
+          .value=${this._config.zone_2 || ''}
+          .label=${this._t('editor.zone_2')}
+          .includeDomains=${['zone']}
+          allow-custom-entity
+          @value-changed=${(e) => this._valueChanged(e, 'zone_2')}>
+        </ha-entity-picker>
+      </div>
+
+      <!-- Optional distance (always visible, position-independent) -->
+      <div class="section">
+        <div class="section-title">${this._t('section.distance_optional')}</div>
+        <p class="info-text">${this._t('section.distance_optional_description')}</p>
+
+        <div class="sensor-group">
+          <div class="sensor-header">
+            <ha-icon icon="mdi:map-marker-distance" class="sensor-icon"></ha-icon>
+            <span class="sensor-title">${this._t('editor.show_distance')} (${this._t('editor.direction_home_work')})</span>
             <ha-switch
               .checked=${this._config.show_distance !== false}
               @change=${(e) => this._valueChanged(e, 'show_distance')}>
             </ha-switch>
           </div>
-
           <ha-entity-picker
             .hass=${this.hass}
             .value=${this._config.distance_sensor || ''}
-            .label=${'sensor.waze_' + entityBase}
+            .label=${this._t('editor.distance_sensor_home_work')}
             .includeDomains=${['sensor', 'input_number']}
             allow-custom-entity
             @value-changed=${(e) => this._valueChanged(e, 'distance_sensor')}>
           </ha-entity-picker>
         </div>
 
-        <!-- Travel Time -->
         <div class="sensor-group">
           <div class="sensor-header">
-            <ha-icon icon="mdi:car-clock" class="sensor-icon"></ha-icon>
-            <span class="sensor-title">${this._t('editor.show_travel_time')}</span>
+            <ha-icon icon="mdi:map-marker-distance" class="sensor-icon"></ha-icon>
+            <span class="sensor-title">${this._t('editor.show_distance_2')} (${this._t('editor.direction_work_home')})</span>
             <ha-switch
-              .checked=${this._config.show_travel_time !== false}
-              @change=${(e) => this._valueChanged(e, 'show_travel_time')}>
+              .checked=${this._config.show_distance_2 !== false}
+              @change=${(e) => this._valueChanged(e, 'show_distance_2')}>
             </ha-switch>
           </div>
-
           <ha-entity-picker
             .hass=${this.hass}
-            .value=${this._config.travel_sensor || ''}
-            .label=${'sensor.home_work_' + entityBase}
+            .value=${this._config.distance_sensor_2 || ''}
+            .label=${this._t('editor.distance_sensor_work_home')}
             .includeDomains=${['sensor', 'input_number']}
             allow-custom-entity
-            @value-changed=${(e) => this._valueChanged(e, 'travel_sensor')}>
+            @value-changed=${(e) => this._valueChanged(e, 'distance_sensor_2')}>
           </ha-entity-picker>
         </div>
+
+        <ha-textfield
+          label="${this._t('editor.distance_precision')}"
+          type="number"
+          min="0"
+          max="3"
+          .value=${String(this._config.distance_precision ?? 1)}
+          @input=${(e) => this._valueChanged(e, 'distance_precision')}>
+        </ha-textfield>
+
+        <ha-textfield
+          label="${this._t('editor.distance_unit')}"
+          .value=${this._config.distance_unit || ''}
+          placeholder="km"
+          @input=${(e) => this._valueChanged(e, 'distance_unit')}>
+        </ha-textfield>
+        <div class="description">${this._t('editor.distance_unit_description')}</div>
       </div>
     `;
   }
@@ -1246,7 +1599,7 @@ class PersonTrackerCardEditor extends LitElement {
             type="number"
             min="10"
             max="100"
-            .value=${this._config.picture_size || '55'}
+            .value=${this._config.picture_size || '45'}
             @input=${(e) => this._valueChanged(e, 'picture_size')}>
           </ha-textfield>
         ` : ''}
@@ -1297,6 +1650,26 @@ class PersonTrackerCardEditor extends LitElement {
             @input=${(e) => this._valueChanged(e, 'compact_icon_size')}
             helper-text="Default: 16px (scales entire card proportionally)">
           </ha-textfield>
+        </div>
+      ` : ''}
+
+      <!-- Neon Layout Options -->
+      ${this._config.layout === 'neon' ? html`
+        <div class="section">
+          <div class="section-title">${this._t('section.neon_options')}</div>
+          <p style="font-size:12px; color: var(--secondary-text-color); margin: 0 0 8px 0;">
+            ${this._t('section.neon_description')}
+          </p>
+        </div>
+      ` : ''}
+
+      <!-- Glass Layout Options -->
+      ${this._config.layout === 'glass' ? html`
+        <div class="section">
+          <div class="section-title">${this._t('section.glass_options')}</div>
+          <p style="font-size:12px; color: var(--secondary-text-color); margin: 0 0 8px 0;">
+            ${this._t('section.glass_description')}
+          </p>
         </div>
       ` : ''}
 
@@ -1352,6 +1725,33 @@ class PersonTrackerCardEditor extends LitElement {
           </ha-textfield>
         </div>
       ` : ''}
+
+      <!-- Weather Options (all layouts) -->
+      <div class="section">
+        <div class="section-title">${this._t('section.weather')}</div>
+        <div class="sensor-group">
+          <div class="sensor-header">
+            <span class="sensor-title">${this._t('editor.show_weather')}</span>
+            <ha-switch
+              .checked=${this._config.show_weather || false}
+              @change=${(e) => this._valueChanged(e, 'show_weather')}>
+            </ha-switch>
+          </div>
+        </div>
+        ${this._config.show_weather ? html`
+          <ha-entity-picker
+            .hass=${this.hass}
+            .value=${this._config.weather_entity || ''}
+            .includeDomains=${['weather']}
+            .label=${this._t('editor.weather_entity')}
+            allow-custom-entity
+            @value-changed=${(e) => this._entityPickerChanged(e, 'weather_entity')}>
+          </ha-entity-picker>
+          <p style="font-size:11px; color: var(--secondary-text-color); margin: 4px 0 0 0;">
+            ${this._t('section.weather_description')}
+          </p>
+        ` : ''}
+      </div>
     `;
   }
 
@@ -1403,6 +1803,8 @@ class PersonTrackerCardEditor extends LitElement {
       value = target.checked;
     } else if (target.tagName === 'HA-ENTITY-PICKER') {
       value = ev.detail?.value;
+    } else if (target.type === 'number') {
+      value = target.value === '' ? undefined : parseFloat(target.value);
     } else {
       value = target.value;
     }
@@ -1429,6 +1831,14 @@ class PersonTrackerCardEditor extends LitElement {
 
     this._fireEvent('config-changed', { config: this._config });
     this.requestUpdate();
+
+    // Auto-detect sensors when a person entity is newly selected and no sensors are configured yet
+    if (configValue === 'entity' && value) {
+      const noSensors = !['battery_sensor', 'watch_battery_sensor', 'activity_sensor',
+                          'connection_sensor']
+        .some(k => this._config[k]);
+      if (noSensors) setTimeout(() => this._autoDetectSensors(), 0);
+    }
   }
 
   // Dedicated handler for entity pickers to avoid infinite loops
@@ -1462,12 +1872,27 @@ class PersonTrackerCardEditor extends LitElement {
 
     ev.stopPropagation();
 
-    const target = ev.target;
-    const value = target.value;
+    // HA 2025: ha-select emette request-selected sull'item cliccato
+    // Leggiamo il valore dall'item (ev.target) invece che da target.value
+    const item = ev.target;
+    const value = item && item.getAttribute ? item.getAttribute('value') : ev.target.value;
 
-    if (!value || (value !== 'classic' && value !== 'compact' && value !== 'modern')) {
+    if (!value || (value !== 'classic' && value !== 'compact' && value !== 'modern' && value !== 'neon' && value !== 'glass')) {
       console.warn('Invalid layout value:', value);
       return;
+    }
+
+    // Aggiorna il label visibile nel picker (fix HA 2025)
+    const select = ev.currentTarget || ev.composedPath().find(el => el.tagName === 'HA-SELECT');
+    if (select) {
+      select.value = value;
+      const pf = select.shadowRoot && select.shadowRoot.querySelector('ha-picker-field');
+      if (pf && pf.shadowRoot) {
+        const cb = pf.shadowRoot.querySelector('ha-combo-box-item');
+        if (cb) { const sp = cb.querySelector('span[slot="headline"]'); if (sp) sp.textContent = item.textContent.trim(); }
+      }
+      const dropdown = select.shadowRoot && select.shadowRoot.querySelector('ha-dropdown');
+      if (dropdown) dropdown.open = false;
     }
 
     this._config = { ...this._config, layout: value };
@@ -1482,13 +1907,15 @@ class PersonTrackerCardEditor extends LitElement {
     ev.stopPropagation();
     ev.preventDefault();
 
-    const value = ev.detail?.value;
+    // HA 2025: request-selected porta il valore nell'item (ev.target), non in ev.detail.value
+    const value = (ev.target && ev.target.getAttribute && ev.target.getAttribute('value'))
+      || ev.detail?.value;
 
     // Allowed values for triggers_update
     const validTriggerValues = ['all', 'entity', 'custom'];
 
     // Allowed values for layout
-    const validLayoutValues = ['classic', 'compact', 'modern'];
+    const validLayoutValues = ['classic', 'compact', 'modern', 'neon', 'glass'];
 
     // Allowed values for positions
     const validPositions = [
@@ -1607,6 +2034,90 @@ class PersonTrackerCardEditor extends LitElement {
     this._config = { ...this._config, state: defaultStates };
     this._fireEvent('config-changed', { config: this._config });
     this.requestUpdate();
+  }
+
+  // Resolve mobile_app device prefix from person entity's device_trackers attribute.
+  // Returns e.g. "iphonedavide" from device_tracker.iphonedavide when that device
+  // has a corresponding battery sensor in hass states.
+  _resolveDevicePrefixEditor() {
+    if (!this.hass || !this._config?.entity) return null;
+    const personEntity = this.hass.states[this._config.entity];
+    if (!personEntity) return null;
+
+    const deviceTrackers = personEntity.attributes?.device_trackers || [];
+    for (const dt of deviceTrackers) {
+      const prefix = dt.replace('device_tracker.', '');
+      if (this.hass.states[`sensor.${prefix}_battery_level`]) return prefix;
+    }
+
+    // Fallback: scan all device_trackers whose name contains the person name
+    const personName = this._config.entity.replace('person.', '');
+    for (const entityId of Object.keys(this.hass.states)) {
+      if (!entityId.startsWith('device_tracker.')) continue;
+      const prefix = entityId.replace('device_tracker.', '');
+      if (prefix.includes(personName) && this.hass.states[`sensor.${prefix}_battery_level`]) {
+        return prefix;
+      }
+    }
+    return null;
+  }
+
+  // Returns a map of auto-detected sensor IDs using the resolved device prefix.
+  // Falls back to the old sensor.phone_* / sensor.waze_* patterns.
+  _getAutoSensorIds() {
+    const entityBase = this._config?.entity?.replace('person.', '') || '';
+    const p = this._resolveDevicePrefixEditor();
+    const s = this.hass?.states || {};
+    const connection = p
+      ? (s[`sensor.${p}_connection_type`] ? `sensor.${p}_connection_type` : `sensor.${p}_network_type`)
+      : (s[`sensor.phone_${entityBase}_connection_type`] ? `sensor.phone_${entityBase}_connection_type` : `sensor.phone_${entityBase}_network_type`);
+    return {
+      battery_sensor:             p ? `sensor.${p}_battery_level`        : `sensor.phone_${entityBase}_battery_level`,
+      battery_state_sensor:       p ? `sensor.${p}_battery_state`        : `sensor.phone_${entityBase}_battery_state`,
+      watch_battery_sensor:       p ? `sensor.${p}_watch_battery_level`  : `sensor.watch_${entityBase}_battery_level`,
+      watch_battery_state_sensor: p ? `sensor.${p}_watch_battery_state`  : `sensor.watch_${entityBase}_battery_state`,
+      activity_sensor:            p ? `sensor.${p}_activity`             : `sensor.phone_${entityBase}_activity`,
+      connection_sensor:          connection,
+    };
+  }
+
+  _autoDetectSensors() {
+    if (!this.hass || !this._config?.entity) return;
+    const s = this.hass.states;
+    const auto = this._getAutoSensorIds();
+
+    const candidates = {
+      battery_sensor:             [auto.battery_sensor],
+      battery_state_sensor:       [auto.battery_state_sensor],
+      watch_battery_sensor:       [auto.watch_battery_sensor],
+      watch_battery_state_sensor: [auto.watch_battery_state_sensor],
+      activity_sensor:            [auto.activity_sensor],
+      connection_sensor:          [auto.connection_sensor],
+    };
+
+    let updated = { ...this._config };
+    let count = 0;
+
+    for (const [field, ids] of Object.entries(candidates)) {
+      if (updated[field]) continue;
+      for (const id of ids) {
+        if (id && s[id]) {
+          updated[field] = id;
+          count++;
+          break;
+        }
+      }
+    }
+
+    if (count > 0) {
+      this._config = updated;
+      this._fireEvent('config-changed', { config: this._config });
+    }
+    this._autoDetectMsg = count > 0
+      ? `✔ ${count} ${this._t('section.auto_detect_found')}`
+      : `✘ ${this._t('section.auto_detect_none')}`;
+    this.requestUpdate();
+    setTimeout(() => { this._autoDetectMsg = null; this.requestUpdate(); }, 4000);
   }
 
   _fireEvent(type, detail) {
