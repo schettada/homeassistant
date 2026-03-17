@@ -1,6 +1,7 @@
 // Person Tracker Card Editor - Multilanguage Version
 // Languages: Italian (default), English, French, German
-// v1.3.6: Version badge added to editor UI top-right
+// v1.4.0: weather_text_color picker in weather section; last_changed_color picker in style section
+// v1.3.7: Version badge added to editor UI top-right
 // v1.3.3: No editor changes
 // v1.3.2: Full IT/EN/FR/DE translations for neon/weather sections; auto-detect sensors via mobile_app prefix; editor fields auto-populated
 // v1.3.1: Animated weather background editor section (weather_entity + show_weather toggle)
@@ -117,9 +118,19 @@ class EditorLocalizationHelper {
         'section.neon_description': 'Tema cyberpunk scuro con anello luminoso animato e badge neon. I colori si adattano automaticamente allo stato della persona (verde = casa, rosso = fuori).',
         'section.glass_options': 'Opzioni Layout Glass',
         'section.glass_description': 'Tema glassmorphism scuro con chip traslucidi, orbs colorati e dot di stato animato. Il colore accent si adatta automaticamente alla zona corrente della persona.',
+        'section.bio_options': 'Opzioni Layout Bioluminescenza',
+        'section.bio_description': 'Tema oceano profondo con orbs bioluminescenti animati, particelle che salgono dal basso e doppio anello pulsante attorno all\'avatar. Il colore accent cambia automaticamente con la zona.',
+        'section.holo_options': 'Opzioni Layout Holographic 3D',
+        'section.holo_description': 'Tema olografico con card inclinata in 3D, anelli rotanti attorno all\'avatar, scanner animato e sfondo shimmer iridescente. Il colore accent cambia con lo stato della persona.',
         'section.weather': '🌤 Meteo',
-        'editor.show_weather': 'Mostra sfondo meteo',
+        'editor.show_weather': 'Mostra meteo',
         'editor.weather_entity': 'Entità meteo',
+        'editor.show_weather_background': 'Mostra sfondo meteo animato',
+        'editor.show_weather_temperature': 'Mostra condizioni e temperatura',
+        'editor.weather_text_color': 'Colore testo meteo',
+        'editor.weather_text_color_description': 'Colore di temperatura, icona e condizione. Lascia vuoto per usare il colore predefinito del layout.',
+        'editor.last_changed_color': 'Colore testo aggiornamento',
+        'editor.last_changed_color_description': 'Colore del timestamp di ultimo aggiornamento. Lascia vuoto per usare il colore predefinito.',
         'section.weather_description': 'Aggiunge uno sfondo animato alla card (pioggia, neve, sole, stelle, fulmini…). Funziona su tutti i layout.',
         'section.travel_sensor_2': '🏢 Sensori Casa ↔ Lavoro',
         'section.travel_sensor_2_description': 'Sensori 1 (casa→lavoro): visibili a casa e in transito, nascosti al lavoro. Sensori 2 (lavoro→casa): visibili al lavoro e in transito, nascosti a casa. Disattiva la modalità smart per mostrare sempre entrambi.',
@@ -238,9 +249,19 @@ class EditorLocalizationHelper {
         'section.neon_description': 'Dark cyberpunk theme with animated glow ring and neon badges. Colors adapt automatically to person state (green = home, red = away).',
         'section.glass_options': 'Glass Layout Options',
         'section.glass_description': 'Dark glassmorphism theme with translucent chips, colored orbs and animated status dot. Accent color adapts automatically to the person\'s current zone.',
+        'section.bio_options': 'Bioluminescence Layout Options',
+        'section.bio_description': 'Deep ocean theme with animated bioluminescent orbs, rising particles and double pulse ring around the avatar. Accent color changes automatically with the zone.',
+        'section.holo_options': 'Holographic 3D Layout Options',
+        'section.holo_description': 'Holographic theme with a 3D tilted card, rotating rings around the avatar, animated scanner and iridescent shimmer background. Accent color changes with person state.',
         'section.weather': '🌤 Weather',
-        'editor.show_weather': 'Show weather background',
+        'editor.show_weather': 'Show weather',
         'editor.weather_entity': 'Weather entity',
+        'editor.show_weather_background': 'Show animated weather background',
+        'editor.show_weather_temperature': 'Show conditions and temperature',
+        'editor.weather_text_color': 'Weather text color',
+        'editor.weather_text_color_description': 'Color of temperature, icon and condition label. Leave empty to use the layout default.',
+        'editor.last_changed_color': 'Last updated text color',
+        'editor.last_changed_color_description': 'Color of the last-updated timestamp. Leave empty to use the layout default.',
         'section.weather_description': 'Adds an animated weather background to the card (rain, snow, sun, stars, lightning…). Works on all layouts.',
         'section.travel_sensor_2': '🏢 Home ↔ Work Sensors',
         'section.travel_sensor_2_description': 'Sensor 1 (home→work): visible at home and in transit, hidden at work. Sensor 2 (work→home): visible at work and in transit, hidden at home. Disable smart mode to always show both.',
@@ -359,9 +380,19 @@ class EditorLocalizationHelper {
         'section.neon_description': 'Thème cyberpunk sombre avec anneau lumineux animé et badges neon. Les couleurs s\'adaptent automatiquement à l\'état de la personne (vert = maison, rouge = absent).',
         'section.glass_options': 'Options Layout Glass',
         'section.glass_description': 'Thème glassmorphisme sombre avec chips translucides, orbes colorés et point de statut animé. La couleur accent s\'adapte automatiquement à la zone actuelle.',
+        'section.bio_options': 'Options Layout Bioluminescence',
+        'section.bio_description': 'Thème océan profond avec orbes bioluminescents animés, particules montantes et double anneau pulsant autour de l\'avatar. La couleur accent change automatiquement avec la zone.',
+        'section.holo_options': 'Options Layout Holographique 3D',
+        'section.holo_description': 'Thème holographique avec carte inclinée en 3D, anneaux rotatifs autour de l\'avatar, scanner animé et fond shimmer iridescent. La couleur accent change avec l\'état de la personne.',
         'section.weather': '🌤 Météo',
-        'editor.show_weather': 'Afficher fond météo',
+        'editor.show_weather': 'Afficher météo',
         'editor.weather_entity': 'Entité météo',
+        'editor.show_weather_background': 'Afficher fond météo animé',
+        'editor.show_weather_temperature': 'Afficher conditions et température',
+        'editor.weather_text_color': 'Couleur du texte météo',
+        'editor.weather_text_color_description': 'Couleur de la température, de l\'icône et de la condition. Laissez vide pour la couleur par défaut du layout.',
+        'editor.last_changed_color': 'Couleur du texte de mise à jour',
+        'editor.last_changed_color_description': 'Couleur du timestamp de dernière mise à jour. Laissez vide pour la couleur par défaut.',
         'section.weather_description': 'Ajoute un fond animé à la carte (pluie, neige, soleil, étoiles, foudre…). Fonctionne sur tous les layouts.',
         'section.travel_sensor_2': '🏢 Capteurs Maison ↔ Travail',
         'section.travel_sensor_2_description': 'Capteur 1 (maison→travail): visible à la maison et en transit, masqué au travail. Capteur 2 (travail→maison): visible au travail et en transit, masqué à la maison. Désactivez le mode smart pour toujours afficher les deux.',
@@ -480,9 +511,19 @@ class EditorLocalizationHelper {
         'section.neon_description': 'Dunkles Cyberpunk-Thema mit animiertem Leuchtring und Neon-Badges. Farben passen sich automatisch dem Personenstatus an (grün = zuhause, rot = abwesend).',
         'section.glass_options': 'Glass Layout-Optionen',
         'section.glass_description': 'Dunkles Glassmorphismus-Thema mit durchscheinenden Chips, farbigen Orbs und animiertem Statuspunkt. Die Akzentfarbe passt sich automatisch der aktuellen Zone an.',
+        'section.bio_options': 'Biolumineszenz Layout-Optionen',
+        'section.bio_description': 'Tiefsee-Thema mit animierten biolumineszenten Orbs, aufsteigenden Partikeln und doppeltem Pulsring um den Avatar. Die Akzentfarbe ändert sich automatisch mit der Zone.',
+        'section.holo_options': 'Holographic 3D Layout-Optionen',
+        'section.holo_description': 'Holografisches Thema mit 3D-geneigter Karte, rotierenden Ringen um den Avatar, animiertem Scanner und irisierendem Shimmer-Hintergrund. Die Akzentfarbe ändert sich mit dem Personenstatus.',
         'section.weather': '🌤 Wetter',
-        'editor.show_weather': 'Wetterhintergrund anzeigen',
+        'editor.show_weather': 'Wetter anzeigen',
         'editor.weather_entity': 'Wetterentität',
+        'editor.show_weather_background': 'Animierten Wetterhintergrund anzeigen',
+        'editor.show_weather_temperature': 'Bedingungen und Temperatur anzeigen',
+        'editor.weather_text_color': 'Wettertext-Farbe',
+        'editor.weather_text_color_description': 'Farbe für Temperatur, Symbol und Wetterbedingung. Leer lassen für die Standard-Layout-Farbe.',
+        'editor.last_changed_color': 'Farbe des Aktualisierungstexts',
+        'editor.last_changed_color_description': 'Farbe des Zeitstempels der letzten Aktualisierung. Leer lassen für die Standard-Farbe.',
         'section.weather_description': 'Fügt der Karte einen animierten Wetterhintergrund hinzu (Regen, Schnee, Sonne, Sterne, Blitze…). Funktioniert auf allen Layouts.',
         'section.travel_sensor_2': '🏢 Zuhause ↔ Arbeit Sensoren',
         'section.travel_sensor_2_description': 'Sensor 1 (zuhause→arbeit): sichtbar zuhause und unterwegs, versteckt bei der Arbeit. Sensor 2 (arbeit→zuhause): sichtbar bei der Arbeit und unterwegs, versteckt zuhause. Smart-Modus deaktivieren um immer beide anzuzeigen.',
@@ -929,7 +970,7 @@ class PersonTrackerCardEditor extends LitElement {
 
     return html`
       <div class="card-config">
-        <div class="editor-version-badge">Person Tracker Card <span>v1.3.6</span></div>
+        <div class="editor-version-badge">Person Tracker Card <span>v1.4.0</span></div>
         <div class="tabs">
           <button
             class="tab ${this._selectedTab === 'base' ? 'active' : ''}"
@@ -1003,6 +1044,8 @@ class PersonTrackerCardEditor extends LitElement {
           <mwc-list-item value="modern">Modern</mwc-list-item>
           <mwc-list-item value="neon">Neon ✦</mwc-list-item>
           <mwc-list-item value="glass">Glass ◈</mwc-list-item>
+          <mwc-list-item value="bio">Bioluminescence ◉</mwc-list-item>
+          <mwc-list-item value="holo">Holographic 3D ◈</mwc-list-item>
         </ha-select>
 
         ${this._config.layout === 'compact' ? html`
@@ -1580,6 +1623,29 @@ class PersonTrackerCardEditor extends LitElement {
           </ha-textfield>
         ` : ''}
 
+        ${this._config.layout !== 'modern' ? html`
+          <div class="config-row" style="margin-top:8px;">
+            <span class="config-label">${this._t('editor.last_changed_color')}</span>
+            <div class="color-picker">
+              <div class="color-preview"
+                   style="background-color:${this._config.last_changed_color || '#888888'}">
+                <input type="color"
+                       .value=${this._config.last_changed_color || '#888888'}
+                       @input=${(e) => this._updateConfigColor('last_changed_color', e.target.value)}>
+              </div>
+              <ha-textfield
+                .value=${this._config.last_changed_color || ''}
+                placeholder="#888888"
+                @input=${(e) => this._updateConfigColor('last_changed_color', e.target.value)}
+                pattern="^#[0-9A-Fa-f]{6}$">
+              </ha-textfield>
+            </div>
+          </div>
+          <p style="font-size:10px;color:var(--secondary-text-color);margin:2px 0 8px 0;">
+            ${this._t('editor.last_changed_color_description')}
+          </p>
+        ` : ''}
+
         <ha-textfield
           label="${this._t('editor.card_background')}"
           .value=${this._config.card_background || 'rgba(255,255,255,0.05)'}
@@ -1599,7 +1665,7 @@ class PersonTrackerCardEditor extends LitElement {
             type="number"
             min="10"
             max="100"
-            .value=${this._config.picture_size || '45'}
+            .value=${this._config.picture_size || '40'}
             @input=${(e) => this._valueChanged(e, 'picture_size')}>
           </ha-textfield>
         ` : ''}
@@ -1669,6 +1735,24 @@ class PersonTrackerCardEditor extends LitElement {
           <div class="section-title">${this._t('section.glass_options')}</div>
           <p style="font-size:12px; color: var(--secondary-text-color); margin: 0 0 8px 0;">
             ${this._t('section.glass_description')}
+          </p>
+        </div>
+      ` : ''}
+
+      ${this._config.layout === 'bio' ? html`
+        <div class="section">
+          <div class="section-title">${this._t('section.bio_options')}</div>
+          <p style="font-size:12px; color: var(--secondary-text-color); margin: 0 0 8px 0;">
+            ${this._t('section.bio_description')}
+          </p>
+        </div>
+      ` : ''}
+
+      ${this._config.layout === 'holo' ? html`
+        <div class="section">
+          <div class="section-title">${this._t('section.holo_options')}</div>
+          <p style="font-size:12px; color: var(--secondary-text-color); margin: 0 0 8px 0;">
+            ${this._t('section.holo_description')}
           </p>
         </div>
       ` : ''}
@@ -1750,6 +1834,47 @@ class PersonTrackerCardEditor extends LitElement {
           <p style="font-size:11px; color: var(--secondary-text-color); margin: 4px 0 0 0;">
             ${this._t('section.weather_description')}
           </p>
+          <div class="sensor-group" style="margin-top:8px;">
+            <div class="sensor-header">
+              <span class="sensor-title">${this._t('editor.show_weather_background')}</span>
+              <ha-switch
+                .checked=${this._config.show_weather_background !== false}
+                @change=${(e) => this._valueChanged(e, 'show_weather_background')}>
+              </ha-switch>
+            </div>
+          </div>
+          <div class="sensor-group">
+            <div class="sensor-header">
+              <span class="sensor-title">${this._t('editor.show_weather_temperature')}</span>
+              <ha-switch
+                .checked=${this._config.show_weather_temperature !== false}
+                @change=${(e) => this._valueChanged(e, 'show_weather_temperature')}>
+              </ha-switch>
+            </div>
+          </div>
+
+          <!-- Weather text color -->
+          <div class="config-row" style="margin-top:8px;">
+            <span class="config-label">${this._t('editor.weather_text_color')}</span>
+            <div class="color-picker">
+              <div class="color-preview"
+                   style="background-color:${this._config.weather_text_color || '#cccccc'}">
+                <input type="color"
+                       .value=${this._config.weather_text_color || '#cccccc'}
+                       @input=${(e) => this._updateConfigColor('weather_text_color', e.target.value)}>
+              </div>
+              <ha-textfield
+                .value=${this._config.weather_text_color || ''}
+                placeholder="#cccccc"
+                @input=${(e) => this._updateConfigColor('weather_text_color', e.target.value)}
+                pattern="^#[0-9A-Fa-f]{6}$">
+              </ha-textfield>
+            </div>
+          </div>
+          <p style="font-size:10px;color:var(--secondary-text-color);margin:2px 0 8px 0;">
+            ${this._t('editor.weather_text_color_description')}
+          </p>
+
         ` : ''}
       </div>
     `;
@@ -1872,12 +1997,19 @@ class PersonTrackerCardEditor extends LitElement {
 
     ev.stopPropagation();
 
-    // HA 2025: ha-select emette request-selected sull'item cliccato
-    // Leggiamo il valore dall'item (ev.target) invece che da target.value
-    const item = ev.target;
-    const value = item && item.getAttribute ? item.getAttribute('value') : ev.target.value;
+    // Skip deselect events — request-selected fires twice: once for the newly
+    // selected item (selected=true) and once for the previously selected item
+    // (selected=false). Processing the second event would reset the layout back.
+    if (ev.detail && ev.detail.selected === false) return;
 
-    if (!value || (value !== 'classic' && value !== 'compact' && value !== 'modern' && value !== 'neon' && value !== 'glass')) {
+    // HA 2025: ha-select emette request-selected sull'item cliccato
+    // Try multiple value sources for robustness
+    const item = ev.target;
+    const value = ev.detail?.value
+      || item?.value
+      || (item && item.getAttribute ? item.getAttribute('value') : null);
+
+    if (!value || (value !== 'classic' && value !== 'compact' && value !== 'modern' && value !== 'neon' && value !== 'glass' && value !== 'bio' && value !== 'holo')) {
       console.warn('Invalid layout value:', value);
       return;
     }
@@ -1915,7 +2047,7 @@ class PersonTrackerCardEditor extends LitElement {
     const validTriggerValues = ['all', 'entity', 'custom'];
 
     // Allowed values for layout
-    const validLayoutValues = ['classic', 'compact', 'modern', 'neon', 'glass'];
+    const validLayoutValues = ['classic', 'compact', 'modern', 'neon', 'glass', 'bio', 'holo'];
 
     // Allowed values for positions
     const validPositions = [
@@ -1990,6 +2122,7 @@ class PersonTrackerCardEditor extends LitElement {
   }
 
   _updateStateColor(index, color) {
+    if (!color || !/^#[0-9A-Fa-f]{6}$/.test(color)) return;
     const states = [...(this._config.state || [])];
     states[index] = {
       ...states[index],
@@ -2003,6 +2136,20 @@ class PersonTrackerCardEditor extends LitElement {
     };
 
     this._config = { ...this._config, state: states };
+    this._fireEvent('config-changed', { config: this._config });
+    this.requestUpdate();
+  }
+
+  _updateConfigColor(key, color) {
+    // Allow empty string to clear the color (restore layout default)
+    if (color && !/^#[0-9A-Fa-f]{6}$/.test(color)) return;
+    if (!color) {
+      const newConfig = { ...this._config };
+      delete newConfig[key];
+      this._config = newConfig;
+    } else {
+      this._config = { ...this._config, [key]: color };
+    }
     this._fireEvent('config-changed', { config: this._config });
     this.requestUpdate();
   }
