@@ -1,6 +1,19 @@
-// Person Tracker Card v1.4.2 - Multilanguage Version
+// Person Tracker Card v1.4.7 - Multilanguage Version
 // Full support for all editor options
 // Languages: Italian (default), English, French, German
+// v1.4.7: Liquid Ink layout (ink) — light mode card with ink blob background, animated dashed ring avatar, ink-wash chips, pair animation; all sensors/geocoded/maps/weather supported
+// v1.4.6: Maps integration — maps_provider config (google/apple/osm) opens GPS location on zone/address click; show_geocoded_location enabled by default; editor dropdown fix (value="none" sentinel, label+fixedMenuPosition); geocoded switch check !== false; GPS coords from person.attributes
+// v1.4.5: Orbital layout (orbital) — 3D spinning photo coin, three tilted orbital rings, orbiting
+//         satellite badges (battery/connection/activity), pulsing energy rings, animated star field,
+//         chip row centered below, state-based accent color (home=teal, away=violet, zone=blue).
+// v1.4.4: Geocoded location (sensor.xxx_geocoded_location) — human-readable GPS address in all 9
+//         layouts when not home; auto-detected from mobile app prefix; clickable (more-info);
+//         scrolling marquee when text overflows; compact layout alternates state/address with animation;
+//         editor: Sensors tab toggle + auto-populated picker + description.
+//         Fix: neon/glass/bio pair chip alignment follows wxstation pattern (pair-b uses inset:0).
+//         Fix: weather-active text shadow/contrast now applied to glass, bio and holo layouts.
+// v1.4.3: Matrix Rain layout (matrix) — terminal/hacker theme with falling katakana/hex columns,
+//         monospace stats with progress bars, state color on avatar border/scan bar
 // v1.4.2: Weather Station layout (wxstation); show_device_2_battery — second device (tablet/laptop)
 //         battery display with auto-detection across all 8 layouts; fix weather_text_color now
 //         also applies to °C/°F temperature unit
@@ -29,7 +42,7 @@
 // v1.1.2: Activity icon now follows entity's icon attribute with fallback to predefined mapping
 // v1.1.2: Fixed WiFi detection for Android (case-insensitive check for "wifi", "Wi-Fi", etc.)
 
-console.log("Person Tracker Card v1.4.2 Multilanguage loading...");
+console.log("Person Tracker Card v1.4.7 Multilanguage loading...");
 
 const LitElement = Object.getPrototypeOf(
   customElements.get("ha-panel-lovelace") || customElements.get("hui-view")
@@ -271,7 +284,7 @@ class LocalizationHelper {
   }
 }
 
-const CARD_VERSION = '1.4.2';
+const CARD_VERSION = '1.4.7';
 
 class PersonTrackerCard extends LitElement {
   static get properties() {
@@ -431,7 +444,7 @@ class PersonTrackerCard extends LitElement {
       last_changed_font_size: '12px',
       card_background: 'rgba(255,255,255,0.05)',
       card_border_radius: '15px',
-      picture_size: 45,
+      picture_size: 40,
       // Element positions
       battery_position: 'top-right',
       watch_battery_position: 'top-right-2',
@@ -472,6 +485,10 @@ class PersonTrackerCard extends LitElement {
       show_weather_temperature: true,
       weather_text_color: null,
       last_changed_color: null,
+      // Geocoded location (on by default)
+      show_geocoded_location: true,
+      // Maps integration (opt-in: 'google' | 'apple' | 'osm', null = disabled)
+      maps_provider: null,
       // Modern layout options
       modern_picture_size: 40,
       modern_ring_size: 38,
@@ -532,6 +549,10 @@ class PersonTrackerCard extends LitElement {
         this._resolvedPrefix2 = this._resolveDevicePrefix2();
       }
       this._updateSensorData();
+    }
+
+    if (this.config?.show_geocoded_location) {
+      requestAnimationFrame(() => this._checkGeoOverflow());
     }
   }
 
@@ -781,6 +802,25 @@ class PersonTrackerCard extends LitElement {
         this._weatherTemp = temp != null ? `${Math.round(temp)}${unit}` : null;
       }
     }
+
+    // Geocoded location (device 1 only)
+    if (this.config.show_geocoded_location) {
+      const geoId = this.config.geocoded_location_entity || (p ? `sensor.${p}_geocoded_location` : null);
+      if (geoId) {
+        const geoEntity = this.hass.states[geoId];
+        const newGeo = (geoEntity && geoEntity.state !== 'unavailable' && geoEntity.state !== 'unknown') ? geoEntity.state : null;
+        if (this._geocodedLocation !== newGeo) this._geocodedLocation = newGeo;
+      } else {
+        this._geocodedLocation = null;
+      }
+    } else {
+      this._geocodedLocation = null;
+    }
+
+    // GPS coordinates for maps integration
+    const personEntityForGps = this.hass.states[this.config.entity];
+    this._gpsLat = personEntityForGps?.attributes?.latitude ?? null;
+    this._gpsLon = personEntityForGps?.attributes?.longitude ?? null;
   }
 
   _getActivityIcon() {
@@ -927,6 +967,17 @@ class PersonTrackerCard extends LitElement {
       default:
         break;
     }
+  }
+
+  _openMaps(e) {
+    if (e) e.stopPropagation();
+    if (!this._gpsLat || !this._gpsLon || !this.config.maps_provider) return;
+    const urls = {
+      google: `https://www.google.com/maps?q=${this._gpsLat},${this._gpsLon}`,
+      apple:  `https://maps.apple.com/?ll=${this._gpsLat},${this._gpsLon}`,
+      osm:    `https://www.openstreetmap.org/?mlat=${this._gpsLat}&mlon=${this._gpsLon}`,
+    };
+    window.open(urls[this.config.maps_provider] || urls.google, '_blank');
   }
 
   // Get sensor entity ID for a specific type
@@ -1118,7 +1169,12 @@ class PersonTrackerCard extends LitElement {
         .pair-a-compact{animation:pair-a-compact 8s ease-in-out infinite;transform-origin:center}
         .pair-b-compact{animation:pair-b-compact 8s ease-in-out infinite;transform-origin:center}
         .sensor-pair-compact{position:relative;flex-shrink:0}
-        .sensor-pair-compact>*{position:absolute;top:0;left:0;right:0;bottom:0}`,
+        .sensor-pair-compact>*{position:absolute;top:0;left:0;right:0;bottom:0}
+        @keyframes geo-state-slide{0%,42%{opacity:1;transform:translateY(0)}48%,92%{opacity:0;transform:translateY(-6px)}100%{opacity:1;transform:translateY(0)}}
+        @keyframes geo-addr-slide{0%,42%{opacity:0;transform:translateY(6px)}48%,92%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(6px)}}
+        .geo-wrap{position:relative;overflow:hidden;display:flex;align-items:center;min-height:1.2em}
+        .geo-state{animation:geo-state-slide 7s ease-in-out infinite}
+        .geo-addr{animation:geo-addr-slide 7s ease-in-out infinite;position:absolute;left:0;right:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}`,
       modern: `
         @keyframes pair-a-modern{0%,42%{opacity:1}50%,92%{opacity:0}100%{opacity:1}}
         @keyframes pair-b-modern{0%,42%{opacity:0}50%,92%{opacity:1}100%{opacity:0}}
@@ -1128,24 +1184,21 @@ class PersonTrackerCard extends LitElement {
       neon: `
         @keyframes pair-a-neon{0%,40%{opacity:1;transform:translateX(0);filter:none}44%{opacity:.4;transform:translateX(-2px);filter:hue-rotate(60deg) brightness(2)}50%,93%{opacity:0;transform:translateX(0);filter:none}97%{opacity:.3;filter:brightness(1.5)}100%{opacity:1}}
         @keyframes pair-b-neon{0%,43%{opacity:0;filter:none}47%{opacity:.4;transform:translateX(2px);filter:hue-rotate(120deg) brightness(2)}50%,90%{opacity:1;transform:translateX(0);filter:none}94%{opacity:.4;transform:translateX(-1px);filter:hue-rotate(60deg)}100%{opacity:0}}
-        .pair-a-neon{animation:pair-a-neon 8s ease-in-out infinite}
-        .pair-b-neon{animation:pair-b-neon 8s ease-in-out infinite}
-        .sensor-pair-neon{position:relative;flex-shrink:0;display:inline-flex}
-        .sensor-pair-neon>*{position:absolute;top:0;left:0}`,
+        .pair-a-neon{animation:pair-a-neon 8s ease-in-out infinite;display:flex;align-items:center;gap:4px;white-space:nowrap}
+        .pair-b-neon{animation:pair-b-neon 8s ease-in-out infinite;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
+        .sensor-pair-neon{position:relative;flex-shrink:0;display:inline-flex;align-items:center;overflow:hidden}`,
       glass: `
         @keyframes pair-a-glass{0%,42%{opacity:1}50%,92%{opacity:0}100%{opacity:1}}
         @keyframes pair-b-glass{0%,42%{opacity:0}50%,92%{opacity:1}100%{opacity:0}}
-        .pair-a-glass{animation:pair-a-glass 8s ease-in-out infinite}
-        .pair-b-glass{animation:pair-b-glass 8s ease-in-out infinite}
-        .sensor-pair-glass{position:relative;flex-shrink:0;display:inline-flex}
-        .sensor-pair-glass>*{position:absolute;top:0;left:0}`,
+        .pair-a-glass{animation:pair-a-glass 8s ease-in-out infinite;display:flex;align-items:center;gap:5px;white-space:nowrap}
+        .pair-b-glass{animation:pair-b-glass 8s ease-in-out infinite;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+        .sensor-pair-glass{position:relative;flex-shrink:0;display:inline-flex;align-items:center;overflow:hidden}`,
       bio: `
         @keyframes pair-a-bio{0%,42%{opacity:1}50%,92%{opacity:0}100%{opacity:1}}
         @keyframes pair-b-bio{0%,42%{opacity:0}50%,92%{opacity:1}100%{opacity:0}}
         .pair-a-bio{animation:pair-a-bio 8s ease-in-out infinite}
         .pair-b-bio{animation:pair-b-bio 8s ease-in-out infinite}
-        .sensor-pair-bio{position:relative;flex-shrink:0;display:inline-flex}
-        .sensor-pair-bio>*{position:absolute;top:0;left:0}`,
+        .sensor-pair-bio{position:relative;flex-shrink:0;display:inline-flex;align-items:center;overflow:hidden}`,
       holo: `
         @keyframes pair-a-holo{0%,48%{opacity:1}50%,98%{opacity:0}100%{opacity:1}}
         @keyframes pair-b-holo{0%,48%{opacity:0}50%,98%{opacity:1}100%{opacity:0}}
@@ -1159,8 +1212,62 @@ class PersonTrackerCard extends LitElement {
         .pair-a-wx{animation:pair-a-wx 8s ease-in-out infinite;display:flex;align-items:center;gap:4px;white-space:nowrap}
         .pair-b-wx{animation:pair-b-wx 8s ease-in-out infinite;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
         .sensor-pair-wx{position:relative;overflow:hidden;display:inline-flex;align-items:center;flex-shrink:0;}`,
+      matrix: `
+        @keyframes pair-a-matrix{0%,43%{opacity:1}50%,93%{opacity:0}100%{opacity:1}}
+        @keyframes pair-b-matrix{0%,43%{opacity:0}50%,93%{opacity:1}100%{opacity:0}}
+        .pair-a-matrix{animation:pair-a-matrix 8s ease-in-out infinite;display:flex;align-items:center;gap:5px;white-space:nowrap}
+        .pair-b-matrix{animation:pair-b-matrix 8s ease-in-out infinite;position:absolute;inset:0;display:flex;align-items:center;gap:5px;white-space:nowrap}
+        .sensor-pair-matrix{position:relative;overflow:hidden;display:inline-flex;align-items:center;flex-shrink:0;}`,
+      orbital: `
+        @keyframes pair-a-orbital{0%,42%{opacity:1}50%,92%{opacity:0}100%{opacity:1}}
+        @keyframes pair-b-orbital{0%,42%{opacity:0}50%,92%{opacity:1}100%{opacity:0}}
+        .pair-a-orbital{animation:pair-a-orbital 8s ease-in-out infinite;display:flex;align-items:center;gap:5px;white-space:nowrap}
+        .pair-b-orbital{animation:pair-b-orbital 8s ease-in-out infinite;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+        .sensor-pair-orbital{position:relative;overflow:hidden;display:inline-flex;align-items:center;flex-shrink:0;}`,
+      ink: `
+        @keyframes pair-a-ink{0%,42%{opacity:1}50%,92%{opacity:0}100%{opacity:1}}
+        @keyframes pair-b-ink{0%,42%{opacity:0}50%,92%{opacity:1}100%{opacity:0}}
+        .pair-a-ink{animation:pair-a-ink 8s ease-in-out infinite;display:flex;align-items:center;gap:5px;white-space:nowrap}
+        .pair-b-ink{animation:pair-b-ink 8s ease-in-out infinite;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+        .sensor-pair-ink{position:relative;overflow:hidden;display:inline-flex;align-items:center;flex-shrink:0;}`,
     };
-    return styles[theme] || '';
+    const geoStyle = `
+      @keyframes geo-ticker{0%,15%{transform:translateX(0)}85%,100%{transform:translateX(var(--geo-overflow,0px))}}
+      .geo-marquee-outer{overflow:hidden;width:100%;cursor:pointer}
+      .geo-marquee-inner{display:inline-block;white-space:nowrap;will-change:transform}
+      .geo-marquee-outer.geo-scrolling{text-align:left!important}`;
+    return (styles[theme] || '') + geoStyle;
+  }
+
+  _renderGeocoded(entityId, style = '') {
+    if (!this._geocodedLocation || !entityId) return html``;
+    const text = this._geocodedLocation;
+    // Structural styles always applied; animation applied after render by _checkGeoOverflow()
+    const hasMaps = !!(this.config.maps_provider && this._gpsLat && this._gpsLon);
+    return html`
+      <div class="geo-marquee-outer clickable"
+           @click=${(e) => { e.stopPropagation(); hasMaps ? this._openMaps(e) : this._showMoreInfo(entityId); }}
+           style="display:block;width:100%;min-width:0;max-width:100%;overflow:hidden;align-self:stretch;box-sizing:border-box;cursor:pointer;${style}">
+        <span class="geo-marquee-inner">📍 ${text}</span>
+      </div>`;
+  }
+
+  _checkGeoOverflow() {
+    this.shadowRoot?.querySelectorAll('.geo-marquee-outer').forEach(outer => {
+      const inner = outer.querySelector('.geo-marquee-inner');
+      if (!inner) return;
+      const overflow = inner.scrollWidth - outer.clientWidth;
+      if (overflow > 1) {
+        const dur = Math.max(4, overflow * 0.06);
+        outer.style.setProperty('--geo-overflow', `-${overflow}px`);
+        outer.classList.add('geo-scrolling');
+        inner.style.animation = `geo-ticker ${dur}s ease-in-out infinite alternate`;
+      } else {
+        outer.style.removeProperty('--geo-overflow');
+        outer.classList.remove('geo-scrolling');
+        inner.style.animation = '';
+      }
+    });
   }
 
   _renderWeatherBg() {
@@ -1213,7 +1320,9 @@ class PersonTrackerCard extends LitElement {
       && this.config.layout !== 'glass' && this.config.layout !== 'bio'
       && this.config.layout !== 'modern' && this.config.layout !== 'compact'
       && this.config.layout !== 'holo'
-      && this.config.layout !== 'wxstation';
+      && this.config.layout !== 'wxstation'
+      && this.config.layout !== 'orbital'
+      && this.config.layout !== 'ink';
     return html`
       ${showBg ? html`<div class="${bgClass}" @click=${clickHandler}>${particles}</div>` : ''}
       ${floatingTemp ? html`<span class="weather-bg-temp">${this._weatherTemp}</span>` : ''}
@@ -1478,6 +1587,12 @@ class PersonTrackerCard extends LitElement {
       return this._renderHoloLayout();
     } else if (this.config.layout === 'wxstation') {
       return this._renderWxStationLayout();
+    } else if (this.config.layout === 'matrix') {
+      return this._renderMatrixLayout();
+    } else if (this.config.layout === 'orbital') {
+      return this._renderOrbitalLayout();
+    } else if (this.config.layout === 'ink') {
+      return this._renderInkLayout();
     } else {
       return this._renderClassicLayout();
     }
@@ -1513,13 +1628,15 @@ class PersonTrackerCard extends LitElement {
     const travelPos = this._getPositionStyles(this.config.travel_position) || {};
     const connectionPos = this._getPositionStyles(this.config.connection_position) || {};
 
+    const geoEntityId = this.config.geocoded_location_entity || (this._resolvedPrefix ? `sensor.${this._resolvedPrefix}_geocoded_location` : null);
+
     // Icon size configurabile
     const iconSize = this.config.classic_icon_size || 16;
     const iconStyle = `width: ${iconSize}px; height: ${iconSize}px;`;
 
     return html`
       <style>${this._getPairAnimationStyles('classic')}</style>
-      <ha-card class="${this.config.show_weather && this._weatherState ? 'weather-active' : ''}" style="background: ${this.config.card_background}; border-radius: ${this.config.card_border_radius}">
+      <ha-card class="${this.config.show_weather && this._weatherState && this.config.show_weather_background !== false ? 'weather-active' : ''}" style="background: ${this.config.card_background}; border-radius: ${this.config.card_border_radius}">
         ${this._renderWeatherBg()}
         <div class="card-container" style="padding-bottom: ${paddingBottom}">
           <div class="card-content">
@@ -1546,12 +1663,15 @@ class PersonTrackerCard extends LitElement {
 
               ${this.config.show_name ? html`
                 <div class="entity-state-name"
+                     @click=${this.config.maps_provider && this._gpsLat ? (e) => this._openMaps(e) : undefined}
                      style="font-size: ${this.config.state_font_size};
                             color: ${stateStyles.color || 'var(--secondary-text-color)'};
-                            margin-top: ${this.config.show_person_name ? `calc(${this.config.name_font_size} * 0.3)` : (this.config.show_entity_picture ? '16px' : '0')};">
+                            margin-top: ${this.config.show_person_name ? `calc(${this.config.name_font_size} * 0.3)` : (this.config.show_entity_picture ? '16px' : '0')};
+                            ${this.config.maps_provider && this._gpsLat ? 'cursor:pointer;' : ''}">
                   ${stateName}
                 </div>
               ` : ''}
+              ${this.config.show_geocoded_location && entity.state !== 'home' ? this._renderGeocoded(geoEntityId, 'font-size:10px;color:rgba(255,255,255,0.5);margin-top:3px;text-align:center;') : ''}
             </div>
 
             <!-- Sezione inferiore sempre in basso -->
@@ -1718,6 +1838,7 @@ class PersonTrackerCard extends LitElement {
 
     // Nome dello stato personalizzato (location)
     const displayLocation = stateConfig?.name || this._translateState(entity.state);
+    const geoEntityId = this.config.geocoded_location_entity || (this._resolvedPrefix ? `sensor.${this._resolvedPrefix}_geocoded_location` : null);
 
     const entityPicture = stateConfig?.entity_picture || this.config.entity_picture || entity.attributes?.entity_picture;
     const stateStyles = stateConfig?.styles?.name || {};
@@ -1753,7 +1874,7 @@ class PersonTrackerCard extends LitElement {
 
     return html`
       <style>${this._getPairAnimationStyles('compact')}</style>
-      <ha-card class="${this.config.show_weather && this._weatherState ? 'weather-active' : ''}" style="background: ${this.config.card_background}; border-radius: ${this.config.card_border_radius}; padding: ${cardPadding}px; max-width: ${maxWidth}px;">
+      <ha-card class="${this.config.show_weather && this._weatherState && this.config.show_weather_background !== false ? 'weather-active' : ''}" style="background: ${this.config.card_background}; border-radius: ${this.config.card_border_radius}; padding: ${cardPadding}px; max-width: ${maxWidth}px;">
         ${this._renderWeatherBg()}
         <div class="compact-grid">
           ${this.config.show_entity_picture && entityPicture ? html`
@@ -1768,8 +1889,13 @@ class PersonTrackerCard extends LitElement {
             </div>
           ` : ''}
 
-          <div class="compact-location clickable" @click=${() => this._handleTapAction()} style="color: ${stateStyles.color || 'var(--secondary-text-color)'}; cursor: pointer; font-size: ${locationFontSize}px;">
-            ${displayLocation}
+          <div class="compact-location clickable" @click=${() => this.config.maps_provider && this._gpsLat ? this._openMaps() : this._handleTapAction()} style="color: ${stateStyles.color || 'var(--secondary-text-color)'}; cursor: pointer; font-size: ${locationFontSize}px;">
+            ${this.config.show_geocoded_location && this._geocodedLocation && entity.state !== 'home' ? html`
+              <div class="geo-wrap" style="width:100%;">
+                <span class="geo-state">${displayLocation}</span>
+                <span class="geo-addr clickable" style="font-size:${Math.max(8, locationFontSize - 1)}px;opacity:0.85;cursor:pointer;" @click=${(e) => { e.stopPropagation(); this.config.maps_provider && this._gpsLat ? this._openMaps(e) : this._showMoreInfo(geoEntityId); }}>${this._geocodedLocation}</span>
+              </div>
+            ` : displayLocation}
             ${this.config.show_last_changed ? html`
               <div style="font-size:9px;color:${this.config.last_changed_color || 'rgba(255,255,255,0.45)'};margin-top:1px;letter-spacing:0.3px;line-height:1.2;">${this._getRelativeTime(entity.last_changed)}</div>
             ` : ''}
@@ -1911,6 +2037,7 @@ class PersonTrackerCard extends LitElement {
 
     // State name (location)
     const displayLocation = stateConfig?.name || this._translateState(entity.state);
+    const geoEntityId = this.config.geocoded_location_entity || (this._resolvedPrefix ? `sensor.${this._resolvedPrefix}_geocoded_location` : null);
 
     const entityPicture = stateConfig?.entity_picture || this.config.entity_picture || entity.attributes?.entity_picture;
     const stateStyles = stateConfig?.styles?.name || {};
@@ -1963,7 +2090,6 @@ class PersonTrackerCard extends LitElement {
 
     // Activity
     const activityIcon = this._activityIcon;
-    const activity = this._activity;
 
     // Connection
     const connectionIcon = this._isWifiConnection(this._connectionType) ? 'mdi:wifi' : 'mdi:signal';
@@ -1981,16 +2107,13 @@ class PersonTrackerCard extends LitElement {
     // Ring background color (adapts to theme)
     const ringBgColor = this._getRingBackgroundColor();
 
-    // Width
-    const maxWidth = this.config.modern_width || 300;
-
     // Weather
     const weatherIconMap = {'sunny':'mdi:weather-sunny','clear-night':'mdi:weather-night','partlycloudy':'mdi:weather-partly-cloudy','cloudy':'mdi:weather-cloudy','fog':'mdi:weather-fog','windy':'mdi:weather-windy','windy-variant':'mdi:weather-windy-variant','rainy':'mdi:weather-rainy','snowy-rainy':'mdi:weather-snowy-rainy','pouring':'mdi:weather-pouring','snowy':'mdi:weather-snowy','hail':'mdi:weather-hail','lightning':'mdi:weather-lightning','lightning-rainy':'mdi:weather-lightning-rainy','exceptional':'mdi:alert-circle-outline'};
     const modernWeatherLabel = this._weatherState ? this._t(`weather.${this._weatherState}`) : '';
 
     return html`
       <style>${this._getPairAnimationStyles('modern')}</style>
-      <ha-card class="${this.config.show_weather && this._weatherState ? 'weather-active' : ''}" style="background: ${this.config.card_background}; border-radius: ${this.config.card_border_radius}; padding: 10px 12px;">
+      <ha-card class="${this.config.show_weather && this._weatherState && this.config.show_weather_background !== false ? 'weather-active' : ''}" style="background: ${this.config.card_background}; border-radius: ${this.config.card_border_radius}; padding: 10px 12px;">
         ${this._renderWeatherBg()}
         <div class="modern-container">
           <!-- Picture with state-colored border - clicks open person entity -->
@@ -2022,10 +2145,12 @@ class PersonTrackerCard extends LitElement {
               </div>
             ` : ''}
             ${this.config.show_name ? html`
-              <div style="font-size: ${this.config.modern_state_font_size || '12px'}; color: ${stateStyles.color || 'var(--secondary-text-color)'}; margin: 0; padding: 0;">
+              <div @click=${this.config.maps_provider && this._gpsLat ? (e) => this._openMaps(e) : undefined}
+                   style="font-size: ${this.config.modern_state_font_size || '12px'}; color: ${stateStyles.color || 'var(--secondary-text-color)'}; margin: 0; padding: 0; ${this.config.maps_provider && this._gpsLat ? 'cursor:pointer;' : ''}">
                 ${displayLocation}
               </div>
             ` : ''}
+            ${this.config.show_geocoded_location && entity.state !== 'home' ? this._renderGeocoded(geoEntityId, 'font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px;') : ''}
             ${this.config.show_weather && this._weatherState && this.config.show_weather_temperature !== false ? html`
               <div style="display:flex;align-items:center;gap:3px;margin-top:3px;opacity:0.75;">
                 <ha-icon icon="${weatherIconMap[this._weatherState] || 'mdi:weather-cloudy'}" style="--mdc-icon-size:12px;color:${this.config.weather_text_color || 'rgba(255,255,255,0.7)'};"></ha-icon>
@@ -2219,6 +2344,7 @@ class PersonTrackerCard extends LitElement {
     const displayLocation = stateConfig?.name || this._translateState(entity.state);
     const entityPicture = stateConfig?.entity_picture || this.config.entity_picture || entity.attributes?.entity_picture;
 
+    const geoEntityId = this.config.geocoded_location_entity || (this._resolvedPrefix ? `sensor.${this._resolvedPrefix}_geocoded_location` : null);
     // Usa il colore configurato nell'editor per lo stato corrente, con fallback neon
     const stateColor = stateConfig?.styles?.name?.color || this._getNeonStateColor(entity.state);
     const glowColor = stateColor + '66';
@@ -2294,10 +2420,12 @@ class PersonTrackerCard extends LitElement {
               </div>
             ` : ''}
             ${this.config.show_name ? html`
-              <div class="neon-location" style="color: ${stateColor}; text-shadow: 0 0 8px ${glowColor};">
+              <div class="neon-location" @click=${this.config.maps_provider && this._gpsLat ? (e) => this._openMaps(e) : undefined}
+                   style="color: ${stateColor}; text-shadow: 0 0 8px ${glowColor}; ${this.config.maps_provider && this._gpsLat ? 'cursor:pointer;' : ''}">
                 ${displayLocation}
               </div>
             ` : ''}
+            ${this.config.show_geocoded_location && entity.state !== 'home' ? this._renderGeocoded(geoEntityId, 'font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;text-align:center;') : ''}
             ${this.config.show_last_changed ? html`
               <div class="neon-time" style="${this.config.last_changed_color ? `color:${this.config.last_changed_color};` : ''}">${this._getRelativeTime(entity.last_changed)}</div>
             ` : ''}
@@ -2351,7 +2479,7 @@ class PersonTrackerCard extends LitElement {
             })()}
 
             ${pairDir1Neon ? html`
-              <div class="sensor-pair-neon" style="min-width:80px;height:28px;">
+              <div class="sensor-pair-neon">
                 <div class="neon-badge pair-a-neon clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('distance'))} style="border-color:#00d4ff;box-shadow:0 0 6px #00d4ff44;">
                   <ha-icon icon="${this._distanceIcon || 'mdi:map-marker-distance'}" style="--mdc-icon-size:13px;color:#00d4ff;"></ha-icon>
                   <span style="color:#00d4ff;">${parseFloat(this._distanceFromHome.toFixed(this.config.distance_precision ?? 1))} ${this._distanceUnit}</span>
@@ -2377,7 +2505,7 @@ class PersonTrackerCard extends LitElement {
             `}
 
             ${pairDir2Neon ? html`
-              <div class="sensor-pair-neon" style="min-width:80px;height:28px;">
+              <div class="sensor-pair-neon">
                 <div class="neon-badge pair-a-neon clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('distance_2'))} style="border-color:#00d4ff;box-shadow:0 0 6px #00d4ff44;">
                   <ha-icon icon="${this._distanceIcon2 || 'mdi:map-marker-distance'}" style="--mdc-icon-size:13px;color:#00d4ff;"></ha-icon>
                   <span style="color:#00d4ff;">${parseFloat(this._distanceFromHome2.toFixed(this.config.distance_precision ?? 1))} ${this._distanceUnit2}</span>
@@ -2431,6 +2559,7 @@ class PersonTrackerCard extends LitElement {
     const stateConfig = this._getCurrentStateConfig();
     const personName = this.config.name || entity.attributes?.friendly_name || 'Person';
     const displayLocation = stateConfig?.name || this._translateState(entity.state);
+    const geoEntityId = this.config.geocoded_location_entity || (this._resolvedPrefix ? `sensor.${this._resolvedPrefix}_geocoded_location` : null);
     const entityPicture = stateConfig?.entity_picture || this.config.entity_picture || entity.attributes?.entity_picture;
 
     const accentColor = stateConfig?.styles?.name?.color || this._getNeonStateColor(entity.state);
@@ -2465,7 +2594,7 @@ class PersonTrackerCard extends LitElement {
 
     return html`
       <style>${this._getPairAnimationStyles('glass')}</style>
-      <ha-card style="
+      <ha-card class="${this.config.show_weather && this._weatherState && this.config.show_weather_background !== false ? 'weather-active' : ''}" style="
         background: ${this.config.transparent_background ? 'transparent' : 'linear-gradient(135deg, #0f0f1a 0%, #1a0f2e 60%, #0a0f1a 100%)'};
         border: 1px solid rgba(255,255,255,0.10);
         border-radius: ${this.config.card_border_radius};
@@ -2502,9 +2631,11 @@ class PersonTrackerCard extends LitElement {
               ${this.config.show_name ? html`
                 <div class="glass-zone-row">
                   <span class="glass-dot" style="background:${accentColor};box-shadow:0 0 6px ${accentColor};"></span>
-                  <span class="glass-zone-text">${displayLocation}</span>
+                  <span class="glass-zone-text" @click=${this.config.maps_provider && this._gpsLat ? (e) => this._openMaps(e) : undefined}
+                        style="${this.config.maps_provider && this._gpsLat ? 'cursor:pointer;' : ''}">${displayLocation}</span>
                 </div>
               ` : ''}
+              ${this.config.show_geocoded_location && entity.state !== 'home' ? this._renderGeocoded(geoEntityId, 'font-size:9px;color:rgba(255,255,255,0.38);margin-top:2px;') : ''}
               ${this.config.show_last_changed ? html`<div class="glass-time" style="${this.config.last_changed_color ? `color:${this.config.last_changed_color};` : ''}">${this._getRelativeTime(entity.last_changed)}</div>` : ''}
             </div>
 
@@ -2565,7 +2696,7 @@ class PersonTrackerCard extends LitElement {
             ` : ''}
 
             ${pairDir1 ? html`
-              <div class="sensor-pair-glass" style="min-width:90px;height:28px;">
+              <div class="sensor-pair-glass">
                 <div class="glass-chip pair-a-glass clickable"
                      @click=${() => this._showMoreInfo(this._getSensorEntityId('distance'))}
                      style="border-color:rgba(0,212,255,0.3);color:#00d4ff;">
@@ -2574,7 +2705,7 @@ class PersonTrackerCard extends LitElement {
                 </div>
                 <div class="glass-chip pair-b-glass clickable"
                      @click=${() => this._showMoreInfo(this._getSensorEntityId('travel'))}
-                     style="border-color:${travelColor}50;color:${travelColor};position:absolute;top:0;left:0;">
+                     style="border-color:${travelColor}50;color:${travelColor};">
                   <ha-icon icon="${this._travelIcon || 'mdi:car-clock'}" style="--mdc-icon-size:13px;color:${travelColor};"></ha-icon>
                   <span>${travelTime} min</span>
                 </div>
@@ -2595,7 +2726,7 @@ class PersonTrackerCard extends LitElement {
             `}
 
             ${pairDir2 ? html`
-              <div class="sensor-pair-glass" style="min-width:90px;height:28px;">
+              <div class="sensor-pair-glass">
                 <div class="glass-chip pair-a-glass clickable"
                      @click=${() => this._showMoreInfo(this._getSensorEntityId('distance_2'))}
                      style="border-color:rgba(0,212,255,0.3);color:#00d4ff;">
@@ -2604,7 +2735,7 @@ class PersonTrackerCard extends LitElement {
                 </div>
                 <div class="glass-chip pair-b-glass clickable"
                      @click=${() => this._showMoreInfo(this._getSensorEntityId('travel_2'))}
-                     style="border-color:${travelColor2}50;color:${travelColor2};position:absolute;top:0;left:0;">
+                     style="border-color:${travelColor2}50;color:${travelColor2};">
                   <ha-icon icon="${this._travelIcon2 || 'mdi:car-clock'}" style="--mdc-icon-size:13px;color:${travelColor2};"></ha-icon>
                   <span>${travelTime2} min</span>
                 </div>
@@ -2660,6 +2791,7 @@ class PersonTrackerCard extends LitElement {
     const stateConfig = this._getCurrentStateConfig();
     const personName = this.config.name || entity.attributes?.friendly_name || 'Person';
     const displayLocation = stateConfig?.name || this._translateState(entity.state);
+    const geoEntityId = this.config.geocoded_location_entity || (this._resolvedPrefix ? `sensor.${this._resolvedPrefix}_geocoded_location` : null);
     const entityPicture = stateConfig?.entity_picture || this.config.entity_picture || entity.attributes?.entity_picture;
 
     const stateAccent = entity.state === 'home' ? '#00ffb4' : entity.state === 'not_home' ? '#b400ff' : '#00d4ff';
@@ -2701,7 +2833,7 @@ class PersonTrackerCard extends LitElement {
 
     return html`
       <style>${this._getPairAnimationStyles('bio')}</style>
-      <ha-card style="
+      <ha-card class="${this.config.show_weather && this._weatherState && this.config.show_weather_background !== false ? 'weather-active' : ''}" style="
         border-radius: ${this.config.card_border_radius};
         overflow: hidden;
         position: relative;
@@ -2748,7 +2880,8 @@ class PersonTrackerCard extends LitElement {
 
             <div class="clickable" @click=${() => this._handleTapAction()} style="flex:1;min-width:0;">
               ${this.config.show_person_name ? html`<div class="bio-name">${personName}</div>` : ''}
-              ${this.config.show_name ? html`<div class="bio-zone" style="color:rgba(${sensorRgb},0.65);">◉ ${displayLocation}</div>` : ''}
+              ${this.config.show_name ? html`<div class="bio-zone" @click=${this.config.maps_provider && this._gpsLat ? (e) => this._openMaps(e) : undefined} style="color:rgba(${sensorRgb},0.65);${this.config.maps_provider && this._gpsLat ? 'cursor:pointer;' : ''}">◉ ${displayLocation}</div>` : ''}
+              ${this.config.show_geocoded_location && entity.state !== 'home' ? this._renderGeocoded(geoEntityId, `font-size:9px;color:rgba(${sensorRgb},0.38);margin-top:1px;`) : ''}
               ${this.config.show_last_changed ? html`<div style="font-size:10px;color:${this.config.last_changed_color || `rgba(${sensorRgb},0.35)`};margin-top:2px;letter-spacing:0.5px;">${this._getRelativeTime(entity.last_changed)}</div>` : ''}
             </div>
 
@@ -2809,12 +2942,12 @@ class PersonTrackerCard extends LitElement {
             ` : ''}
 
             ${pairDir1 ? html`
-              <div class="sensor-pair-bio" style="min-width:90px;height:28px;">
+              <div class="sensor-pair-bio">
                 <div class="bio-chip pair-a-bio clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('distance'))} style="border-color:rgba(0,212,255,0.25);color:#00d4ff;">
                   <ha-icon icon="${this._distanceIcon || 'mdi:map-marker-distance'}" style="--mdc-icon-size:13px;color:#00d4ff;"></ha-icon>
                   <span>${parseFloat(this._distanceFromHome.toFixed(distPrecision))} ${this._distanceUnit}</span>
                 </div>
-                <div class="bio-chip pair-b-bio clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('travel'))} style="border-color:${travelColor}44;color:${travelColor};position:absolute;top:0;left:0;">
+                <div class="bio-chip pair-b-bio clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('travel'))} style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-color:${travelColor}44;color:${travelColor};">
                   <ha-icon icon="${this._travelIcon || 'mdi:car-clock'}" style="--mdc-icon-size:13px;color:${travelColor};"></ha-icon>
                   <span>${travelTime} min</span>
                 </div>
@@ -2835,12 +2968,12 @@ class PersonTrackerCard extends LitElement {
             `}
 
             ${pairDir2 ? html`
-              <div class="sensor-pair-bio" style="min-width:90px;height:28px;">
+              <div class="sensor-pair-bio">
                 <div class="bio-chip pair-a-bio clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('distance_2'))} style="border-color:rgba(0,212,255,0.25);color:#00d4ff;">
                   <ha-icon icon="${this._distanceIcon2 || 'mdi:map-marker-distance'}" style="--mdc-icon-size:13px;color:#00d4ff;"></ha-icon>
                   <span>${parseFloat(this._distanceFromHome2.toFixed(distPrecision))} ${this._distanceUnit2}</span>
                 </div>
-                <div class="bio-chip pair-b-bio clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('travel_2'))} style="border-color:${travelColor2}44;color:${travelColor2};position:absolute;top:0;left:0;">
+                <div class="bio-chip pair-b-bio clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('travel_2'))} style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-color:${travelColor2}44;color:${travelColor2};">
                   <ha-icon icon="${this._travelIcon2 || 'mdi:car-clock'}" style="--mdc-icon-size:13px;color:${travelColor2};"></ha-icon>
                   <span>${travelTime2} min</span>
                 </div>
@@ -2898,6 +3031,7 @@ class PersonTrackerCard extends LitElement {
     const stateConfig = this._getCurrentStateConfig();
     const personName = this.config.name || entity.attributes?.friendly_name || 'Person';
     const displayLocation = stateConfig?.name || this._translateState(entity.state);
+    const geoEntityId = this.config.geocoded_location_entity || (this._resolvedPrefix ? `sensor.${this._resolvedPrefix}_geocoded_location` : null);
     const entityPicture = stateConfig?.entity_picture || this.config.entity_picture || entity.attributes?.entity_picture;
 
     const stateAccent = entity.state === 'home' ? '#00d4ff' : entity.state === 'not_home' ? '#7f50ff' : '#00d4ff';
@@ -2941,7 +3075,7 @@ class PersonTrackerCard extends LitElement {
 
     return html`
       <style>${this._getPairAnimationStyles('holo')}</style>
-      <ha-card style="
+      <ha-card class="${this.config.show_weather && this._weatherState && this.config.show_weather_background !== false ? 'weather-active' : ''}" style="
         background: transparent;
         border: none;
         box-shadow: 0 20px 60px rgba(0,0,0,0.85), 0 0 40px rgba(${accentRgb},0.07);
@@ -2999,8 +3133,10 @@ class PersonTrackerCard extends LitElement {
                     <div class="holo-name" style="text-shadow:0 0 20px rgba(${accentRgb},0.35),0 0 40px rgba(127,80,255,0.2);">${personName.toUpperCase()}</div>
                   ` : ''}
                   ${this.config.show_name ? html`
-                    <div class="holo-loc" style="background:linear-gradient(90deg,${accentColor},#7f50ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${displayLocation}</div>
+                    <div class="holo-loc" @click=${this.config.maps_provider && this._gpsLat ? (e) => this._openMaps(e) : undefined}
+                         style="background:linear-gradient(90deg,${accentColor},#7f50ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;${this.config.maps_provider && this._gpsLat ? 'cursor:pointer;' : ''}">${displayLocation}</div>
                   ` : ''}
+                  ${this.config.show_geocoded_location && entity.state !== 'home' ? this._renderGeocoded(geoEntityId, 'font-size:9px;color:rgba(255,255,255,0.35);margin-top:1px;') : ''}
                   <div class="holo-sub">
                     ${lastChanged ? html`<span style="${this.config.last_changed_color ? `color:${this.config.last_changed_color};` : ''}">${lastChanged}</span>` : ''}
                     ${weatherLine ? html`${lastChanged ? html`<span style="opacity:0.3">·</span>` : ''}<span class="clickable" style="cursor:pointer;${this.config.weather_text_color ? `color:${this.config.weather_text_color};` : ''}" @click=${() => this._showMoreInfo(this.config.weather_entity)}>🌤 ${weatherLine}</span>` : ''}
@@ -3111,6 +3247,7 @@ class PersonTrackerCard extends LitElement {
     const stateConfig = this._getCurrentStateConfig();
     const personName = this.config.name || entity.attributes?.friendly_name || 'Person';
     const displayLocation = stateConfig?.name || this._translateState(entity.state);
+    const geoEntityId = this.config.geocoded_location_entity || (this._resolvedPrefix ? `sensor.${this._resolvedPrefix}_geocoded_location` : null);
     const entityPicture = stateConfig?.entity_picture || this.config.entity_picture || entity.attributes?.entity_picture;
 
     const stateAccent = entity.state === 'home' ? '#22c55e' : entity.state === 'not_home' ? '#6b7280' : '#3b82f6';
@@ -3222,8 +3359,10 @@ class PersonTrackerCard extends LitElement {
                 <div class="wx-name" @click=${() => this._handleTapAction()} style="cursor:pointer;">${personName}</div>
               ` : ''}
               ${this.config.show_name ? html`
-                <div class="wx-location">📍 ${displayLocation}</div>
+                <div class="wx-location" @click=${this.config.maps_provider && this._gpsLat ? (e) => this._openMaps(e) : undefined}
+                     style="${this.config.maps_provider && this._gpsLat ? 'cursor:pointer;' : ''}">${this.config.show_geocoded_location && this._geocodedLocation && entity.state !== 'home' ? '' : '📍 '}${displayLocation}</div>
               ` : ''}
+              ${this.config.show_geocoded_location && entity.state !== 'home' ? this._renderGeocoded(geoEntityId, 'font-size:9px;color:rgba(255,255,255,0.38);margin-top:1px;') : ''}
               ${this.config.show_last_changed && lastChanged ? html`
                 <div style="font-size:10px;color:${last_changed_color || 'rgba(255,255,255,0.28)'};margin-top:3px;">${lastChanged}</div>
               ` : ''}
@@ -3324,6 +3463,703 @@ class PersonTrackerCard extends LitElement {
           <div class="wx-footer-text">${displayLocation}</div>
           <div class="wx-updated">${lastChanged}</div>
         </div>
+      </ha-card>
+    `;
+  }
+
+  _renderMatrixLayout() {
+    const entity = this.hass.states[this.config.entity];
+    const stateConfig = this._getCurrentStateConfig();
+    const personName = this.config.name || entity.attributes?.friendly_name || 'Person';
+    const displayLocation = stateConfig?.name || this._translateState(entity.state);
+    const geoEntityId = this.config.geocoded_location_entity || (this._resolvedPrefix ? `sensor.${this._resolvedPrefix}_geocoded_location` : null);
+    const entityPicture = stateConfig?.entity_picture || this.config.entity_picture || entity.attributes?.entity_picture;
+
+    const stateAccent = entity.state === 'home' ? '#00ff41' : entity.state === 'not_home' ? '#ff4141' : '#00d4ff';
+    const accentColor = stateConfig?.styles?.name?.color || stateAccent;
+    const _hexRgb = (hex) => { const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex); return m ? `${parseInt(m[1],16)},${parseInt(m[2],16)},${parseInt(m[3],16)}` : null; };
+    const accentRgb = _hexRgb(accentColor) || '0,255,65';
+
+    const batteryLevel = Math.round(this._batteryLevel);
+    const batteryColor = this._getBatteryColor(this._batteryLevel);
+    const watchBatteryLevel = Math.round(this._watchBatteryLevel);
+    const watchBatteryColor = this._getBatteryColor(this._watchBatteryLevel);
+    const travelTime = Math.round(this._travelTime);
+    const travelTime2 = Math.round(this._travelTime2);
+    const travelColor = this._getTravelTimeColor(travelTime);
+    const travelColor2 = this._getTravelTimeColor(travelTime2);
+    const connectionIcon = this._isWifiConnection(this._connectionType) ? 'mdi:wifi' : 'mdi:signal';
+    const distPrecision = this.config.distance_precision ?? 1;
+
+    const hasDir1 = !!(this.config.travel_sensor || this.config.distance_sensor);
+    const hasDir2 = !!(this.config.travel_sensor_2 || this.config.distance_sensor_2);
+    const isHome = entity.state === 'home';
+    const smartMode = this.config.smart_travel_mode !== false;
+    const zone2Name = this.config.zone_2
+      ? (this.hass.states[this.config.zone_2]?.attributes?.friendly_name || this.config.zone_2.replace('zone.', '').replace(/_/g, ' '))
+      : null;
+    const isZone2 = zone2Name && entity.state.toLowerCase() === zone2Name.toLowerCase();
+    const showDir1 = !smartMode || !hasDir2 || !isZone2;
+    const showDir2 = hasDir2 && (!smartMode || !isHome || !hasDir1);
+    const hasDist1 = showDir1 && this.config.show_distance && this._distanceSensorFound;
+    const hasTravel1 = showDir1 && this.config.show_travel_time && travelTime > 0;
+    const hasDist2 = showDir2 && this.config.show_distance_2 && this._distanceSensorFound2;
+    const hasTravel2 = showDir2 && this.config.show_travel_time_2 && travelTime2 > 0;
+    const pairDir1 = hasDist1 && hasTravel1 && (this.config.pair_travel_animation !== false);
+    const pairDir2 = hasDist2 && hasTravel2 && (this.config.pair_travel_animation !== false);
+
+    const lastChanged = this.config.show_last_changed ? this._getRelativeTime(entity.last_changed) : '';
+
+    const d2p = this.config.device_2_battery_sensor || (this._resolvedPrefix2 ? `sensor.${this._resolvedPrefix2}_battery_level` : null);
+    const showDevice2 = this.config.show_device_2_battery !== false && d2p && this._battery2Level > 0;
+    const battery2Level = Math.round(this._battery2Level);
+    const battery2Color = this._getBatteryColor(this._battery2Level);
+
+    // Deterministic matrix rain columns via seeded PRNG
+    const r = this._rng(987654);
+    const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノラリルレロ0123456789ABCDEF@#$%';
+    const matrixCols = Array.from({ length: 24 }, () => {
+      const x = r() * 97;
+      const duration = 2.5 + r() * 5;
+      const delay = -(r() * 8);
+      const opacity = 0.2 + r() * 0.5;
+      const fontSize = 9 + Math.floor(r() * 5);
+      let txt = '';
+      const len = 14 + Math.floor(r() * 14);
+      for (let j = 0; j < len; j++) txt += chars[Math.floor(r() * chars.length)] + '\n';
+      return { x, duration, delay, opacity, fontSize, txt };
+    });
+
+    const hasChips = (this.config.show_activity && this._activity !== 'unknown' && this._activity) ||
+                     (this.config.show_connection && this._connectionType) ||
+                     hasDist1 || hasTravel1 || hasDist2 || hasTravel2;
+
+    return html`
+      <style>${this._getPairAnimationStyles('matrix')}</style>
+      <ha-card style="
+        background:#000;
+        font-family:'Courier New',monospace;
+        border-radius:${this.config.card_border_radius};
+        ${this.config.card_background ? `background:${this.config.card_background};` : ''}
+      ">
+        <!-- Rain columns -->
+        <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;">
+          ${matrixCols.map(col => html`
+            <div style="
+              position:absolute;left:${col.x}%;top:0;
+              color:#00ff41;font-size:${col.fontSize}px;opacity:${col.opacity};
+              writing-mode:vertical-lr;white-space:pre;line-height:1.2;
+              animation:matrix-fall ${col.duration}s linear ${col.delay}s infinite;
+              user-select:none;
+            ">${col.txt}</div>
+          `)}
+          <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.5) 45%,rgba(0,0,0,0.88) 70%,#000 90%);"></div>
+        </div>
+
+        <!-- Content -->
+        <div class="matrix-content">
+          <!-- Person row -->
+          <div class="matrix-person-row">
+            <div class="matrix-avatar-box clickable" @click=${() => this._handleTapAction()}
+                 style="border-color:${accentColor};box-shadow:0 0 14px rgba(${accentRgb},.45),inset 0 0 10px rgba(${accentRgb},.08);">
+              ${this.config.show_entity_picture && entityPicture
+                ? html`<img src="${entityPicture}" style="width:100%;height:100%;object-fit:cover;border-radius:3px;">`
+                : html`<span style="font-size:26px;">👤</span>`}
+              <div class="matrix-avatar-scanlines" style="background:repeating-linear-gradient(transparent 0px,transparent 2px,rgba(${accentRgb},.04) 2px,rgba(${accentRgb},.04) 4px);"></div>
+              <div class="matrix-avatar-scan" style="background:rgba(${accentRgb},.18);"></div>
+            </div>
+            <div style="flex:1;min-width:0;">
+              ${this.config.show_person_name !== false ? html`<div class="matrix-name">${personName.toUpperCase()}</div>` : ''}
+              ${this.config.show_name !== false ? html`<div class="matrix-state" @click=${this.config.maps_provider && this._gpsLat ? (e) => this._openMaps(e) : undefined} style="${this.config.maps_provider && this._gpsLat ? 'cursor:pointer;' : ''}">STATUS:: ${displayLocation.toUpperCase()}</div>` : ''}
+              ${this.config.show_geocoded_location && entity.state !== 'home' ? this._renderGeocoded(geoEntityId, "font-size:8px;color:#00ff4160;margin-top:1px;font-family:'Courier New',monospace;letter-spacing:0.5px;") : ''}
+              ${lastChanged ? html`<div class="matrix-last-changed" style="${this.config.last_changed_color ? `color:${this.config.last_changed_color};` : ''}">${lastChanged}</div>` : ''}
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="color:#00ff41;font-size:9px;letter-spacing:2px;opacity:.6;animation:matrix-blink 2s step-end infinite;">◼ LIVE</div>
+            </div>
+          </div>
+
+          <hr class="matrix-divider">
+
+          <!-- Stats blocks -->
+          <div class="matrix-stats">
+            ${this.config.show_battery && batteryLevel > 0 ? html`
+              <div class="matrix-stat-block clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('battery'))} style="cursor:pointer;">
+                <div class="matrix-stat-label">BATTERY</div>
+                <div class="matrix-stat-val" style="color:${batteryColor};">${batteryLevel}%</div>
+                <div class="matrix-stat-bar"><div class="matrix-stat-bar-fill" style="width:${batteryLevel}%;background:${batteryColor};box-shadow:0 0 5px ${batteryColor};"></div></div>
+              </div>
+            ` : ''}
+            ${this.config.show_watch_battery && watchBatteryLevel > 0 ? html`
+              <div class="matrix-stat-block clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('watch_battery'))} style="cursor:pointer;">
+                <div class="matrix-stat-label">WATCH</div>
+                <div class="matrix-stat-val" style="color:${watchBatteryColor};">${watchBatteryLevel}%</div>
+                <div class="matrix-stat-bar"><div class="matrix-stat-bar-fill" style="width:${watchBatteryLevel}%;background:${watchBatteryColor};box-shadow:0 0 5px ${watchBatteryColor};"></div></div>
+              </div>
+            ` : ''}
+            ${showDevice2 ? html`
+              <div class="matrix-stat-block clickable" @click=${() => this._showMoreInfo(d2p)} style="cursor:pointer;">
+                <div class="matrix-stat-label">DEV.2</div>
+                <div class="matrix-stat-val" style="color:${battery2Color};">${battery2Level}%</div>
+                <div class="matrix-stat-bar"><div class="matrix-stat-bar-fill" style="width:${battery2Level}%;background:${battery2Color};box-shadow:0 0 5px ${battery2Color};"></div></div>
+              </div>
+            ` : ''}
+            ${this.config.show_weather && this._weatherTemp ? html`
+              <div class="matrix-stat-block clickable" @click=${() => this._showMoreInfo(this.config.weather_entity)} style="cursor:pointer;">
+                <div class="matrix-stat-label">TEMP</div>
+                <div class="matrix-stat-val" style="color:${this.config.weather_text_color || '#00ff41'};">${this._weatherTemp}</div>
+                <div class="matrix-stat-bar"><div class="matrix-stat-bar-fill" style="width:65%;"></div></div>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Chips: activity, connection, travel/distance -->
+          ${hasChips ? html`
+            <div class="matrix-chips-row">
+              ${this.config.show_activity && this._activity && this._activity !== 'unknown' ? html`
+                <div class="matrix-chip clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('activity'))} style="cursor:pointer;">
+                  <ha-icon icon="${this._activityIcon || 'mdi:run'}" style="--mdc-icon-size:12px;color:#00ff41;"></ha-icon>
+                  <span>${this._activity.toUpperCase()}</span>
+                </div>
+              ` : ''}
+              ${this.config.show_connection && this._connectionType ? html`
+                <div class="matrix-chip clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('connection'))} style="cursor:pointer;">
+                  <ha-icon icon="${connectionIcon}" style="--mdc-icon-size:12px;color:#00ff41;"></ha-icon>
+                  <span>${this._isWifiConnection(this._connectionType) ? 'WIFI' : 'LTE'}</span>
+                </div>
+              ` : ''}
+              ${pairDir1 ? html`
+                <div class="matrix-chip sensor-pair-matrix clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('travel'))} style="cursor:pointer;">
+                  <div class="pair-a-matrix">
+                    <ha-icon icon="mdi:car" style="--mdc-icon-size:12px;color:${travelColor};"></ha-icon>
+                    <span style="color:${travelColor};">${travelTime}M</span>
+                  </div>
+                  <div class="pair-b-matrix">
+                    <ha-icon icon="mdi:map-marker" style="--mdc-icon-size:12px;color:#00ff41;"></ha-icon>
+                    <span>${parseFloat(this._distanceFromHome?.toFixed(distPrecision))}${this._distanceUnit}</span>
+                  </div>
+                </div>
+              ` : html`
+                ${hasTravel1 ? html`
+                  <div class="matrix-chip clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('travel'))} style="cursor:pointer;">
+                    <ha-icon icon="mdi:car" style="--mdc-icon-size:12px;color:${travelColor};"></ha-icon>
+                    <span style="color:${travelColor};">${travelTime}M</span>
+                  </div>
+                ` : ''}
+                ${hasDist1 ? html`
+                  <div class="matrix-chip clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('distance'))} style="cursor:pointer;">
+                    <ha-icon icon="mdi:map-marker" style="--mdc-icon-size:12px;color:#00ff41;"></ha-icon>
+                    <span>${parseFloat(this._distanceFromHome?.toFixed(distPrecision))}${this._distanceUnit}</span>
+                  </div>
+                ` : ''}
+              `}
+              ${pairDir2 ? html`
+                <div class="matrix-chip sensor-pair-matrix clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('travel_2'))} style="cursor:pointer;">
+                  <div class="pair-a-matrix" style="animation-delay:-4s;">
+                    <ha-icon icon="mdi:car" style="--mdc-icon-size:12px;color:${travelColor2};"></ha-icon>
+                    <span style="color:${travelColor2};">${travelTime2}M</span>
+                  </div>
+                  <div class="pair-b-matrix" style="animation-delay:-4s;">
+                    <ha-icon icon="mdi:map-marker" style="--mdc-icon-size:12px;color:#00ff41;"></ha-icon>
+                    <span>${parseFloat(this._distanceFromHome2?.toFixed(distPrecision))}${this._distanceUnit2}</span>
+                  </div>
+                </div>
+              ` : html`
+                ${hasTravel2 ? html`
+                  <div class="matrix-chip clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('travel_2'))} style="cursor:pointer;">
+                    <ha-icon icon="mdi:car" style="--mdc-icon-size:12px;color:${travelColor2};"></ha-icon>
+                    <span style="color:${travelColor2};">${travelTime2}M</span>
+                  </div>
+                ` : ''}
+                ${hasDist2 ? html`
+                  <div class="matrix-chip clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('distance_2'))} style="cursor:pointer;">
+                    <ha-icon icon="mdi:map-marker" style="--mdc-icon-size:12px;color:#00ff41;"></ha-icon>
+                    <span>${parseFloat(this._distanceFromHome2?.toFixed(distPrecision))}${this._distanceUnit2}</span>
+                  </div>
+                ` : ''}
+              `}
+            </div>
+          ` : ''}
+
+          <!-- Footer -->
+          <div class="matrix-footer-row">
+            <div class="matrix-status-line">SYS::TRACKER v${CARD_VERSION}</div>
+            ${lastChanged ? html`<div class="matrix-status-line" style="color:rgba(0,255,65,.45);">UPD ${lastChanged.toUpperCase()}</div>` : ''}
+          </div>
+        </div>
+      </ha-card>
+    `;
+  }
+
+  _renderOrbitalLayout() {
+    const entity = this.hass.states[this.config.entity];
+    const stateConfig = this._getCurrentStateConfig();
+    const personName = this.config.name || entity.attributes?.friendly_name || 'Person';
+    const displayLocation = stateConfig?.name || this._translateState(entity.state);
+    const geoEntityId = this.config.geocoded_location_entity || (this._resolvedPrefix ? `sensor.${this._resolvedPrefix}_geocoded_location` : null);
+    const entityPicture = stateConfig?.entity_picture || this.config.entity_picture || entity.attributes?.entity_picture;
+
+    const stateAccent = entity.state === 'home' ? '#00d4aa' : entity.state === 'not_home' ? '#b44fff' : '#4a9eff';
+    const accentColor = stateConfig?.styles?.name?.color || stateAccent;
+    const _hexRgb = (hex) => { const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex); return m ? `${parseInt(m[1],16)},${parseInt(m[2],16)},${parseInt(m[3],16)}` : null; };
+    const accentRgb = _hexRgb(accentColor) || '0,212,170';
+
+    const batteryLevel = Math.round(this._batteryLevel);
+    const batteryColor = this._getBatteryColor(this._batteryLevel);
+    const travelTime = Math.round(this._travelTime);
+    const travelTime2 = Math.round(this._travelTime2);
+    const travelColor = this._getTravelTimeColor(travelTime);
+    const travelColor2 = this._getTravelTimeColor(travelTime2);
+    const connectionIcon = this._isWifiConnection(this._connectionType) ? 'mdi:wifi' : 'mdi:signal';
+    const connectionLabel = this._isWifiConnection(this._connectionType) ? 'WiFi' : '4G';
+    const distPrecision = this.config.distance_precision ?? 1;
+
+    const hasDir1 = !!(this.config.travel_sensor || this.config.distance_sensor);
+    const hasDir2 = !!(this.config.travel_sensor_2 || this.config.distance_sensor_2);
+    const isHome = entity.state === 'home';
+    const smartMode = this.config.smart_travel_mode !== false;
+    const zone2Name = this.config.zone_2
+      ? (this.hass.states[this.config.zone_2]?.attributes?.friendly_name || this.config.zone_2.replace('zone.', '').replace(/_/g, ' '))
+      : null;
+    const isZone2 = zone2Name && entity.state.toLowerCase() === zone2Name.toLowerCase();
+    const showDir1 = !smartMode || !hasDir2 || !isZone2;
+    const showDir2 = hasDir2 && (!smartMode || !isHome || !hasDir1);
+    const hasDist1 = showDir1 && this.config.show_distance && this._distanceSensorFound;
+    const hasTravel1 = showDir1 && this.config.show_travel_time && travelTime > 0;
+    const hasDist2 = showDir2 && this.config.show_distance_2 && this._distanceSensorFound2;
+    const hasTravel2 = showDir2 && this.config.show_travel_time_2 && travelTime2 > 0;
+    const pairDir1 = hasDist1 && hasTravel1 && (this.config.pair_travel_animation !== false);
+    const pairDir2 = hasDist2 && hasTravel2 && (this.config.pair_travel_animation !== false);
+
+    const weatherLabel = this._weatherState ? this._t(`weather.${this._weatherState}`) : '';
+    const weatherLine = (this.config.show_weather && this.config.show_weather_temperature !== false && (this._weatherTemp || weatherLabel))
+      ? [this._weatherTemp, weatherLabel].filter(Boolean).join(' · ')
+      : '';
+
+    // Deterministic star positions via seeded PRNG
+    const r = this._rng('orbital_stars');
+    const stars = Array.from({ length: 45 }, () => ({
+      x: r() * 100, y: r() * 100,
+      s: r() * 1.8 + 0.4,
+      d: 2 + r() * 5,
+      dl: r() * 5,
+      a: 0.05 + r() * 0.12,
+      b: 0.25 + r() * 0.5,
+    }));
+
+    // All sensors orbit as satellites (battery/device2 shown on coin back, not in orbit)
+    const showSat2 = this.config.show_connection && !!this._connectionType;
+    const showSat3 = this.config.show_activity && this._activity && this._activity !== 'unknown';
+    const showSat4 = hasDist1 || hasTravel1;
+    const showSat5 = hasDist2 || hasTravel2;
+    const battery2Level = Math.round(this._battery2Level);
+    const batteryColor2 = this._getBatteryColor(this._battery2Level);
+
+    const cardBg = this.config.transparent_background
+      ? 'transparent'
+      : `linear-gradient(160deg,rgba(${accentRgb},0.03) 0%,#05050f 40%,#05050f 100%)`;
+    const cardBorder = this.config.transparent_background ? 'transparent' : `rgba(${accentRgb},0.22)`;
+    const cardShadow = this.config.transparent_background
+      ? 'none'
+      : `0 24px 64px rgba(0,0,0,0.85),0 0 80px rgba(${accentRgb},0.05),inset 0 1px 0 rgba(255,255,255,0.05)`;
+
+    return html`
+      <style>${this._getPairAnimationStyles('orbital')}</style>
+      <ha-card class="${this.config.show_weather && this._weatherState && this.config.show_weather_background !== false ? 'weather-active' : ''}" style="
+        background:${cardBg};
+        border:1px solid ${cardBorder};
+        border-radius:${this.config.card_border_radius};
+        box-shadow:${cardShadow};
+        overflow:hidden;
+        position:relative;
+      ">
+        ${this._renderWeatherBg()}
+
+        <!-- Stars -->
+        ${this.config.show_particles !== false ? html`
+        <div class="orb-stars" aria-hidden="true">
+          ${stars.map(s => html`<div class="orb-star" style="
+            left:${s.x}%;top:${s.y}%;
+            width:${s.s}px;height:${s.s}px;
+            --orb-d:${s.d}s;--orb-dl:-${s.dl}s;
+            --orb-a:${s.a};--orb-b:${s.b};
+          "></div>`)}
+        </div>` : ''}
+
+        <!-- Grid overlay -->
+        <div class="orb-grid" style="background-image:linear-gradient(rgba(${accentRgb},0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(${accentRgb},0.03) 1px,transparent 1px);" aria-hidden="true"></div>
+
+        <!-- Scan sweep -->
+        <div class="orb-scan" style="background:linear-gradient(transparent,rgba(${accentRgb},0.04),transparent);" aria-hidden="true"></div>
+
+        <!-- Content -->
+        <div class="orb-content">
+
+          <!-- Header: name + LIVE -->
+          <div class="orb-header">
+            <div class="orb-name clickable" @click=${() => this._handleTapAction()}
+                 style="text-shadow:0 0 24px rgba(${accentRgb},0.5);">
+              ${this.config.show_person_name ? personName : ''}
+            </div>
+            <div class="orb-live" style="color:rgba(${accentRgb},0.85);border-color:rgba(${accentRgb},0.3);">● LIVE</div>
+          </div>
+
+          <!-- Zone row -->
+          ${this.config.show_name ? html`
+          <div class="orb-zone clickable" @click=${() => this.config.maps_provider && this._gpsLat ? this._openMaps() : this._handleTapAction()}>
+            <div class="orb-zone-dot" style="background:${accentColor};box-shadow:0 0 8px ${accentColor};"></div>
+            <span class="orb-zone-name">${displayLocation}</span>
+          </div>` : ''}
+
+          <!-- ── SPHERE SECTION ── -->
+          <div class="orb-sphere">
+
+            <!-- Pulse rings (expand outward, 3 staggered) -->
+            ${this.config.show_particles !== false ? html`
+            <div class="orb-pulse" style="border-color:rgba(${accentRgb},0.5);"></div>
+            <div class="orb-pulse" style="border-color:rgba(${accentRgb},0.4);animation-delay:1s;"></div>
+            <div class="orb-pulse" style="border-color:rgba(${accentRgb},0.3);animation-delay:2s;"></div>` : ''}
+
+            <!-- Glow halo -->
+            <div class="orb-halo" style="background:radial-gradient(circle,rgba(${accentRgb},0.14) 0%,transparent 70%);"></div>
+
+            <!-- Orbital rings -->
+            <div class="orb-ring orb-ring-1" style="border-color:rgba(${accentRgb},0.32);box-shadow:0 0 10px rgba(${accentRgb},0.08);"></div>
+            <div class="orb-ring orb-ring-2" style="border-color:rgba(${accentRgb},0.18);"></div>
+            <div class="orb-ring orb-ring-3" style="border-color:rgba(${accentRgb},0.1);"></div>
+
+            <!-- Orbiting satellites – connection / activity / travel -->
+            ${showSat2 ? html`
+            <div class="orb-sat orb-sat-2 clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('connection'))}
+                 style="border-color:rgba(0,212,255,0.5);color:#00d4ff;box-shadow:0 0 10px rgba(0,212,255,0.12);">
+              <ha-icon icon="${connectionIcon}" style="--mdc-icon-size:11px;color:#00d4ff;"></ha-icon>
+              <span>${connectionLabel}</span>
+            </div>` : ''}
+            ${showSat3 ? html`
+            <div class="orb-sat orb-sat-3 clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('activity'))}
+                 style="border-color:rgba(180,80,255,0.5);color:#b44fff;box-shadow:0 0 10px rgba(180,80,255,0.12);">
+              <ha-icon icon="${this._activityIcon || 'mdi:run'}" style="--mdc-icon-size:11px;color:#b44fff;"></ha-icon>
+              <span>${this._activity}</span>
+            </div>` : ''}
+            ${showSat4 ? html`
+            <div class="orb-sat orb-sat-4" style="overflow:hidden;border-color:rgba(0,212,255,0.5);">
+              ${pairDir1 ? html`
+                <div class="pair-a-orbital" style="display:flex;align-items:center;gap:4px;color:#00d4ff;"
+                     @click=${() => this._showMoreInfo(this._getSensorEntityId('distance'))}>
+                  <ha-icon icon="${this._distanceIcon || 'mdi:map-marker-distance'}" style="--mdc-icon-size:11px;"></ha-icon>
+                  <span>${parseFloat(this._distanceFromHome.toFixed(distPrecision))} ${this._distanceUnit}</span>
+                </div>
+                <div class="pair-b-orbital" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:4px;color:${travelColor};"
+                     @click=${() => this._showMoreInfo(this._getSensorEntityId('travel'))}>
+                  <ha-icon icon="${this._travelIcon || 'mdi:car-clock'}" style="--mdc-icon-size:11px;"></ha-icon>
+                  <span>${travelTime} min</span>
+                </div>
+              ` : hasDist1 ? html`
+                <ha-icon icon="${this._distanceIcon || 'mdi:map-marker-distance'}" style="--mdc-icon-size:11px;color:#00d4ff;"></ha-icon>
+                <span style="color:#00d4ff;">${parseFloat(this._distanceFromHome.toFixed(distPrecision))} ${this._distanceUnit}</span>
+              ` : html`
+                <ha-icon icon="${this._travelIcon || 'mdi:car-clock'}" style="--mdc-icon-size:11px;color:${travelColor};"></ha-icon>
+                <span style="color:${travelColor};">${travelTime} min</span>
+              `}
+            </div>` : ''}
+            ${showSat5 ? html`
+            <div class="orb-sat orb-sat-5" style="overflow:hidden;border-color:rgba(0,212,255,0.45);">
+              ${pairDir2 ? html`
+                <div class="pair-a-orbital" style="display:flex;align-items:center;gap:4px;color:#00d4ff;"
+                     @click=${() => this._showMoreInfo(this._getSensorEntityId('distance_2'))}>
+                  <ha-icon icon="${this._distanceIcon2 || 'mdi:map-marker-distance'}" style="--mdc-icon-size:11px;"></ha-icon>
+                  <span>${parseFloat(this._distanceFromHome2.toFixed(distPrecision))} ${this._distanceUnit2}</span>
+                </div>
+                <div class="pair-b-orbital" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:4px;color:${travelColor2};"
+                     @click=${() => this._showMoreInfo(this._getSensorEntityId('travel_2'))}>
+                  <ha-icon icon="${this._travelIcon2 || 'mdi:car-clock'}" style="--mdc-icon-size:11px;"></ha-icon>
+                  <span>${travelTime2} min</span>
+                </div>
+              ` : hasDist2 ? html`
+                <ha-icon icon="${this._distanceIcon2 || 'mdi:map-marker-distance'}" style="--mdc-icon-size:11px;color:#00d4ff;"></ha-icon>
+                <span style="color:#00d4ff;">${parseFloat(this._distanceFromHome2.toFixed(distPrecision))} ${this._distanceUnit2}</span>
+              ` : html`
+                <ha-icon icon="${this._travelIcon2 || 'mdi:car-clock'}" style="--mdc-icon-size:11px;color:${travelColor2};"></ha-icon>
+                <span style="color:${travelColor2};">${travelTime2} min</span>
+              `}
+            </div>` : ''}
+            <!-- 3D Coin (front=photo, back=batteries) -->
+            <div class="orb-coin">
+              <!-- Front face: entity picture -->
+              <div class="orb-face orb-front clickable" @click=${() => this._handleTapAction()}
+                   style="border-color:${accentColor};box-shadow:0 0 0 4px rgba(${accentRgb},0.12),0 0 32px rgba(${accentRgb},0.3);">
+                ${this.config.show_entity_picture && entityPicture
+                  ? html`<img src="${entityPicture}" alt="${personName}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">`
+                  : html`<span style="font-size:46px;line-height:1;">👤</span>`}
+              </div>
+              <!-- Back face: battery levels -->
+              <div class="orb-face orb-back" style="border-color:rgba(${accentRgb},0.45);box-shadow:0 0 20px rgba(${accentRgb},0.15);">
+                ${batteryLevel > 0 ? html`
+                <div class="orb-back-bat clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('battery'))}>
+                  <ha-icon icon="mdi:cellphone" style="--mdc-icon-size:11px;color:${batteryColor};"></ha-icon>
+                  <span style="color:${batteryColor};">${batteryLevel}%</span>
+                </div>` : ''}
+                ${this._watchBatteryLevel > 0 ? html`
+                <div class="orb-back-bat clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('watch_battery'))}>
+                  <ha-icon icon="mdi:watch" style="--mdc-icon-size:11px;color:${this._getBatteryColor(this._watchBatteryLevel)};"></ha-icon>
+                  <span style="color:${this._getBatteryColor(this._watchBatteryLevel)};">${Math.round(this._watchBatteryLevel)}%</span>
+                </div>` : ''}
+                ${battery2Level > 0 ? html`
+                <div class="orb-back-bat clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('device_2_battery'))}>
+                  <ha-icon icon="${this._getDeviceIcon(this._resolvedPrefix2 || this.config.device_2_prefix)}" style="--mdc-icon-size:11px;color:${batteryColor2};"></ha-icon>
+                  <span style="color:${batteryColor2};">${battery2Level}%</span>
+                </div>` : ''}
+                <span class="orb-back-lbl" style="margin-top:3px;">batteries</span>
+              </div>
+            </div>
+
+          </div>
+          <!-- ── END SPHERE ── -->
+
+          <!-- Last changed -->
+          ${this.config.show_last_changed ? html`
+          <div class="orb-last-changed" style="${this.config.last_changed_color ? `color:${this.config.last_changed_color};` : `color:rgba(${accentRgb},0.4);`}">
+            ${this._getRelativeTime(entity.last_changed)}
+          </div>` : ''}
+
+          <!-- Geocoded address -->
+          ${this.config.show_geocoded_location && entity.state !== 'home' && this._geocodedLocation ? html`
+          <div class="orb-geo clickable" @click=${() => this._showMoreInfo(geoEntityId)}
+               style="border-color:rgba(${accentRgb},0.12);background:rgba(${accentRgb},0.04);">
+            ${this._renderGeocoded(geoEntityId, `font-size:10px;color:rgba(${accentRgb},0.55);text-align:center;`)}
+          </div>` : ''}
+
+          <!-- ── WEATHER FOOTER ── -->
+          ${weatherLine ? html`
+          <div class="orb-weather">
+            <span class="clickable" @click=${() => this._showMoreInfo(this.config.weather_entity)}
+                  style="${this.config.weather_text_color ? `color:${this.config.weather_text_color};` : ''}">
+              ${this._weatherIcon ? html`<ha-icon icon="${this._weatherIcon}" style="--mdc-icon-size:14px;vertical-align:middle;margin-right:3px;"></ha-icon>` : ''}
+              ${weatherLine}
+            </span>
+          </div>` : ''}
+
+        </div><!-- /orb-content -->
+      </ha-card>
+    `;
+  }
+
+  _renderInkLayout() {
+    const entity = this.hass.states[this.config.entity];
+    const stateConfig = this._getCurrentStateConfig();
+    const personName = this.config.name || entity.attributes?.friendly_name || 'Person';
+    const displayLocation = stateConfig?.name || this._translateState(entity.state);
+    const geoEntityId = this.config.geocoded_location_entity || (this._resolvedPrefix ? `sensor.${this._resolvedPrefix}_geocoded_location` : null);
+    const entityPicture = stateConfig?.entity_picture || this.config.entity_picture || entity.attributes?.entity_picture;
+
+    // Default ink accents: green=home, violet=away, navy=zone — overridden by custom state color
+    const stateAccent = entity.state === 'home' ? '#2563eb' : entity.state === 'not_home' ? '#7c3aed' : '#0f766e';
+    const accentColor = stateConfig?.styles?.name?.color || stateAccent;
+    const _hexRgb = (hex) => { const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex); return m ? `${parseInt(m[1],16)},${parseInt(m[2],16)},${parseInt(m[3],16)}` : null; };
+    const accentRgb = _hexRgb(accentColor) || '45,106,79';
+
+    const batteryLevel = Math.round(this._batteryLevel);
+    const batteryColor = this._getBatteryColor(this._batteryLevel);
+    const battery2Level = Math.round(this._battery2Level);
+    const batteryColor2 = this._getBatteryColor(this._battery2Level);
+    const travelTime = Math.round(this._travelTime);
+    const travelTime2 = Math.round(this._travelTime2);
+    const connectionIcon = this._isWifiConnection(this._connectionType) ? 'mdi:wifi' : 'mdi:signal';
+    const connectionLabel = this._isWifiConnection(this._connectionType) ? 'WiFi' : '4G';
+    const distPrecision = this.config.distance_precision ?? 1;
+
+    const hasDir1 = !!(this.config.travel_sensor || this.config.distance_sensor);
+    const hasDir2 = !!(this.config.travel_sensor_2 || this.config.distance_sensor_2);
+    const isHome = entity.state === 'home';
+    const smartMode = this.config.smart_travel_mode !== false;
+    const zone2Name = this.config.zone_2
+      ? (this.hass.states[this.config.zone_2]?.attributes?.friendly_name || this.config.zone_2.replace('zone.', '').replace(/_/g, ' '))
+      : null;
+    const isZone2 = zone2Name && entity.state.toLowerCase() === zone2Name.toLowerCase();
+    const showDir1 = !smartMode || !hasDir2 || !isZone2;
+    const showDir2 = hasDir2 && (!smartMode || !isHome || !hasDir1);
+    const hasDist1 = showDir1 && this.config.show_distance && this._distanceSensorFound;
+    const hasTravel1 = showDir1 && this.config.show_travel_time && travelTime > 0;
+    const hasDist2 = showDir2 && this.config.show_distance_2 && this._distanceSensorFound2;
+    const hasTravel2 = showDir2 && this.config.show_travel_time_2 && travelTime2 > 0;
+    const pairDir1 = hasDist1 && hasTravel1 && (this.config.pair_travel_animation !== false);
+    const pairDir2 = hasDist2 && hasTravel2 && (this.config.pair_travel_animation !== false);
+
+    const weatherLabel = this._weatherState ? this._t(`weather.${this._weatherState}`) : '';
+    const weatherLine = (this.config.show_weather && this.config.show_weather_temperature !== false && (this._weatherTemp || weatherLabel))
+      ? [this._weatherTemp, weatherLabel].filter(Boolean).join(' · ')
+      : '';
+
+    // Zone icon from HA zone entity
+    const zoneEntity = entity.state !== 'home' && entity.state !== 'not_home'
+      ? (this.hass.states[`zone.${entity.state}`] || null) : null;
+    const zoneHaIcon = zoneEntity?.attributes?.icon
+      || (entity.state === 'home' ? 'mdi:home' : entity.state === 'not_home' ? 'mdi:map-marker-off' : 'mdi:map-marker');
+
+    const cardBg = this.config.transparent_background ? 'transparent' : '#ffffff';
+    const hasWeather = !!(this.config.show_weather && this._weatherState && this.config.show_weather_background !== false);
+
+    return html`
+      <style>${this._getPairAnimationStyles('ink')}</style>
+      <ha-card class="${hasWeather ? 'weather-active' : ''}" style="
+        --ha-card-background:${cardBg};
+        background:${cardBg};
+        --ink-accent:${accentColor};
+        --ink-accent-rgb:${accentRgb};
+        border:none;
+        border-radius:${this.config.card_border_radius || '20px'};
+        box-shadow:${this.config.transparent_background ? 'none' : '0 8px 32px rgba(0,0,0,0.12),0 2px 8px rgba(0,0,0,0.06)'};
+        overflow:hidden;position:relative;
+      ">
+        ${this._renderWeatherBg()}
+
+        <!-- Main content wrapper -->
+        <div class="ink-main">
+
+          <!-- ── TOP ROW: photo | info | battery panel ── -->
+          <div class="ink-top">
+
+            <!-- Photo -->
+            <div class="ink-photo-wrap clickable" @click=${() => this._handleTapAction()}>
+              <div class="ink-photo">
+                ${this.config.show_entity_picture && entityPicture
+                  ? html`<img src="${entityPicture}" alt="${personName}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">`
+                  : html`<span style="font-size:38px;line-height:1;">👤</span>`}
+              </div>
+            </div>
+
+            <!-- Name + zone + last changed -->
+            <div class="ink-info">
+              ${this.config.show_person_name ? html`
+              <div class="ink-name clickable" @click=${() => this._handleTapAction()}
+                   style="${this.config.name_font_size ? `font-size:${this.config.name_font_size};` : ''}color:#111827;">
+                ${personName}
+              </div>` : ''}
+
+              ${this.config.show_name || this.config.show_last_changed ? html`
+              <div class="ink-meta">
+                ${this.config.show_name ? html`
+                <span class="ink-zone clickable"
+                      @click=${() => this.config.maps_provider && this._gpsLat ? this._openMaps() : this._handleTapAction()}
+                      style="color:#4b5563;${this.config.maps_provider && this._gpsLat ? 'cursor:pointer;' : ''}">
+                  <ha-icon icon="${zoneHaIcon}" style="--mdc-icon-size:13px;color:#9ca3af;vertical-align:middle;margin-right:2px;"></ha-icon>${displayLocation}
+                </span>` : ''}
+                ${this.config.show_name && this.config.show_last_changed ? html`<span class="ink-meta-sep">·</span>` : ''}
+                ${this.config.show_last_changed ? html`
+                <span class="ink-time" style="${this.config.last_changed_color ? `color:${this.config.last_changed_color};` : 'color:#6b7280;'}">
+                  ${this._getRelativeTime(entity.last_changed)}
+                </span>` : ''}
+              </div>` : ''}
+
+              <!-- Geocoded address (below meta line) -->
+              ${this.config.show_geocoded_location !== false && entity.state !== 'home' && this._geocodedLocation ? html`
+              <div class="ink-geo clickable"
+                   @click=${() => this.config.maps_provider && this._gpsLat ? this._openMaps() : this._showMoreInfo(geoEntityId)}
+                   style="${this.config.maps_provider && this._gpsLat ? 'cursor:pointer;' : ''}">
+                ${this._renderGeocoded(geoEntityId, `font-size:10px;color:#9ca3af;`)}
+              </div>` : ''}
+            </div>
+
+            <!-- Battery panel: icon + % + connection/device2 -->
+            ${this.config.show_battery && batteryLevel > 0 ? html`
+            <div class="ink-bat-panel clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('battery'))}>
+              <ha-icon icon="${this._batteryIcon || 'mdi:battery'}" style="--mdc-icon-size:22px;color:${batteryColor};${this._batteryCharging ? 'filter:drop-shadow(0 0 4px rgba(76,175,80,0.6));' : ''}"></ha-icon>
+              <div class="ink-bat-pct" style="color:${batteryColor};">${batteryLevel}%</div>
+              ${this.config.show_connection && this._connectionType ? html`
+              <div class="ink-bat-conn" @click=${(e) => { e.stopPropagation(); this._showMoreInfo(this._getSensorEntityId('connection')); }}>
+                <ha-icon icon="${connectionIcon}" style="--mdc-icon-size:10px;color:#9ca3af;margin-right:1px;vertical-align:middle;"></ha-icon>${connectionLabel}
+              </div>` : ''}
+            </div>` : html`
+            ${this.config.show_connection && this._connectionType ? html`
+            <div class="ink-bat-panel clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('connection'))}>
+              <ha-icon icon="${connectionIcon}" style="--mdc-icon-size:22px;color:${accentColor};"></ha-icon>
+              <div class="ink-bat-pct" style="color:${accentColor};">${connectionLabel}</div>
+            </div>` : ''}`}
+          </div><!-- /ink-top -->
+
+          <!-- ── ACCENT SEPARATOR ── -->
+          <div class="ink-sep"></div>
+
+          <!-- ── CHIPS ROW ── -->
+          <div class="ink-chips">
+            <!-- Watch battery -->
+            ${this.config.show_watch_battery && this._watchBatteryLevel > 0 ? html`
+            <div class="ink-chip clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('watch_battery'))}>
+              <ha-icon icon="mdi:watch" style="--mdc-icon-size:13px;color:${this._getBatteryColor(this._watchBatteryLevel)};"></ha-icon>
+              <span>${Math.round(this._watchBatteryLevel)}%</span>
+              ${this._watchCharging ? html`<ha-icon icon="mdi:lightning-bolt" style="--mdc-icon-size:9px;color:#4caf50;"></ha-icon>` : ''}
+            </div>` : ''}
+
+            <!-- Device 2 battery -->
+            ${this.config.show_device_2_battery !== false && battery2Level > 0 ? html`
+            <div class="ink-chip clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('device_2_battery'))}>
+              <ha-icon icon="${this._getDeviceIcon(this._resolvedPrefix2 || this.config.device_2_prefix)}" style="--mdc-icon-size:13px;color:${batteryColor2};"></ha-icon>
+              <span>${battery2Level}%</span>
+            </div>` : ''}
+
+            <!-- Travel dir 1 -->
+            ${(hasDist1 || hasTravel1) ? html`
+            <div class="ink-chip sensor-pair-ink">
+              ${pairDir1 ? html`
+                <div class="pair-a-ink" @click=${() => this._showMoreInfo(this._getSensorEntityId('travel'))}>
+                  <ha-icon icon="${this._travelIcon || 'mdi:home-clock'}" style="--mdc-icon-size:13px;color:#6b7280;"></ha-icon>
+                  <span>${travelTime} min</span>
+                </div>
+                <div class="pair-b-ink" @click=${() => this._showMoreInfo(this._getSensorEntityId('distance'))}>
+                  <ha-icon icon="${this._distanceIcon || 'mdi:map-marker-distance'}" style="--mdc-icon-size:13px;color:#6b7280;"></ha-icon>
+                  <span>${parseFloat(this._distanceFromHome.toFixed(distPrecision))} ${this._distanceUnit}</span>
+                </div>
+              ` : hasDist1 ? html`
+                <ha-icon icon="${this._distanceIcon || 'mdi:map-marker-distance'}" style="--mdc-icon-size:13px;color:#6b7280;"></ha-icon>
+                <span>${parseFloat(this._distanceFromHome.toFixed(distPrecision))} ${this._distanceUnit}</span>
+              ` : html`
+                <ha-icon icon="${this._travelIcon || 'mdi:home-clock'}" style="--mdc-icon-size:13px;color:#6b7280;"></ha-icon>
+                <span>${travelTime} min</span>
+              `}
+            </div>` : ''}
+
+            <!-- Travel dir 2 -->
+            ${(hasDist2 || hasTravel2) ? html`
+            <div class="ink-chip sensor-pair-ink">
+              ${pairDir2 ? html`
+                <div class="pair-a-ink" @click=${() => this._showMoreInfo(this._getSensorEntityId('travel_2'))}>
+                  <ha-icon icon="${this._travelIcon2 || 'mdi:office-building-marker'}" style="--mdc-icon-size:13px;color:#6b7280;"></ha-icon>
+                  <span>${travelTime2} min</span>
+                </div>
+                <div class="pair-b-ink" @click=${() => this._showMoreInfo(this._getSensorEntityId('distance_2'))}>
+                  <ha-icon icon="${this._distanceIcon2 || 'mdi:map-marker-distance'}" style="--mdc-icon-size:13px;color:#6b7280;"></ha-icon>
+                  <span>${parseFloat(this._distanceFromHome2.toFixed(distPrecision))} ${this._distanceUnit2}</span>
+                </div>
+              ` : hasDist2 ? html`
+                <ha-icon icon="${this._distanceIcon2 || 'mdi:map-marker-distance'}" style="--mdc-icon-size:13px;color:#6b7280;"></ha-icon>
+                <span>${parseFloat(this._distanceFromHome2.toFixed(distPrecision))} ${this._distanceUnit2}</span>
+              ` : html`
+                <ha-icon icon="${this._travelIcon2 || 'mdi:office-building-marker'}" style="--mdc-icon-size:13px;color:#6b7280;"></ha-icon>
+                <span>${travelTime2} min</span>
+              `}
+            </div>` : ''}
+
+            <!-- Activity -->
+            ${this.config.show_activity && this._activity && this._activity !== 'unknown' ? html`
+            <div class="ink-chip clickable" @click=${() => this._showMoreInfo(this._getSensorEntityId('activity'))}>
+              <ha-icon icon="${this._activityIcon || 'mdi:run'}" style="--mdc-icon-size:13px;color:#6b7280;"></ha-icon>
+              <span>${this._activity}</span>
+            </div>` : ''}
+          </div><!-- /ink-chips -->
+
+          <!-- ── WEATHER FOOTER ── -->
+          ${weatherLine ? html`
+          <div class="ink-weather-row">
+            <span class="ink-weather clickable" @click=${() => this._showMoreInfo(this.config.weather_entity)}
+                  style="${this.config.weather_text_color ? `color:${this.config.weather_text_color};` : 'color:#6b7280;'}">
+              ${this._weatherIcon ? html`<ha-icon icon="${this._weatherIcon}" style="--mdc-icon-size:14px;vertical-align:middle;margin-right:3px;"></ha-icon>` : ''}
+              ${weatherLine}
+            </span>
+            ${this.config.show_last_changed && !this.config.show_name ? html`
+            <span style="color:#6b7280;font-size:10px;">${this._getRelativeTime(entity.last_changed)}</span>` : ''}
+          </div>` : ''}
+
+        </div><!-- /ink-main -->
       </ha-card>
     `;
   }
@@ -3585,12 +4421,14 @@ class PersonTrackerCard extends LitElement {
 
       .compact-location {
         grid-area: location;
-        justify-self: start;
+        justify-self: stretch;
         align-self: start;
         font-size: 10px;
         margin: 0;
         padding: 0;
         margin-bottom: 3px;
+        min-width: 0;
+        overflow: hidden;
       }
 
       .compact-icons {
@@ -3641,6 +4479,11 @@ class PersonTrackerCard extends LitElement {
         color: #fff !important;
         text-shadow: 0 1px 6px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.8);
       }
+      .weather-active .geo-marquee-outer,
+      .weather-active .geo-marquee-inner {
+        text-shadow: 0 1px 6px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.8);
+        color: rgba(255,255,255,0.75) !important;
+      }
       .weather-active .entity-last-changed {
         color: #fff;
         text-shadow: 0 1px 6px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.8);
@@ -3673,6 +4516,44 @@ class PersonTrackerCard extends LitElement {
         -webkit-backdrop-filter: blur(4px);
         color: #fff !important;
         border-color: rgba(255,255,255,0.15) !important;
+      }
+
+      /* ── Glass weather contrast ── */
+      .weather-active .glass-name,
+      .weather-active .glass-zone-text,
+      .weather-active .glass-time {
+        text-shadow: 0 1px 6px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.8);
+        color: #fff !important;
+      }
+      .weather-active .glass-chip {
+        background: rgba(0,0,0,0.5) !important;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+      }
+
+      /* ── Bio weather contrast ── */
+      .weather-active .bio-name,
+      .weather-active .bio-zone {
+        text-shadow: 0 1px 6px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.8);
+        color: #fff !important;
+      }
+      .weather-active .bio-chip {
+        background: rgba(0,0,0,0.5) !important;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+      }
+
+      /* ── Holo weather contrast ── */
+      .weather-active .holo-name {
+        text-shadow: 0 1px 8px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.8) !important;
+        color: #fff !important;
+      }
+      .weather-active .holo-loc,
+      .weather-active .holo-sub {
+        text-shadow: 0 1px 6px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.8);
+      }
+      .weather-active .holo-metric {
+        text-shadow: 0 1px 6px rgba(0,0,0,0.9);
       }
 
       /* Modern Layout Styles */
@@ -4156,6 +5037,7 @@ class PersonTrackerCard extends LitElement {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
+        align-items: center;
         gap: 6px;
         width: 100%;
         padding-top: 10px;
@@ -4693,6 +5575,369 @@ class PersonTrackerCard extends LitElement {
       }
       .wx-footer-text { font-size: 11px; color: rgba(255,255,255,0.4); flex: 1; }
       .wx-updated { font-size: 10px; color: rgba(255,255,255,0.2); }
+
+      /* ── Matrix Rain layout ── */
+      @keyframes matrix-fall { 0%{transform:translateY(-150%)} 100%{transform:translateY(220%)} }
+      @keyframes matrix-scan { 0%{top:-35%;opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{top:120%;opacity:0} }
+      @keyframes matrix-blink { 50%{opacity:0} }
+      .matrix-content {
+        position: relative; z-index: 2;
+        padding: 16px 16px 12px;
+        display: flex; flex-direction: column; gap: 10px;
+      }
+      .matrix-person-row { display: flex; align-items: center; gap: 13px; }
+      .matrix-avatar-box {
+        width: 52px; height: 52px; border-radius: 4px;
+        background: #000; border: 1px solid #00ff41;
+        display: flex; align-items: center; justify-content: center; font-size: 26px;
+        box-shadow: 0 0 14px rgba(0,255,65,.45), inset 0 0 10px rgba(0,255,65,.08);
+        position: relative; overflow: hidden; flex-shrink: 0;
+      }
+      .matrix-avatar-scanlines {
+        position: absolute; inset: 0; pointer-events: none;
+        background: repeating-linear-gradient(transparent 0px,transparent 2px,rgba(0,255,65,.04) 2px,rgba(0,255,65,.04) 4px);
+      }
+      .matrix-avatar-scan {
+        position: absolute; top: -35%; left: 0; right: 0; height: 35%;
+        background: rgba(0,255,65,.18);
+        animation: matrix-scan 3s linear infinite;
+      }
+      .matrix-name {
+        color: #00ff41; font-size: 15px; font-weight: 700;
+        text-shadow: 0 0 10px #00ff41; letter-spacing: 2px;
+      }
+      .matrix-state { color: rgba(0,255,65,.5); font-size: 10px; margin-top: 2px; letter-spacing: 1px; }
+      .matrix-last-changed { color: rgba(0,255,65,.3); font-size: 9px; margin-top: 1px; letter-spacing: 1px; }
+      .matrix-divider { border: none; border-top: 1px solid rgba(0,255,65,.18); margin: 2px 0; }
+      .matrix-stats { display: flex; gap: 14px; flex-wrap: wrap; }
+      .matrix-stat-block { display: flex; flex-direction: column; gap: 3px; min-width: 52px; }
+      .matrix-stat-label { color: rgba(0,255,65,.38); font-size: 8px; letter-spacing: 2px; }
+      .matrix-stat-val { color: #00ff41; font-size: 13px; font-weight: 700; text-shadow: 0 0 8px #00ff41; letter-spacing: 1px; }
+      .matrix-stat-bar { height: 2px; background: rgba(0,255,65,.1); border-radius: 1px; width: 100%; margin-top: 2px; }
+      .matrix-stat-bar-fill { height: 100%; background: #00ff41; border-radius: 1px; box-shadow: 0 0 6px #00ff41; }
+      .matrix-chips-row { display: flex; gap: 7px; flex-wrap: wrap; }
+      .matrix-chip {
+        display: flex; align-items: center; gap: 5px;
+        padding: 4px 9px; border-radius: 3px;
+        background: rgba(0,255,65,.07); border: 1px solid rgba(0,255,65,.22);
+        font-size: 10px; color: #00ff41; letter-spacing: 1px;
+        text-shadow: 0 0 6px #00ff41; font-family: inherit;
+        position: relative; overflow: hidden;
+      }
+      .matrix-footer-row {
+        display: flex; justify-content: space-between; align-items: center;
+        border-top: 1px solid rgba(0,255,65,.1); padding-top: 8px; margin-top: 2px;
+      }
+      .matrix-status-line { color: rgba(0,255,65,.28); font-size: 9px; letter-spacing: 1.5px; }
+
+      /* ══════════════════════════════
+         Orbital Layout
+      ══════════════════════════════ */
+      .orb-stars { position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden; }
+      .orb-star {
+        position:absolute;border-radius:50%;background:#fff;
+        animation:orb-twinkle var(--orb-d,3s) ease-in-out infinite var(--orb-dl,0s);
+      }
+      @keyframes orb-twinkle {
+        0%,100%{opacity:var(--orb-a,.08);transform:scale(1)}
+        50%{opacity:var(--orb-b,.45);transform:scale(1.3)}
+      }
+      .orb-grid {
+        position:absolute;inset:0;background-size:28px 28px;
+        pointer-events:none;z-index:0;opacity:0.7;
+      }
+      .orb-scan {
+        position:absolute;left:0;right:0;height:35%;
+        animation:orb-sweep 9s ease-in-out infinite;
+        pointer-events:none;z-index:1;
+      }
+      @keyframes orb-sweep { 0%{top:-35%} 100%{top:120%} }
+
+      .orb-content { position:relative;z-index:10;padding:12px 14px 10px; }
+
+      /* Header */
+      .orb-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:3px; }
+      .orb-name {
+        font-size:20px;font-weight:800;letter-spacing:2px;
+        color:#fff;text-transform:uppercase;cursor:pointer;
+      }
+      .orb-live {
+        font-size:7px;font-weight:800;letter-spacing:2px;
+        border:1px solid;border-radius:6px;padding:2px 6px;
+        animation:orb-live-blink 2s ease-in-out infinite;
+      }
+      @keyframes orb-live-blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+      .orb-zone { display:flex;align-items:center;gap:6px;margin-bottom:2px;cursor:pointer; }
+      .orb-zone-dot {
+        width:7px;height:7px;border-radius:50%;flex-shrink:0;
+        animation:orb-dot-pulse 2.2s ease-in-out infinite;
+      }
+      @keyframes orb-dot-pulse {
+        0%,100%{transform:scale(1)} 50%{transform:scale(1.5)}
+      }
+      .orb-zone-name { font-size:10px;letter-spacing:3px;color:rgba(255,255,255,0.38);text-transform:uppercase; }
+
+      /* Sphere */
+      .orb-sphere {
+        position:relative;height:192px;
+        display:flex;align-items:center;justify-content:center;
+        perspective:600px;
+        margin:4px 0 2px;
+      }
+
+      /* Orbital rings */
+      .orb-ring {
+        position:absolute;border-radius:50%;border:1px solid;pointer-events:none;
+      }
+      .orb-ring-1 {
+        width:182px;height:182px;
+        animation:orb-ring1 14s linear infinite;
+      }
+      .orb-ring-2 {
+        width:155px;height:155px;
+        animation:orb-ring2 10s linear infinite reverse;
+      }
+      .orb-ring-3 {
+        width:213px;height:213px;
+        animation:orb-ring3 19s linear infinite;
+      }
+      @keyframes orb-ring1 {
+        from{transform:rotateX(72deg) rotateZ(0deg)} to{transform:rotateX(72deg) rotateZ(360deg)}
+      }
+      @keyframes orb-ring2 {
+        from{transform:rotateX(68deg) rotateZ(60deg)} to{transform:rotateX(68deg) rotateZ(-300deg)}
+      }
+      @keyframes orb-ring3 {
+        from{transform:rotateX(64deg) rotateZ(120deg)} to{transform:rotateX(64deg) rotateZ(480deg)}
+      }
+
+      /* Halo glow */
+      .orb-halo {
+        position:absolute;width:152px;height:152px;border-radius:50%;
+        animation:orb-halo-pulse 3s ease-in-out infinite;pointer-events:none;
+      }
+      @keyframes orb-halo-pulse {
+        0%,100%{transform:scale(1);opacity:0.7} 50%{transform:scale(1.12);opacity:1}
+      }
+
+      /* Pulse rings */
+      .orb-pulse {
+        position:absolute;width:128px;height:128px;border-radius:50%;
+        border:1.5px solid;pointer-events:none;
+        animation:orb-pulse-expand 3s ease-out infinite;
+      }
+      @keyframes orb-pulse-expand {
+        0%{transform:scale(1);opacity:0.55} 100%{transform:scale(2.3);opacity:0}
+      }
+
+      /* 3D Coin */
+      .orb-coin {
+        position:relative;z-index:10;width:128px;height:128px;
+        transform-style:preserve-3d;
+        animation:orb-coin-spin 10s linear infinite;
+      }
+      @keyframes orb-coin-spin {
+        from{transform:perspective(600px) rotateY(0deg)}
+        to{transform:perspective(600px) rotateY(360deg)}
+      }
+      .orb-face {
+        position:absolute;inset:0;border-radius:50%;
+        backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;
+      }
+      .orb-front {
+        border:2px solid;
+        display:flex;align-items:center;justify-content:center;
+        background:linear-gradient(135deg,rgba(10,10,30,1),rgba(20,20,50,1));
+      }
+      .orb-back {
+        transform:rotateY(180deg);
+        background:rgba(4,4,18,0.97);
+        border:2px solid rgba(0,212,255,0.45);
+        box-shadow:0 0 20px rgba(0,212,255,0.15);
+        display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+      }
+      .orb-back-bat {
+        display:flex;align-items:center;gap:5px;
+        font-size:11px;font-weight:700;font-family:'Courier New',monospace;
+        cursor:pointer;
+      }
+      .orb-back-lbl { font-size:7px;letter-spacing:2px;text-transform:uppercase;opacity:0.35;color:#fff; }
+
+      /* Satellites */
+      .orb-sat {
+        position:absolute;top:50%;left:50%;
+        display:flex;align-items:center;gap:4px;
+        background:rgba(0,0,0,0.82);border:1px solid;border-radius:20px;
+        padding:4px 8px;font-size:10px;font-weight:700;
+        white-space:nowrap;backdrop-filter:blur(4px);cursor:pointer;
+        overflow:hidden;
+      }
+      .orb-sat-1 { animation:orb-sat-a 14s linear infinite; }
+      .orb-sat-2 { animation:orb-sat-b 10s linear infinite reverse; }
+      .orb-sat-3 { animation:orb-sat-c 19s linear infinite; }
+      .orb-sat-4 { animation:orb-sat-d 16s linear infinite; }
+      .orb-sat-5 { animation:orb-sat-e 13s linear infinite reverse; }
+      .orb-sat-6 { animation:orb-sat-f 17s linear infinite; }
+      @keyframes orb-sat-a {
+        0%{transform:translate(-50%,-50%) rotate(0deg) translateX(90px) rotate(0deg);opacity:1}
+        42%{opacity:1} 50%{opacity:0} 58%{opacity:0}
+        100%{transform:translate(-50%,-50%) rotate(360deg) translateX(90px) rotate(-360deg);opacity:1}
+      }
+      @keyframes orb-sat-b {
+        0%{transform:translate(-50%,-50%) rotate(120deg) translateX(78px) rotate(-120deg);opacity:1}
+        42%{opacity:1} 50%{opacity:0} 58%{opacity:0}
+        100%{transform:translate(-50%,-50%) rotate(-240deg) translateX(78px) rotate(240deg);opacity:1}
+      }
+      @keyframes orb-sat-c {
+        0%{transform:translate(-50%,-50%) rotate(240deg) translateX(100px) rotate(-240deg);opacity:1}
+        42%{opacity:1} 50%{opacity:0} 58%{opacity:0}
+        100%{transform:translate(-50%,-50%) rotate(600deg) translateX(100px) rotate(-600deg);opacity:1}
+      }
+      @keyframes orb-sat-d {
+        0%{transform:translate(-50%,-50%) rotate(60deg) translateX(84px) rotate(-60deg);opacity:1}
+        42%{opacity:1} 50%{opacity:0} 58%{opacity:0}
+        100%{transform:translate(-50%,-50%) rotate(420deg) translateX(84px) rotate(-420deg);opacity:1}
+      }
+      @keyframes orb-sat-e {
+        0%{transform:translate(-50%,-50%) rotate(180deg) translateX(96px) rotate(-180deg);opacity:1}
+        42%{opacity:1} 50%{opacity:0} 58%{opacity:0}
+        100%{transform:translate(-50%,-50%) rotate(-180deg) translateX(96px) rotate(180deg);opacity:1}
+      }
+      @keyframes orb-sat-f {
+        0%{transform:translate(-50%,-50%) rotate(300deg) translateX(76px) rotate(-300deg);opacity:1}
+        42%{opacity:1} 50%{opacity:0} 58%{opacity:0}
+        100%{transform:translate(-50%,-50%) rotate(660deg) translateX(76px) rotate(-660deg);opacity:1}
+      }
+
+      /* Last changed */
+      .orb-last-changed {
+        font-size:9px;text-align:center;letter-spacing:0.5px;
+        margin-bottom:4px;
+      }
+
+      /* Geocoded strip */
+      .orb-geo {
+        border:1px solid;border-radius:10px;
+        padding:5px 10px;margin-bottom:6px;
+        overflow:hidden;text-align:center;cursor:pointer;
+      }
+
+      /* Weather footer */
+      .orb-weather {
+        text-align:center;font-size:11px;
+        color:rgba(255,255,255,0.38);
+        padding-top:8px;
+        border-top:1px solid rgba(255,255,255,0.04);
+        cursor:pointer;
+      }
+
+      /* Weather contrast when bg active */
+      .weather-active .orb-name,
+      .weather-active .orb-zone-name {
+        text-shadow:0 1px 6px rgba(0,0,0,0.9),0 0 14px rgba(0,0,0,0.8);
+        color:#fff !important;
+      }
+      .weather-active .orb-sat {
+        background:rgba(0,0,0,0.85) !important;
+      }
+
+      /* ── LIQUID INK LAYOUT ── */
+      .ink-main {
+        position:relative;z-index:1;
+        padding:14px 16px 12px;
+        display:flex;flex-direction:column;gap:10px;
+        transform:translateZ(0);
+      }
+      .ink-top {
+        display:flex;align-items:center;gap:12px;
+      }
+      .ink-photo-wrap { flex-shrink:0;cursor:pointer; }
+      .ink-photo {
+        width:72px;height:72px;border-radius:50%;overflow:hidden;
+        display:flex;align-items:center;justify-content:center;
+        background:#fff;border:2.5px solid var(--ink-accent,#2563eb);
+        box-shadow:0 0 0 4px rgba(var(--ink-accent-rgb,37,99,235),0.12),
+                   0 6px 20px rgba(0,0,0,0.14);
+        transition:none;
+      }
+      .ink-info {
+        flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;
+      }
+      .ink-name {
+        font-size:18px;font-weight:700;letter-spacing:0.3px;
+        line-height:1.15;cursor:pointer;white-space:nowrap;
+        overflow:hidden;text-overflow:ellipsis;
+        text-shadow:0 1px 3px rgba(0,0,0,0.06);
+      }
+      .ink-meta {
+        display:flex;align-items:center;gap:5px;font-size:12px;flex-wrap:wrap;
+      }
+      .ink-meta-sep { color:#9ca3af; }
+      .ink-zone { white-space:nowrap;font-weight:500; }
+      .ink-time { white-space:nowrap; }
+      .ink-geo {
+        font-size:10px;color:#6b7280;
+        overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+      }
+      .ink-bat-panel {
+        flex-shrink:0;display:flex;flex-direction:column;
+        align-items:center;gap:2px;cursor:pointer;min-width:44px;
+        background:#f8fafc;border-radius:14px;padding:8px 10px;
+        box-shadow:0 2px 8px rgba(0,0,0,0.08),0 0 0 1px rgba(0,0,0,0.05);
+      }
+      .ink-bat-pct {
+        font-size:13px;font-weight:700;line-height:1.1;
+      }
+      .ink-bat-conn {
+        font-size:10px;color:#6b7280;display:flex;align-items:center;
+      }
+      .ink-sep {
+        height:2px;border-radius:1px;margin:0 2px;
+        background:linear-gradient(90deg,transparent,var(--ink-accent,#2563eb) 30%,var(--ink-accent,#2563eb) 70%,transparent);
+        transition:none;
+      }
+      .ink-chips {
+        display:flex;flex-wrap:wrap;gap:7px;
+      }
+      .ink-chip {
+        display:inline-flex;align-items:center;gap:4px;
+        padding:5px 11px;border-radius:20px;
+        font-size:11px;font-weight:600;color:#1f2937;
+        background:#f1f3f5;
+        box-shadow:0 2px 6px rgba(0,0,0,0.08),0 0 0 1px rgba(0,0,0,0.07);
+        cursor:pointer;white-space:nowrap;
+        transition:box-shadow 0.15s;
+      }
+      .ink-chip:hover {
+        background:#e9ecef;
+        box-shadow:0 4px 14px rgba(0,0,0,0.12),0 0 0 1px rgba(0,0,0,0.09);
+      }
+      .ink-weather-row {
+        display:flex;align-items:center;justify-content:space-between;
+        padding-top:2px;
+      }
+      .ink-weather {
+        font-size:11px;font-weight:400;
+        display:inline-flex;align-items:center;gap:2px;
+        cursor:pointer;
+      }
+      /* weather-active contrast: light bg → vivid weather bg */
+      .weather-active .ink-name { color:#fff !important;text-shadow:0 1px 6px rgba(0,0,0,0.5); }
+      .weather-active .ink-meta { color:#fff !important; }
+      .weather-active .ink-zone,
+      .weather-active .ink-time,
+      .weather-active .ink-meta-sep { color:rgba(255,255,255,0.8) !important; }
+      .weather-active .ink-chip {
+        background:rgba(0,0,0,0.45) !important;
+        color:#fff !important;
+        box-shadow:none !important;
+      }
+      .weather-active .ink-bat-panel {
+        background:rgba(0,0,0,0.35) !important;
+        box-shadow:none !important;
+      }
+      .weather-active .ink-bat-pct { color:#fff !important; }
     `;
   }
 }
@@ -4701,7 +5946,7 @@ class PersonTrackerCard extends LitElement {
 if (!customElements.get('person-tracker-card')) {
   customElements.define('person-tracker-card', PersonTrackerCard);
   console.info(
-    '%c PERSON-TRACKER-CARD %c v1.4.2 %c!',
+    '%c PERSON-TRACKER-CARD %c v1.4.7 %c!',
     'background-color: #7DDA9F; color: black; font-weight: bold;',
     'background-color: #93ADCB; color: white; font-weight: bold;',
     'background-color: #A0D4A0; color: black; font-weight: bold;'

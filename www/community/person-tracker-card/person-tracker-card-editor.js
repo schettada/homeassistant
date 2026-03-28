@@ -1,5 +1,10 @@
 // Person Tracker Card Editor - Multilanguage Version
 // Languages: Italian (default), English, French, German
+// v1.4.7: Liquid Ink layout (ink) added to picker and validation whitelist
+// v1.4.6: maps_provider dropdown added to Sensors tab; show_geocoded_location default true; editor switch/dropdown fixes
+// v1.4.5: orbital layout added to picker and validation whitelist
+// v1.4.4: show_geocoded_location toggle + geocoded_location_entity picker in Sensors tab (auto-detected)
+// v1.4.3: matrix layout added to picker and validation whitelist
 // v1.4.2: wxstation layout added to picker; device_2_battery_sensor entity pickers (auto-detect)
 // v1.4.1: pair_travel_animation toggle (near smart mode); transparent_background toggle for Glass/Bio
 // v1.4.0: weather_text_color picker in weather section; last_changed_color picker in style section
@@ -87,6 +92,12 @@ class EditorLocalizationHelper {
         'editor.card_background': 'Sfondo card',
         'editor.transparent_background': 'Sfondo trasparente (solo Glass/Bio)',
         'editor.show_particles': 'Mostra particelle animate (solo Glass/Bio)',
+        'editor.show_geocoded_location': 'Mostra indirizzo GPS (geocoded location)',
+        'editor.geocoded_location_description': 'Mostra l\'indirizzo leggibile ottenuto dal GPS tramite sensor.xxx_geocoded_location. Visibile solo quando la persona non è a casa.',
+        'editor.geocoded_location_entity': 'Entità geocoded location (auto-rilevata se vuota)',
+        'editor.maps_provider': 'Apri in Maps al click sulla posizione',
+        'editor.maps_provider_description': 'Se impostato, cliccando sulla zona o sull\'indirizzo si apre la mappa con le coordinate GPS.',
+        'editor.maps_provider_none': 'Disabilitato',
         'editor.show_device_2_battery': 'Batteria secondo dispositivo (tablet/laptop)',
         'editor.device_2_battery_sensor': 'Sensore batteria secondo dispositivo',
         'editor.device_2_battery_state_sensor': 'Stato carica secondo dispositivo',
@@ -227,6 +238,12 @@ class EditorLocalizationHelper {
         'editor.card_background': 'Card background',
         'editor.transparent_background': 'Transparent background (Glass/Bio only)',
         'editor.show_particles': 'Show animated particles (Glass/Bio only)',
+        'editor.show_geocoded_location': 'Show GPS address (geocoded location)',
+        'editor.geocoded_location_description': 'Shows the human-readable address from GPS via sensor.xxx_geocoded_location. Only visible when the person is not home.',
+        'editor.geocoded_location_entity': 'Geocoded location entity (auto-detected if empty)',
+        'editor.maps_provider': 'Open in Maps on location click',
+        'editor.maps_provider_description': 'When set, clicking the zone or address opens the map with GPS coordinates.',
+        'editor.maps_provider_none': 'Disabled',
         'editor.show_device_2_battery': 'Second device battery (tablet/laptop)',
         'editor.device_2_battery_sensor': 'Second device battery sensor',
         'editor.device_2_battery_state_sensor': 'Second device charging state sensor',
@@ -367,6 +384,12 @@ class EditorLocalizationHelper {
         'editor.card_background': 'Fond carte',
         'editor.transparent_background': 'Fond transparent (Glass/Bio uniquement)',
         'editor.show_particles': 'Afficher particules animées (Glass/Bio uniquement)',
+        'editor.show_geocoded_location': 'Afficher adresse GPS (geocoded location)',
+        'editor.geocoded_location_description': 'Affiche l\'adresse lisible obtenue via GPS grâce à sensor.xxx_geocoded_location. Visible uniquement quand la personne n\'est pas à la maison.',
+        'editor.geocoded_location_entity': 'Entité geocoded location (auto-détectée si vide)',
+        'editor.maps_provider': 'Ouvrir dans Maps au clic sur la position',
+        'editor.maps_provider_description': 'Si défini, cliquer sur la zone ou l\'adresse ouvre la carte avec les coordonnées GPS.',
+        'editor.maps_provider_none': 'Désactivé',
         'editor.show_device_2_battery': 'Batterie 2e appareil (tablette/laptop)',
         'editor.device_2_battery_sensor': 'Capteur batterie 2e appareil',
         'editor.device_2_battery_state_sensor': 'Capteur état charge 2e appareil',
@@ -507,6 +530,12 @@ class EditorLocalizationHelper {
         'editor.card_background': 'Kartenhintergrund',
         'editor.transparent_background': 'Transparenter Hintergrund (nur Glass/Bio)',
         'editor.show_particles': 'Animierte Partikel anzeigen (nur Glass/Bio)',
+        'editor.show_geocoded_location': 'GPS-Adresse anzeigen (Geocoded Location)',
+        'editor.geocoded_location_description': 'Zeigt die lesbare GPS-Adresse via sensor.xxx_geocoded_location an. Nur sichtbar wenn die Person nicht zu Hause ist.',
+        'editor.geocoded_location_entity': 'Geocoded-Location-Entität (auto-erkannt wenn leer)',
+        'editor.maps_provider': 'In Maps öffnen beim Klick auf Position',
+        'editor.maps_provider_description': 'Wenn gesetzt, öffnet ein Klick auf Zone oder Adresse die Karte mit GPS-Koordinaten.',
+        'editor.maps_provider_none': 'Deaktiviert',
         'editor.show_device_2_battery': 'Zweitgerät-Akku (Tablet/Laptop)',
         'editor.device_2_battery_sensor': 'Akku-Sensor Zweitgerät',
         'editor.device_2_battery_state_sensor': 'Ladestatus-Sensor Zweitgerät',
@@ -707,6 +736,8 @@ class PersonTrackerCardEditor extends LitElement {
       modern_show_battery_ring: true,
       modern_show_travel_ring: true,
       modern_travel_max_time: 60,
+      // Geocoded location on by default
+      show_geocoded_location: true,
       ...config
     };
 
@@ -1008,7 +1039,7 @@ class PersonTrackerCardEditor extends LitElement {
 
     return html`
       <div class="card-config">
-        <div class="editor-version-badge">Person Tracker Card <span>v1.4.2</span></div>
+        <div class="editor-version-badge">Person Tracker Card <span>v1.4.7</span></div>
         <div class="tabs">
           <button
             class="tab ${this._selectedTab === 'base' ? 'active' : ''}"
@@ -1085,6 +1116,9 @@ class PersonTrackerCardEditor extends LitElement {
           <mwc-list-item value="bio">Bioluminescence ◉</mwc-list-item>
           <mwc-list-item value="holo">Holographic 3D ◈</mwc-list-item>
           <mwc-list-item value="wxstation">Weather Station ⛅</mwc-list-item>
+          <mwc-list-item value="matrix">Matrix Rain 🖥️</mwc-list-item>
+          <mwc-list-item value="orbital">Orbital 🪐</mwc-list-item>
+          <mwc-list-item value="ink">Liquid Ink 🖋️</mwc-list-item>
         </ha-select>
 
         ${this._config.layout === 'compact' ? html`
@@ -1410,6 +1444,57 @@ class PersonTrackerCardEditor extends LitElement {
             allow-custom-entity
             @value-changed=${(e) => this._valueChanged(e, 'connection_sensor')}>
           </ha-entity-picker>
+        </div>
+
+        <!-- Geocoded Location -->
+        <div class="sensor-group">
+          <p class="info-text" style="margin:0 0 6px;">${this._t('editor.geocoded_location_description')}</p>
+          <div class="sensor-header">
+            <ha-icon icon="mdi:map-marker-account" class="sensor-icon"></ha-icon>
+            <span class="sensor-title">${this._t('editor.show_geocoded_location')}</span>
+            <ha-switch
+              .checked=${this._config.show_geocoded_location !== false}
+              @change=${(e) => this._valueChanged(e, 'show_geocoded_location')}>
+            </ha-switch>
+          </div>
+          ${this._config.show_geocoded_location ? html`
+            <ha-entity-picker
+              .hass=${this.hass}
+              .value=${this._config.geocoded_location_entity || auto.geocoded_location_entity || ''}
+              .label=${auto.geocoded_location_entity || this._t('editor.geocoded_location_entity')}
+              .includeDomains=${['sensor']}
+              allow-custom-entity
+              @value-changed=${(e) => this._entityPickerChanged(e, 'geocoded_location_entity')}>
+            </ha-entity-picker>
+          ` : ''}
+        </div>
+
+        <!-- Maps provider -->
+        <div class="sensor-group">
+          <div class="sensor-header">
+            <ha-icon icon="mdi:map-marker-radius" class="sensor-icon"></ha-icon>
+            <span class="sensor-title">${this._t('editor.maps_provider')}</span>
+          </div>
+          <p class="info-text">${this._t('editor.maps_provider_description')}</p>
+          <ha-select
+            label="${this._t('editor.maps_provider')}"
+            .value=${this._config.maps_provider || 'none'}
+            fixedMenuPosition
+            naturalMenuWidth
+            @request-selected=${(e) => {
+              e.stopPropagation();
+              if (e.detail && e.detail.selected === false) return;
+              const raw = e.target && e.target.getAttribute ? e.target.getAttribute('value') : null;
+              if (raw === null) return;
+              this._config = { ...this._config, maps_provider: raw === 'none' ? null : raw };
+              this._fireEvent('config-changed', { config: this._config });
+              this.requestUpdate();
+            }}>
+            <mwc-list-item value="none">${this._t('editor.maps_provider_none')}</mwc-list-item>
+            <mwc-list-item value="google">Google Maps</mwc-list-item>
+            <mwc-list-item value="apple">Apple Maps</mwc-list-item>
+            <mwc-list-item value="osm">OpenStreetMap</mwc-list-item>
+          </ha-select>
         </div>
 
       </div>
@@ -1939,6 +2024,7 @@ class PersonTrackerCardEditor extends LitElement {
           <p style="font-size:11px; color: var(--secondary-text-color); margin: 4px 0 0 0;">
             ${this._t('section.weather_description')}
           </p>
+          ${this._config.layout !== 'matrix' ? html`
           <div class="sensor-group" style="margin-top:8px;">
             <div class="sensor-header">
               <span class="sensor-title">${this._t('editor.show_weather_background')}</span>
@@ -1948,6 +2034,7 @@ class PersonTrackerCardEditor extends LitElement {
               </ha-switch>
             </div>
           </div>
+          ` : ''}
           <div class="sensor-group">
             <div class="sensor-header">
               <span class="sensor-title">${this._t('editor.show_weather_temperature')}</span>
@@ -2114,7 +2201,7 @@ class PersonTrackerCardEditor extends LitElement {
       || item?.value
       || (item && item.getAttribute ? item.getAttribute('value') : null);
 
-    if (!value || (value !== 'classic' && value !== 'compact' && value !== 'modern' && value !== 'neon' && value !== 'glass' && value !== 'bio' && value !== 'holo' && value !== 'wxstation')) {
+    if (!value || (value !== 'classic' && value !== 'compact' && value !== 'modern' && value !== 'neon' && value !== 'glass' && value !== 'bio' && value !== 'holo' && value !== 'wxstation' && value !== 'matrix' && value !== 'orbital' && value !== 'ink')) {
       console.warn('Invalid layout value:', value);
       return;
     }
@@ -2152,7 +2239,7 @@ class PersonTrackerCardEditor extends LitElement {
     const validTriggerValues = ['all', 'entity', 'custom'];
 
     // Allowed values for layout
-    const validLayoutValues = ['classic', 'compact', 'modern', 'neon', 'glass', 'bio', 'holo'];
+    const validLayoutValues = ['classic', 'compact', 'modern', 'neon', 'glass', 'bio', 'holo', 'wxstation', 'matrix', 'orbital', 'ink'];
 
     // Allowed values for positions
     const validPositions = [
@@ -2333,6 +2420,7 @@ class PersonTrackerCardEditor extends LitElement {
       connection_sensor:           connection,
       device_2_battery_sensor:     p2 ? `sensor.${p2}_battery_level` : null,
       device_2_battery_state_sensor: p2 ? `sensor.${p2}_battery_state` : null,
+      geocoded_location_entity:    p ? `sensor.${p}_geocoded_location` : null,
     };
   }
 
@@ -2364,6 +2452,7 @@ class PersonTrackerCardEditor extends LitElement {
       connection_sensor:            [auto.connection_sensor],
       device_2_battery_sensor:      [auto.device_2_battery_sensor],
       device_2_battery_state_sensor:[auto.device_2_battery_state_sensor],
+      geocoded_location_entity:     [auto.geocoded_location_entity],
     };
 
     let updated = { ...this._config };

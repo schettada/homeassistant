@@ -54,7 +54,7 @@ class DreoDeviceDetails:
     preset_modes: list[str]
     """List of possible preset mode names"""
 
-    device_ranges: dict[range]
+    device_ranges: dict[str, tuple]
     """Dictionary of different ranges"""
 
     mode_names: list[str] | dict
@@ -170,9 +170,26 @@ SUPPORTED_DEVICES = {
     # Tower Fans
     "DR-HTF": DreoDeviceDetails(device_type=DreoDeviceType.TOWER_FAN),
 
+    "DR-HTF018S": DreoDeviceDetails(
+        device_type=DreoDeviceType.TOWER_FAN,
+        preset_modes=[
+            ("normal", 1),
+            ("natural", 2),
+            ("sleep", 3),
+            ("auto", 4),
+        ],
+        device_ranges={
+            SPEED_RANGE: (1, 9)
+        }),
+
     # Air Circulators
     "DR-HAF": DreoDeviceDetails(device_type=DreoDeviceType.AIR_CIRCULATOR),
     "DR-HPF": DreoDeviceDetails(device_type=DreoDeviceType.AIR_CIRCULATOR),
+    # HPF-series devices: The API returns controlsConf with only a template reference
+    # (e.g. {"template": "DR-HPF002S"}) and no control/schedule.modes data, so
+    # parse_preset_modes() cannot auto-detect modes. Preset modes must be hardcoded here.
+    # TODO: Investigate whether the official Dreo Open API provides full controlsConf
+    # data that would allow auto-detection of preset modes for these devices.
     "DR-HPF008S": DreoDeviceDetails(
         device_type=DreoDeviceType.AIR_CIRCULATOR,
         # Note: Fan preset_modes use tuple format (name, value) despite type annotation.
@@ -191,6 +208,14 @@ SUPPORTED_DEVICES = {
 
     "DR-HPF007S": DreoDeviceDetails(
         device_type=DreoDeviceType.AIR_CIRCULATOR,
+        preset_modes=[
+            ("normal", 1),
+            ("auto", 2),
+            ("sleep", 3),
+            ("natural", 4),
+            ("turbo", 5),
+            ("custom", 6)
+        ],
         device_ranges={
             SPEED_RANGE: (1, 10),
             HORIZONTAL_ANGLE_RANGE: (-75,75),
@@ -265,6 +290,8 @@ SUPPORTED_DEVICES = {
         ],
     ),
     "DR-HSH010S": DreoHeaterDeviceDetails(),
+    "DR-HSH011": DreoHeaterDeviceDetails(),
+    "DR-HSH011S": DreoHeaterDeviceDetails(),
 
     # Are these even used?  They don't show up as model numbers.  Should they be a DR prefix?
     "WH714S": DreoHeaterDeviceDetails(
@@ -321,6 +348,15 @@ SUPPORTED_DEVICES = {
 
     "DR-HHM": DreoDeviceDetails(device_type=DreoDeviceType.HUMIDIFIER),
 
+    "DR-HHM006S": DreoDeviceDetails(
+        device_type=DreoDeviceType.HUMIDIFIER,
+        preset_modes=[
+            ("manual", 0),
+            ("auto", 1),
+            ("sleep", 2),
+        ],
+    ),
+
     # Dehumidifiers
         "DR-HDH001S": DreoDeviceDetails(
         device_type=DreoDeviceType.DEHUMIDIFIER,
@@ -331,6 +367,14 @@ SUPPORTED_DEVICES = {
     ),
 
     "DR-HDH002S": DreoDeviceDetails(
+        device_type=DreoDeviceType.DEHUMIDIFIER,
+        device_ranges={
+            HUMIDITY_RANGE: (30, 85),
+            SPEED_RANGE: (1, 3)
+        }
+    ),
+
+    "DR-HDH005S": DreoDeviceDetails(
         device_type=DreoDeviceType.DEHUMIDIFIER,
         device_ranges={
             HUMIDITY_RANGE: (30, 85),
