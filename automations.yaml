@@ -1176,3 +1176,42 @@
           title: Security Message
         action: script.notify_all
   mode: single
+- id: '1775093597448'
+  alias: Pooja Room Lights
+  description: ''
+  triggers:
+  - type: occupied
+    device_id: 8eb24ac06958179d41b9e54f44553268
+    entity_id: f3b2a5ea13aad341b431767c21bad3ce
+    domain: binary_sensor
+    trigger: device
+    id: turnon
+  - type: not_occupied
+    device_id: 8eb24ac06958179d41b9e54f44553268
+    entity_id: f3b2a5ea13aad341b431767c21bad3ce
+    domain: binary_sensor
+    trigger: device
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+    id: turnoff
+  conditions: []
+  actions:
+  - if:
+    - condition: trigger
+      id:
+      - turnon
+    then:
+    - action: light.turn_on
+      metadata: {}
+      target:
+        entity_id: light.pooja_room
+      data: {}
+    else:
+    - action: light.turn_off
+      metadata: {}
+      target:
+        entity_id: light.pooja_room
+      data: {}
+  mode: single

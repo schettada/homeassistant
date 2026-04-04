@@ -2,9 +2,9 @@
   "metadata": {
     "format": "zigpy/open-coordinator-backup",
     "version": 1,
-    "source": "zigbee-herdsman@9.0.9",
+    "source": "zigbee-herdsman@10.0.5",
     "internal": {
-      "date": "2026-04-01T02:41:46.184Z",
+      "date": "2026-04-04T01:04:56.186Z",
       "znpVersion": 1
     }
   },
@@ -25,7 +25,7 @@
   "network_key": {
     "key": "01030507090b0d0f00020406080a0c0d",
     "sequence_number": 0,
-    "frame_counter": 17070571
+    "frame_counter": 17095596
   },
   "devices": [
     {
