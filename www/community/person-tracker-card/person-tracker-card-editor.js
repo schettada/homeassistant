@@ -1,5 +1,8 @@
 // Person Tracker Card Editor - Multilanguage Version
 // Languages: Italian (default), English, French, German
+// v1.4.10: extra_chips tap_action (call-service/navigate/url/none); ha-service-control for call-service; chip color on icon+text; ha-service-control fix (action key)
+// v1.4.9: extra_chips config option — add any HA entity as custom chip in all 11 layouts
+// v1.4.8: state_entity config option — override displayed location text with any HA sensor
 // v1.4.7: Liquid Ink layout (ink) added to picker and validation whitelist
 // v1.4.6: maps_provider dropdown added to Sensors tab; show_geocoded_location default true; editor switch/dropdown fixes
 // v1.4.5: orbital layout added to picker and validation whitelist
@@ -98,6 +101,8 @@ class EditorLocalizationHelper {
         'editor.maps_provider': 'Apri in Maps al click sulla posizione',
         'editor.maps_provider_description': 'Se impostato, cliccando sulla zona o sull\'indirizzo si apre la mappa con le coordinate GPS.',
         'editor.maps_provider_none': 'Disabilitato',
+        'editor.state_entity': 'Sensore stato personalizzato',
+        'editor.state_entity_description': 'Sovrascrive il testo della posizione visualizzata (es. sensor.mia_posizione). La logica home/away rimane invariata.',
         'editor.show_device_2_battery': 'Batteria secondo dispositivo (tablet/laptop)',
         'editor.device_2_battery_sensor': 'Sensore batteria secondo dispositivo',
         'editor.device_2_battery_state_sensor': 'Stato carica secondo dispositivo',
@@ -192,7 +197,27 @@ class EditorLocalizationHelper {
         'tabs.positions': 'Posizioni',
         'tabs.states': 'Stati',
         'tabs.sensors': 'Sensori',
-        'tabs.style': 'Stile'
+        'tabs.style': 'Stile',
+        'section.extra_chips': 'Chip extra personalizzati',
+        'editor.extra_chips_description': 'Aggiungi entità extra come chip (Bluetooth, Android Auto, chiamata, modalità silenziosa…). Con show_when il chip appare solo quando lo stato corrisponde.',
+        'editor.extra_chip_entity': 'Entità',
+        'editor.extra_chip_show_when': 'Mostra quando (stato)',
+        'editor.extra_chip_label': 'Etichetta (opzionale)',
+        'editor.extra_chip_color': 'Colore icona e testo',
+        'editor.extra_chip_add': '+ Aggiungi chip',
+        'editor.extra_chip_tap_action': 'Azione al tocco',
+        'editor.extra_chip_tap_more_info': 'Mostra info (more-info)',
+        'editor.extra_chip_tap_call_service': 'Chiama servizio',
+        'editor.extra_chip_tap_navigate': 'Naviga',
+        'editor.extra_chip_tap_url': 'Apri URL',
+        'editor.extra_chip_tap_none': 'Nessuna azione',
+        'editor.extra_chip_icon_label': 'Icona (default: icona entità)',
+        'editor.extra_chip_service': 'Servizio (es. light.turn_on)',
+        'editor.extra_chip_service_data': 'Dati extra (JSON, opzionale)',
+        'editor.extra_chip_nav_path': 'Percorso navigazione',
+        'editor.extra_chip_url_path': 'URL',
+        'editor.wifi_ssid_sensor': 'Sensore SSID Wi-Fi',
+        'editor.wifi_ssid_sensor_description': 'Sensore che riporta il nome della rete Wi-Fi a cui è connesso il dispositivo (es. sensor.elliot_s_phone_wi_fi_connection). Quando impostato, il nome della rete viene mostrato al posto di "WiFi".'
       },
       'en': {
         'editor.entity': 'Entity',
@@ -244,6 +269,8 @@ class EditorLocalizationHelper {
         'editor.maps_provider': 'Open in Maps on location click',
         'editor.maps_provider_description': 'When set, clicking the zone or address opens the map with GPS coordinates.',
         'editor.maps_provider_none': 'Disabled',
+        'editor.state_entity': 'Custom state sensor',
+        'editor.state_entity_description': 'Overrides the displayed location text (e.g. sensor.my_location). Home/away logic is unaffected.',
         'editor.show_device_2_battery': 'Second device battery (tablet/laptop)',
         'editor.device_2_battery_sensor': 'Second device battery sensor',
         'editor.device_2_battery_state_sensor': 'Second device charging state sensor',
@@ -338,7 +365,27 @@ class EditorLocalizationHelper {
         'tabs.positions': 'Positions',
         'tabs.states': 'States',
         'tabs.sensors': 'Sensors',
-        'tabs.style': 'Style'
+        'tabs.style': 'Style',
+        'section.extra_chips': 'Custom extra chips',
+        'editor.extra_chips_description': 'Add extra entities as chips (Bluetooth, Android Auto, call state, ringer mode…). With show_when the chip only appears when the state matches.',
+        'editor.extra_chip_entity': 'Entity',
+        'editor.extra_chip_show_when': 'Show when (state)',
+        'editor.extra_chip_label': 'Label (optional)',
+        'editor.extra_chip_color': 'Icon and text color',
+        'editor.extra_chip_add': '+ Add chip',
+        'editor.extra_chip_tap_action': 'Tap action',
+        'editor.extra_chip_tap_more_info': 'Show info (more-info)',
+        'editor.extra_chip_tap_call_service': 'Call service',
+        'editor.extra_chip_tap_navigate': 'Navigate',
+        'editor.extra_chip_tap_url': 'Open URL',
+        'editor.extra_chip_tap_none': 'No action',
+        'editor.extra_chip_icon_label': 'Icon (default: entity icon)',
+        'editor.extra_chip_service': 'Service (e.g. light.turn_on)',
+        'editor.extra_chip_service_data': 'Extra data (JSON, optional)',
+        'editor.extra_chip_nav_path': 'Navigation path',
+        'editor.extra_chip_url_path': 'URL',
+        'editor.wifi_ssid_sensor': 'Wi-Fi SSID sensor',
+        'editor.wifi_ssid_sensor_description': 'Sensor that reports the Wi-Fi network name the device is connected to (e.g. sensor.elliot_s_phone_wi_fi_connection). When set, the network name is shown instead of "WiFi".'
       },
       'fr': {
         'editor.entity': 'Entité',
@@ -390,6 +437,8 @@ class EditorLocalizationHelper {
         'editor.maps_provider': 'Ouvrir dans Maps au clic sur la position',
         'editor.maps_provider_description': 'Si défini, cliquer sur la zone ou l\'adresse ouvre la carte avec les coordonnées GPS.',
         'editor.maps_provider_none': 'Désactivé',
+        'editor.state_entity': 'Capteur d\'état personnalisé',
+        'editor.state_entity_description': 'Remplace le texte de localisation affiché. La logique home/away reste inchangée.',
         'editor.show_device_2_battery': 'Batterie 2e appareil (tablette/laptop)',
         'editor.device_2_battery_sensor': 'Capteur batterie 2e appareil',
         'editor.device_2_battery_state_sensor': 'Capteur état charge 2e appareil',
@@ -484,7 +533,27 @@ class EditorLocalizationHelper {
         'tabs.positions': 'Positions',
         'tabs.states': 'États',
         'tabs.sensors': 'Capteurs',
-        'tabs.style': 'Style'
+        'tabs.style': 'Style',
+        'section.extra_chips': 'Chips supplémentaires personnalisés',
+        'editor.extra_chips_description': 'Ajoutez des entités supplémentaires comme chips. Avec show_when le chip n\'apparaît que lorsque l\'état correspond.',
+        'editor.extra_chip_entity': 'Entité',
+        'editor.extra_chip_show_when': 'Afficher quand (état)',
+        'editor.extra_chip_label': 'Étiquette (optionnel)',
+        'editor.extra_chip_color': 'Couleur icône et texte',
+        'editor.extra_chip_add': '+ Ajouter chip',
+        'editor.extra_chip_tap_action': 'Action au toucher',
+        'editor.extra_chip_tap_more_info': 'Afficher infos (more-info)',
+        'editor.extra_chip_tap_call_service': 'Appeler service',
+        'editor.extra_chip_tap_navigate': 'Naviguer',
+        'editor.extra_chip_tap_url': 'Ouvrir URL',
+        'editor.extra_chip_tap_none': 'Aucune action',
+        'editor.extra_chip_icon_label': 'Icône (défaut: icône entité)',
+        'editor.extra_chip_service': 'Service (ex. light.turn_on)',
+        'editor.extra_chip_service_data': 'Données extra (JSON, optionnel)',
+        'editor.extra_chip_nav_path': 'Chemin de navigation',
+        'editor.extra_chip_url_path': 'URL',
+        'editor.wifi_ssid_sensor': 'Capteur SSID Wi-Fi',
+        'editor.wifi_ssid_sensor_description': 'Capteur indiquant le nom du réseau Wi-Fi auquel l\'appareil est connecté. Quand configuré, le nom du réseau s\'affiche à la place de "WiFi".'
       },
       'de': {
         'editor.entity': 'Entität',
@@ -536,6 +605,8 @@ class EditorLocalizationHelper {
         'editor.maps_provider': 'In Maps öffnen beim Klick auf Position',
         'editor.maps_provider_description': 'Wenn gesetzt, öffnet ein Klick auf Zone oder Adresse die Karte mit GPS-Koordinaten.',
         'editor.maps_provider_none': 'Deaktiviert',
+        'editor.state_entity': 'Benutzerdefinierter Statussensor',
+        'editor.state_entity_description': 'Überschreibt den angezeigten Standorttext. Die Home/Away-Logik bleibt unverändert.',
         'editor.show_device_2_battery': 'Zweitgerät-Akku (Tablet/Laptop)',
         'editor.device_2_battery_sensor': 'Akku-Sensor Zweitgerät',
         'editor.device_2_battery_state_sensor': 'Ladestatus-Sensor Zweitgerät',
@@ -630,7 +701,27 @@ class EditorLocalizationHelper {
         'tabs.positions': 'Positionen',
         'tabs.states': 'Zustände',
         'tabs.sensors': 'Sensoren',
-        'tabs.style': 'Stil'
+        'tabs.style': 'Stil',
+        'section.extra_chips': 'Benutzerdefinierte Extra-Chips',
+        'editor.extra_chips_description': 'Fügen Sie zusätzliche Entitäten als Chips hinzu. Mit show_when erscheint der Chip nur, wenn der Status übereinstimmt.',
+        'editor.extra_chip_entity': 'Entität',
+        'editor.extra_chip_show_when': 'Anzeigen wenn (Status)',
+        'editor.extra_chip_label': 'Bezeichnung (optional)',
+        'editor.extra_chip_color': 'Symbol- und Textfarbe',
+        'editor.extra_chip_add': '+ Chip hinzufügen',
+        'editor.extra_chip_tap_action': 'Tippen-Aktion',
+        'editor.extra_chip_tap_more_info': 'Info anzeigen (more-info)',
+        'editor.extra_chip_tap_call_service': 'Dienst aufrufen',
+        'editor.extra_chip_tap_navigate': 'Navigieren',
+        'editor.extra_chip_tap_url': 'URL öffnen',
+        'editor.extra_chip_tap_none': 'Keine Aktion',
+        'editor.extra_chip_icon_label': 'Symbol (Standard: Entitätssymbol)',
+        'editor.extra_chip_service': 'Dienst (z.B. light.turn_on)',
+        'editor.extra_chip_service_data': 'Zusatzdaten (JSON, optional)',
+        'editor.extra_chip_nav_path': 'Navigationspfad',
+        'editor.extra_chip_url_path': 'URL',
+        'editor.wifi_ssid_sensor': 'WLAN-SSID-Sensor',
+        'editor.wifi_ssid_sensor_description': 'Sensor, der den Namen des WLAN-Netzwerks meldet, mit dem das Gerät verbunden ist. Wenn gesetzt, wird der Netzwerkname statt "WiFi" angezeigt.'
       }
     };
   }
@@ -1039,7 +1130,7 @@ class PersonTrackerCardEditor extends LitElement {
 
     return html`
       <div class="card-config">
-        <div class="editor-version-badge">Person Tracker Card <span>v1.4.7</span></div>
+        <div class="editor-version-badge">Person Tracker Card <span>v1.4.10</span></div>
         <div class="tabs">
           <button
             class="tab ${this._selectedTab === 'base' ? 'active' : ''}"
@@ -1247,11 +1338,29 @@ class PersonTrackerCardEditor extends LitElement {
         ` : ''}
 
         ${(this._config.tap_action?.action === 'call-service') ? html`
-          <ha-textfield
-            label="Service (e.g. light.turn_on)"
-            .value=${this._config.tap_action?.service || ''}
-            @input=${(e) => this._updateTapAction('service', e.target.value)}>
-          </ha-textfield>
+          <ha-service-control
+            .hass=${this.hass}
+            .value=${{
+              action: this._config.tap_action?.service || '',
+              target: this._config.tap_action?.target || {},
+              data: this._config.tap_action?.service_data || {}
+            }}
+            .showAdvanced=${true}
+            @value-changed=${(e) => {
+              const v = e.detail.value || {};
+              this._config = {
+                ...this._config,
+                tap_action: {
+                  action: 'call-service',
+                  service: v.action || v.service || undefined,
+                  target: (v.target && Object.keys(v.target).length) ? v.target : undefined,
+                  service_data: (v.data && Object.keys(v.data).length) ? v.data : undefined
+                }
+              };
+              this._fireEvent('config-changed', { config: this._config });
+              this.requestUpdate();
+            }}>
+          </ha-service-control>
         ` : ''}
       </div>
     `;
@@ -1444,6 +1553,18 @@ class PersonTrackerCardEditor extends LitElement {
             allow-custom-entity
             @value-changed=${(e) => this._valueChanged(e, 'connection_sensor')}>
           </ha-entity-picker>
+
+          ${this._config.show_connection !== false ? html`
+            <p class="info-text" style="margin:8px 0 4px;">${this._t('editor.wifi_ssid_sensor_description')}</p>
+            <ha-entity-picker
+              .hass=${this.hass}
+              .value=${this._config.wifi_ssid_sensor || ''}
+              .label=${this._t('editor.wifi_ssid_sensor')}
+              .includeDomains=${['sensor']}
+              allow-custom-entity
+              @value-changed=${(e) => this._entityPickerChanged(e, 'wifi_ssid_sensor')}>
+            </ha-entity-picker>
+          ` : ''}
         </div>
 
         <!-- Geocoded Location -->
@@ -1496,6 +1617,143 @@ class PersonTrackerCardEditor extends LitElement {
             <mwc-list-item value="osm">OpenStreetMap</mwc-list-item>
           </ha-select>
         </div>
+
+        <!-- Custom state entity -->
+        <div class="sensor-group">
+          <div class="sensor-header">
+            <ha-icon icon="mdi:text-box-outline" class="sensor-icon"></ha-icon>
+            <span class="sensor-title">${this._t('editor.state_entity')}</span>
+          </div>
+          <p class="info-text">${this._t('editor.state_entity_description')}</p>
+          <ha-entity-picker
+            .hass=${this.hass}
+            .value=${this._config.state_entity || ''}
+            .includeDomains=${['sensor', 'input_text', 'input_select']}
+            allow-custom-entity
+            @value-changed=${(e) => this._entityPickerChanged(e, 'state_entity')}>
+          </ha-entity-picker>
+        </div>
+
+        <!-- Extra chips section -->
+        <div class="section-title">${this._t('section.extra_chips')}</div>
+        <p class="info-text">${this._t('editor.extra_chips_description')}</p>
+
+        ${(this._config.extra_chips || []).map((chip, idx) => html`
+        <div class="extra-chip-row" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;padding:8px;background:rgba(255,255,255,0.04);border-radius:8px;border:1px solid rgba(255,255,255,0.06);">
+
+          <!-- Header row: entity picker + delete button -->
+          <div style="display:flex;gap:6px;align-items:center;">
+            <ha-entity-picker
+              style="flex:1"
+              .hass=${this.hass}
+              .value=${chip.entity || ''}
+              label="${this._t('editor.extra_chip_entity')}"
+              allow-custom-entity
+              @value-changed=${(e) => this._updateExtraChip(idx, 'entity', e.detail.value)}
+            ></ha-entity-picker>
+            <button
+              @click=${() => this._removeExtraChip(idx)}
+              title="Rimuovi chip"
+              style="flex-shrink:0;width:36px;height:36px;border-radius:50%;border:none;background:rgba(244,67,54,0.18);cursor:pointer;font-size:18px;line-height:1;color:#f44336;font-weight:bold;">
+              ✕
+            </button>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:6px;">
+
+            <div style="display:flex;gap:6px;align-items:flex-end;">
+              <ha-icon-picker
+                style="flex:2"
+                .hass=${this.hass}
+                .value=${chip.icon || ''}
+                .label=${this._t('editor.extra_chip_icon_label')}
+                @value-changed=${(e) => this._updateExtraChip(idx, 'icon', e.detail.value || undefined)}
+              ></ha-icon-picker>
+              <ha-textfield style="flex:1" label="${this._t('editor.extra_chip_show_when')}" .value=${chip.show_when !== undefined ? chip.show_when : ''}
+                @change=${(e) => this._updateExtraChip(idx, 'show_when', e.target.value || undefined)}></ha-textfield>
+            </div>
+
+            <div style="display:flex;gap:6px;align-items:center;">
+              ${this._config.layout !== 'modern' && this._config.layout !== 'compact' ? html`
+              <ha-textfield style="flex:1" label="${this._t('editor.extra_chip_label')}" .value=${chip.label !== undefined ? chip.label : ''}
+                @change=${(e) => this._updateExtraChip(idx, 'label', e.target.value !== '' ? e.target.value : undefined)}></ha-textfield>
+              ` : ''}
+              <div class="color-picker" style="flex:1">
+                <div class="color-preview" style="${chip.color ? `background-color:${chip.color}` : 'background:repeating-linear-gradient(45deg,#444 0,#444 4px,#222 4px,#222 8px);border:2px dashed #666;'}">
+                  <input type="color" .value=${chip.color || '#4a9eff'}
+                    @input=${(e) => this._updateExtraChip(idx, 'color', e.target.value)}>
+                </div>
+                <ha-textfield
+                  .value=${chip.color || ''}
+                  label="${this._t('editor.extra_chip_color')}"
+                  @input=${(e) => this._updateExtraChip(idx, 'color', e.target.value || undefined)}
+                  pattern="^#[0-9A-Fa-f]{6}$">
+                </ha-textfield>
+              </div>
+            </div>
+
+            <!-- Tap action row -->
+            ${(() => {
+              const ta = chip.tap_action || {};
+              const taAction = ta.action || 'more-info';
+              return html`
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <ha-select
+                  .label=${this._t('editor.extra_chip_tap_action')}
+                  .value=${taAction}
+                  fixedMenuPosition
+                  @request-selected=${(e) => {
+                    e.stopPropagation();
+                    if (e.detail && e.detail.selected === false) return;
+                    const val = e.target?.getAttribute ? e.target.getAttribute('value') : null;
+                    if (!val) return;
+                    this._updateExtraChip(idx, 'tap_action', val === 'more-info' ? undefined : { action: val });
+                  }}>
+                  <mwc-list-item value="more-info">${this._t('editor.extra_chip_tap_more_info')}</mwc-list-item>
+                  <mwc-list-item value="call-service">${this._t('editor.extra_chip_tap_call_service')}</mwc-list-item>
+                  <mwc-list-item value="navigate">${this._t('editor.extra_chip_tap_navigate')}</mwc-list-item>
+                  <mwc-list-item value="url">${this._t('editor.extra_chip_tap_url')}</mwc-list-item>
+                  <mwc-list-item value="none">${this._t('editor.extra_chip_tap_none')}</mwc-list-item>
+                </ha-select>
+                ${taAction === 'call-service' ? html`
+                  <ha-service-control
+                    .hass=${this.hass}
+                    .value=${{
+                      action: ta.service || this._getDefaultServiceForEntity(chip.entity),
+                      target: ta.target || {},
+                      data: ta.service_data || {}
+                    }}
+                    .showAdvanced=${true}
+                    @value-changed=${(e) => {
+                      const v = e.detail.value || {};
+                      this._updateExtraChip(idx, 'tap_action', {
+                        action: 'call-service',
+                        service: v.action || v.service || undefined,
+                        target: (v.target && Object.keys(v.target).length) ? v.target : undefined,
+                        service_data: (v.data && Object.keys(v.data).length) ? v.data : undefined
+                      });
+                    }}>
+                  </ha-service-control>
+                ` : ''}
+                ${taAction === 'navigate' ? html`
+                  <ha-textfield label="${this._t('editor.extra_chip_nav_path')}" .value=${ta.navigation_path || ''}
+                    @change=${(e) => this._updateExtraChip(idx, 'tap_action', { ...ta, action: 'navigate', navigation_path: e.target.value || undefined })}></ha-textfield>
+                ` : ''}
+                ${taAction === 'url' ? html`
+                  <ha-textfield label="${this._t('editor.extra_chip_url_path')}" .value=${ta.url_path || ''}
+                    @change=${(e) => this._updateExtraChip(idx, 'tap_action', { ...ta, action: 'url', url_path: e.target.value || undefined })}></ha-textfield>
+                ` : ''}
+              </div>`;
+            })()}
+
+          </div>
+        </div>
+        `)}
+
+        <mwc-button outlined @click=${this._addExtraChip} style="width:100%;margin-top:4px;">
+          <ha-icon icon="mdi:plus" slot="icon"></ha-icon>
+          ${this._t('editor.extra_chip_add')}
+        </mwc-button>
 
       </div>
 
@@ -2478,6 +2736,90 @@ class PersonTrackerCardEditor extends LitElement {
       : `✘ ${this._t('section.auto_detect_none')}`;
     this.requestUpdate();
     setTimeout(() => { this._autoDetectMsg = null; this.requestUpdate(); }, 4000);
+  }
+
+  _updateConfig(key, value) {
+    if (!this._config) return;
+    if (value === undefined) {
+      const newConfig = { ...this._config };
+      delete newConfig[key];
+      this._config = newConfig;
+    } else {
+      this._config = { ...this._config, [key]: value };
+    }
+    this._fireEvent('config-changed', { config: this._config });
+    this.requestUpdate();
+  }
+
+  _inferEntityIcon(entityId, ent) {
+    const id = entityId.toLowerCase();
+    const dc = (ent?.attributes?.device_class || '').toLowerCase();
+    if (id.includes('bluetooth')) return 'mdi:bluetooth';
+    if (id.includes('android_auto') || id.includes('androidauto')) return 'mdi:car-wireless';
+    if (id.includes('phone_state') || id.includes('in_call')) return 'mdi:phone';
+    if (id.includes('ringer')) return 'mdi:volume-medium';
+    if (id.includes('wifi') || id.includes('wi_fi')) return 'mdi:wifi';
+    if (id.includes('charging')) return 'mdi:battery-charging';
+    if (id.includes('battery')) return 'mdi:battery';
+    if (id.includes('screen') || id.includes('display')) return 'mdi:cellphone';
+    if (id.includes('nfc')) return 'mdi:nfc';
+    if (id.includes('hotspot')) return 'mdi:wifi-plus';
+    if (id.includes('silent') || id.includes('mute')) return 'mdi:volume-off';
+    if (id.includes('dnd') || id.includes('do_not_disturb')) return 'mdi:minus-circle';
+    const domain = entityId.split('.')[0];
+    if (domain === 'binary_sensor') return dc === 'motion' ? 'mdi:motion-sensor' : dc === 'battery_charging' ? 'mdi:battery-charging' : 'mdi:checkbox-marked-circle';
+    if (domain === 'sensor') return dc === 'temperature' ? 'mdi:thermometer' : dc === 'humidity' ? 'mdi:water-percent' : dc === 'battery' ? 'mdi:battery' : 'mdi:eye';
+    if (domain === 'switch') return 'mdi:toggle-switch';
+    if (domain === 'light') return 'mdi:lightbulb';
+    return null;
+  }
+
+  _getDefaultServiceForEntity(entityId) {
+    if (!entityId) return 'homeassistant.toggle';
+    const domain = entityId.split('.')[0];
+    const map = {
+      light: 'light.toggle',
+      switch: 'switch.toggle',
+      input_boolean: 'input_boolean.toggle',
+      media_player: 'media_player.media_play_pause',
+      script: 'script.turn_on',
+      automation: 'automation.trigger',
+      scene: 'scene.turn_on',
+      cover: 'cover.toggle',
+      fan: 'fan.toggle',
+      lock: 'lock.toggle',
+      climate: 'climate.toggle',
+      vacuum: 'vacuum.start',
+      button: 'button.press',
+      input_button: 'input_button.press'
+    };
+    return map[domain] || 'homeassistant.toggle';
+  }
+
+  _addExtraChip() {
+    const chips = [...(this._config.extra_chips || []), { entity: '' }];
+    this._updateConfig('extra_chips', chips);
+  }
+
+  _removeExtraChip(idx) {
+    const chips = [...(this._config.extra_chips || [])];
+    chips.splice(idx, 1);
+    this._updateConfig('extra_chips', chips.length ? chips : undefined);
+  }
+
+  _updateExtraChip(idx, key, value) {
+    const chips = JSON.parse(JSON.stringify(this._config.extra_chips || []));
+    if (value === undefined) {
+      delete chips[idx][key];
+    } else {
+      chips[idx][key] = value;
+    }
+    // When entity is set for the first time on an empty chip, copy the real HA entity icon
+    if (key === 'entity' && value && !chips[idx].icon && this.hass) {
+      const ent = this.hass.states[value];
+      if (ent?.attributes?.icon) chips[idx].icon = ent.attributes.icon;
+    }
+    this._updateConfig('extra_chips', chips);
   }
 
   _fireEvent(type, detail) {
