@@ -18,23 +18,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ⤵️ Check out configuration from GitHub
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@v6.0.2
       - name: 🚀 Run yamllint
-        uses: frenck/action-yamllint@34b4bbcaeabedcfefad6adea8c5bbc42af0e2d47
+        uses: frenck/action-yamllint@v1.5.0
 
   home-assistant:
-    name: "Home Assistant Core ${{ matrix.version }} Configuration Check"
+    name: "Home Assistant ${{ matrix.version }} Configuration Check"
+    needs: [yamllint]
     runs-on: ubuntu-latest
     strategy:
       matrix:
         version: ["stable", "beta", "dev"]
     steps:
       - name: ⤵️ Check out configuration from GitHub
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          persist-credentials: false
+        uses: actions/checkout@v6.0.2
       - name: 🚀 Run Home Assistant Configuration Check
-        uses: frenck/action-home-assistant@941d5d917f4c1c7a7e7d4087526daf90d53f4437
+        uses: frenck/action-home-assistant@v1.4
         with:
           path: "."
           secrets: ./secrets.fake.yaml
@@ -54,7 +53,7 @@ jobs:
         language: ['javascript', 'python']
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        uses: actions/checkout@v6.0.2
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
