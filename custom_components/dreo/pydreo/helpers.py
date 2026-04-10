@@ -8,9 +8,7 @@ from typing import Optional, Union
 import re
 import requests
 
-from .constant import LOGGER_NAME
-
-_LOGGER = logging.getLogger(LOGGER_NAME)
+_LOGGER = logging.getLogger(__name__)
 
 API_TIMEOUT = 30
 
@@ -55,7 +53,6 @@ class Helpers:
             body["himei"] = "faede31549d649f58864093158787ec9"
             body["password"] = cls.hash_password(pydreo_manager.password)
             body["scope"] = "all"
-            print(body)
 
         elif type_ == "devicelist":
             body = {**cls.req_body_base()}
@@ -96,7 +93,10 @@ class Helpers:
                         '(?<=authKey": ")|',
                         '(?<=uuid": ")|',
                         '(?<=cid": ")|',
-                        '(?<=authorization": "))',
+                        '(?<=authorization": ")|',
+                        '(?<=client_secret": ")|',
+                        '(?<=client_id": ")|',
+                        '(?<=himei": "))',
                         '[^"]+',
                     )
                 ),
@@ -118,15 +118,15 @@ class Helpers:
         status_code = None
         r = None # Response object
         try:
-            _LOGGER.debug("=======call_api=============================")
-            _LOGGER.debug("[%s] calling '%s' api", method, api)
-            _LOGGER.debug("API call URL: \n  %s%s", url, api)
+            _LOGGER.debug("call_api: =======call_api=============================")
+            _LOGGER.debug("call_api: [%s] calling '%s' api", method, api)
+            _LOGGER.debug("call_api: API call URL: \n  %s%s", url, api)
             _LOGGER.debug(
-                "API call headers: \n  %s", Helpers.redactor(
+                "call_api: API call headers: \n  %s", Helpers.redactor(
                     json.dumps(headers))
             )
             _LOGGER.debug(
-                "API call json: \n  %s", Helpers.redactor(
+                "call_api: API call json: \n  %s", Helpers.redactor(
                     json.dumps(json_object))
             )
             if method.lower() == "get":
@@ -149,27 +149,29 @@ class Helpers:
                     url + api, json=json_object, headers=headers, timeout=API_TIMEOUT
                 )
         except requests.exceptions.RequestException as exception:
-            _LOGGER.debug(exception)
+            _LOGGER.error("call_api: Request failed - %s", exception)
         else:
             if r.status_code == 200:
                 status_code = 200
                 if r.content:
                     response = r.json()
                     _LOGGER.debug(
-                        "API response: \n\n  %s \n ",
+                        "call_api: API response: \n\n  %s \n ",
                         Helpers.redactor(json.dumps(response)),
                     )
             else:
-                _LOGGER.debug("Unable to fetch %s%s", url, api)
+                status_code = r.status_code
+                _LOGGER.error("call_api: API request failed with status code %s for %s%s",
+                             r.status_code, url, api)
         return response, status_code
 
     @staticmethod
-    def     code_check(reponse_dict: dict) -> bool:
+    def code_check(response_dict: dict) -> bool:
         """Test if code == 0 for successful API call."""
-        if reponse_dict is None:
-            _LOGGER.error("No response from API")
+        if response_dict is None:
+            _LOGGER.error("Helpers::code_check - response_dict is None")
             return False
-        if isinstance(reponse_dict, dict) and reponse_dict.get("code") == 0:
+        if isinstance(response_dict, dict) and response_dict.get("code") == 0:
             return True
         return False
 
@@ -179,8 +181,11 @@ class Helpers:
         return str(int(time.time() * 1000))
 
     @staticmethod
-    def name_from_value(name_value_list : list[tuple], value) -> str:
+    def name_from_value(name_value_list : list[tuple], value) -> str | None:
         """Return name from list of tuples."""
+        if not name_value_list:
+            _LOGGER.error("Helpers::name_from_value - name_value_list is None")
+            return None
         for name, val in name_value_list:
             if val == value:
                 return name
@@ -189,6 +194,9 @@ class Helpers:
     @staticmethod
     def value_from_name(name_value_list : list[tuple], name) -> any:
         """Return value from list of tuples."""
+        if not name_value_list:
+            _LOGGER.error("Helpers::value_from_name - name_value_list is None")
+            return None
         for n, val in name_value_list:
             if n == name:
                 return val
@@ -197,4 +205,7 @@ class Helpers:
     @staticmethod
     def get_name_list(name_value_list : list[tuple]) -> list[str]:
         """Return list of names from list of tuples."""
+        if not name_value_list:
+            _LOGGER.error("Helpers::get_name_list - name_value_list is None")
+            return []
         return [name for name, _ in name_value_list]

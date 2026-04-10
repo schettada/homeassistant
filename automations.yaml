@@ -1,32 +1,32 @@
 - id: '1661747369154'
   alias: HA Start/Stop
   description: ''
-  trigger:
-  - platform: homeassistant
-    event: start
+  triggers:
+  - event: start
     id: hastart
-  - platform: homeassistant
-    event: shutdown
+    trigger: homeassistant
+  - event: shutdown
     id: hastop
-  condition: []
-  action:
+    trigger: homeassistant
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
         id: hastart
       sequence:
-      - service: notify.mobile_app_sj
-        data:
+      - data:
           message: Home Assistant Online!
           title: Critical Message
+        action: notify.mobile_app_sj
     - conditions:
       - condition: trigger
         id: hastop
       sequence:
-      - service: notify.mobile_app_sj
-        data:
+      - data:
           message: Home Assistant Rebooting!
           title: Critical Message
+        action: notify.mobile_app_sj
     default: []
   mode: single
 - id: '1663217810869'
@@ -34,29 +34,31 @@
   description: ''
   triggers:
   - entity_id:
-    - binary_sensor.front_door_sensor_contact
-    - binary_sensor.garage_door_sensor_contact
-    - binary_sensor.loft_window_sensor_contact
-    - binary_sensor.walkout_door_sensor_contact
-    - binary_sensor.basement_door_sensor_contact
-    - binary_sensor.basement_window_sensor_contact
-    - binary_sensor.deck_sliding_door_sensor_contact
+    - binary_sensor.front_door
+    - binary_sensor.garage_door
+    - binary_sensor.loft_window
+    - binary_sensor.walkout_door
+    - binary_sensor.basement_door
+    - binary_sensor.basement_window
+    - binary_sensor.deck_sliding_door
     - binary_sensor.neeva_windows
-    - binary_sensor.yard_gate_door
-    to: 'on'
+    - binary_sensor.yard_gate
+    to:
+    - 'on'
     id: doorwindowopen
     trigger: state
   - entity_id:
-    - binary_sensor.front_door_sensor_contact
-    - binary_sensor.garage_door_sensor_contact
-    - binary_sensor.loft_window_sensor_contact
-    - binary_sensor.walkout_door_sensor_contact
-    - binary_sensor.basement_door_sensor_contact
-    - binary_sensor.basement_window_sensor_contact
-    - binary_sensor.deck_sliding_door_sensor_contact
+    - binary_sensor.front_door
+    - binary_sensor.garage_door
+    - binary_sensor.loft_window
+    - binary_sensor.walkout_door
+    - binary_sensor.basement_door
+    - binary_sensor.basement_window
+    - binary_sensor.deck_sliding_door
     - binary_sensor.neeva_windows
-    - binary_sensor.yard_gate_door
-    to: 'off'
+    - binary_sensor.yard_gate
+    to:
+    - 'off'
     id: doorwindowclose
     trigger: state
   conditions: []
@@ -83,110 +85,110 @@
 - id: '1663995445012'
   alias: Alarmo
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - alarm_control_panel.home
     to: armed_home
     id: armed_home
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - alarm_control_panel.home
     to: armed_night
     id: armed_night
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - alarm_control_panel.home
     to: armed_away
     id: armed_away
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - alarm_control_panel.home
     to: disarmed
     id: disarmed
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - alarm_control_panel.home
     to: arming
     id: arming
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - alarm_control_panel.home
     to: pending
     id: pending
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - alarm_control_panel.home
     to: triggered
     id: triggered
-  - platform: event
-    event_type: alarmo_failed_to_arm
+    trigger: state
+  - event_type: alarmo_failed_to_arm
     id: failed
-  - platform: event
-    event_type: alarmo_command_success
+    trigger: event
+  - event_type: alarmo_command_success
     id: success
-  - platform: mqtt
-    topic: zigbee2mqtt/keypad
+    trigger: event
+  - topic: zigbee2mqtt/keypad
     id: keypad
-  condition: []
-  action:
+    trigger: mqtt
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
         id: armed_home
       sequence:
-      - service: mqtt.publish
-        data:
+      - data:
           topic: zigbee2mqtt/keypad/set
           payload: '{     "arm_mode": {         "mode": "arm_day_zones"     } }'
+        action: mqtt.publish
     - conditions:
       - condition: trigger
         id: armed_night
       sequence:
-      - service: mqtt.publish
-        data:
+      - data:
           topic: zigbee2mqtt/keypad/set
           payload: '{     "arm_mode": {         "mode": "arm_night_zones"     } }'
+        action: mqtt.publish
     - conditions:
       - condition: trigger
         id: armed_away
       sequence:
-      - service: mqtt.publish
-        data:
+      - data:
           topic: zigbee2mqtt/keypad/set
           payload: '{     "arm_mode": {         "mode": "arm_all_zones"     } }'
+        action: mqtt.publish
     - conditions:
       - condition: trigger
         id: disarmed
       sequence:
-      - service: mqtt.publish
-        data:
+      - data:
           topic: zigbee2mqtt/keypad/set
           payload: '{     "arm_mode": {         "mode": "disarm"     } }'
+        action: mqtt.publish
     - conditions:
       - condition: trigger
         id: arming
       sequence:
-      - service: mqtt.publish
-        data:
+      - data:
           topic: zigbee2mqtt/keypad/set
           payload: '{     "arm_mode": {         "mode": "exit_delay"     } }'
+        action: mqtt.publish
     - conditions:
       - condition: trigger
         id: pending
       sequence:
-      - service: mqtt.publish
-        data:
+      - data:
           topic: zigbee2mqtt/keypad/set
           payload: '{     "arm_mode": {         "mode": "entry_delay"     } }'
+        action: mqtt.publish
     - conditions:
       - condition: trigger
         id: triggered
       sequence:
-      - service: mqtt.publish
-        data:
+      - data:
           topic: zigbee2mqtt/keypad/set
           payload: '{     "arm_mode": {         "mode": "in_alarm"     } }'
+        action: mqtt.publish
     - conditions:
       - condition: trigger
         id: failed
@@ -196,31 +198,31 @@
           - condition: template
             value_template: '{{ trigger.event.data.reason == ''invalid_code'' }}'
           sequence:
-          - service: mqtt.publish
-            data:
+          - data:
               payload: '{     "arm_mode": {         "transaction": {{ trigger.event.data.context_id                         }},         "mode":
                 "invalid_code"     } }'
               topic: zigbee2mqtt/keypad/set
+            action: mqtt.publish
         - conditions:
           - condition: template
             value_template: '{{ trigger.event.data.reason == ''open_sensors'' }}'
           sequence:
-          - service: mqtt.publish
-            data:
+          - data:
               payload: '{     "arm_mode": {         "transaction": {{ trigger.event.data.context_id                         }},         "mode":
                 "not_ready"     } }'
               topic: zigbee2mqtt/keypad/set
+            action: mqtt.publish
         - conditions:
           - condition: template
             value_template: '{{ trigger.event.data.reason == ''not_allowed'' }}'
           - condition: template
             value_template: '{{ trigger.event.data.reason == ''disarm'' }}'
           sequence:
-          - service: mqtt.publish
-            data:
+          - data:
               payload: '{     "arm_mode": {         "transaction": {{ trigger.event.data.context_id                         }},         "mode":
                 "already_disarmed"     } }'
               topic: zigbee2mqtt/keypad/set
+            action: mqtt.publish
     - conditions:
       - condition: trigger
         id: success
@@ -234,11 +236,11 @@
           - condition: template
             value_template: '{{ trigger.event.data.mode == ''away'' }}'
           sequence:
-          - service: mqtt.publish
-            data:
+          - data:
               topic: zigbee2mqtt/keypad/set
               payload: '{     "arm_mode": {         "transaction": {{ trigger.event.data.context_id
                 }},         "mode": "arm_all_zones"     } }'
+            action: mqtt.publish
         - conditions:
           - condition: template
             value_template: '{{ trigger.event.data.action == ''arm'' }}'
@@ -247,11 +249,11 @@
           - condition: template
             value_template: '{{ trigger.event.data.mode == ''home'' }}'
           sequence:
-          - service: mqtt.publish
-            data:
+          - data:
               topic: zigbee2mqtt/keypad/set
               payload: '{     "arm_mode": {         "transaction": {{ trigger.event.data.context_id
                 }},         "mode": "arm_day_zones"     } }'
+            action: mqtt.publish
         - conditions:
           - condition: template
             value_template: '{{ trigger.event.data.action == ''arm'' }}'
@@ -260,22 +262,22 @@
           - condition: template
             value_template: '{{ trigger.event.data.mode == ''night'' }}'
           sequence:
-          - service: mqtt.publish
-            data:
+          - data:
               topic: zigbee2mqtt/keypad/set
               payload: '{     "arm_mode": {         "transaction": {{ trigger.event.data.context_id
                 }},         "mode": "arm_night_zones"     } }'
+            action: mqtt.publish
         - conditions:
           - condition: template
             value_template: '{{ trigger.event.data.action == ''disarm'' }}'
           - condition: template
             value_template: '{{ trigger.event.data.context_id != null }}'
           sequence:
-          - service: mqtt.publish
-            data:
+          - data:
               topic: zigbee2mqtt/keypad/set
               payload: '{     "arm_mode": {         "transaction": {{ trigger.event.data.context_id
                 }},         "mode": "disarm"     } }'
+            action: mqtt.publish
     - conditions:
       - condition: trigger
         id: keypad
@@ -285,57 +287,58 @@
           - condition: template
             value_template: '{{ trigger.payload_json.action == "disarm"  }}'
           sequence:
-          - service: alarmo.disarm
-            data:
+          - data:
               entity_id: alarm_control_panel.home
               code: '{{ trigger.payload_json.action_code }}'
               context_id: '{{ trigger.payload_json.action_transaction }}'
+            action: alarmo.disarm
         - conditions:
           - condition: template
             value_template: '{{ trigger.payload_json.action == "arm_all_zones"  }}'
           sequence:
-          - service: alarmo.arm
-            data:
+          - data:
               entity_id: alarm_control_panel.home
               mode: away
               code: '{{ trigger.payload_json.action_code }}'
               context_id: '{{ trigger.payload_json.action_transaction }}'
+            action: alarmo.arm
         - conditions:
           - condition: template
             value_template: '{{ trigger.payload_json.action == "arm_day_zones"  }}'
           sequence:
-          - service: alarmo.arm
-            data:
+          - data:
               entity_id: alarm_control_panel.home
               mode: home
               code: '{{ trigger.payload_json.action_code }}'
               context_id: '{{ trigger.payload_json.action_transaction }}'
+            action: alarmo.arm
         - conditions:
           - condition: template
             value_template: '{{ trigger.payload_json.action == "arm_night_zones"  }}'
           sequence:
-          - service: alarmo.arm
-            data:
+          - data:
               entity_id: alarm_control_panel.home
               mode: night
               code: '{{ trigger.payload_json.action_code }}'
               context_id: '{{ trigger.payload_json.action_transaction }}'
+            action: alarmo.arm
   mode: parallel
   max: 10
 - id: '1664594503267'
   alias: Auto Arm Security
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - person.arleepta
     - person.sooraj_chettada
-    to: not_home
+    to:
+    - not_home
     for:
       hours: 0
       minutes: 5
       seconds: 0
-  condition:
+    trigger: state
+  conditions:
   - condition: and
     conditions:
     - condition: state
@@ -347,14 +350,14 @@
     - condition: state
       entity_id: person.sooraj_chettada
       state: not_home
-  action:
-  - service: alarmo.arm
-    data:
+  actions:
+  - data:
       code: '1985'
       mode: away
       force: true
       skip_delay: true
       entity_id: alarm_control_panel.home
+    action: alarmo.arm
   - device_id: f6fb94ee1b2f598b481ded658a4af30b
     domain: lock
     entity_id: 191d58b23eef085ccf6f38511077e5cd
@@ -377,14 +380,16 @@
 - id: '1681345612250'
   alias: Front Door Bell
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.front_door_visitor
-    to: 'on'
-    from: 'off'
-  condition: []
-  action:
+    to:
+    - 'on'
+    from:
+    - 'off'
+    trigger: state
+  conditions: []
+  actions:
   - data:
       message: Someone is at front door
     action: script.alexa_announcement
@@ -471,13 +476,10 @@
     - binary_sensor.sump_pump_water_leak
     - binary_sensor.basement_drain_water_leak
     - binary_sensor.master_bathroom_water_leak
-    - binary_sensor.kitchen_sink
+    - binary_sensor.kitchen_sink_water_leak
     - binary_sensor.neeva_bathroom_water_leak
-    to: 'on'
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 0
+    to:
+    - 'on'
     trigger: state
   conditions: []
   actions:
@@ -557,40 +559,42 @@
 - id: '1704390098395'
   alias: Check All Door Status
   description: ''
-  trigger:
-  - platform: time_pattern
-    minutes: /15
-  condition: []
-  action:
+  triggers:
+  - minutes: /15
+    trigger: time_pattern
+  conditions: []
+  actions:
   - sequence:
     - if:
       - condition: state
-        entity_id: binary_sensor.front_door_sensor_contact
-        state: 'on'
+        entity_id: binary_sensor.front_door
+        state:
+        - 'on'
         for:
           hours: 0
           minutes: 15
           seconds: 0
       then:
-      - service: script.notify_all
-        data:
-          message: Front Door is Open for {{ relative_time(states.binary_sensor.front_door_sensor_contact.last_changed)
+      - data:
+          message: Front Door is Open for {{ relative_time(states.binary_sensor.front_door.last_changed)
             }}
           title: Security Message
+        action: script.notify_all
     - if:
       - condition: state
-        entity_id: binary_sensor.garage_door_sensor_contact
-        state: 'on'
+        entity_id: binary_sensor.garage_door
+        state:
+        - 'on'
         for:
           hours: 0
           minutes: 15
           seconds: 0
       then:
-      - service: script.notify_all
-        data:
-          message: Garage Door is Open for {{ relative_time(states.binary_sensor.garage_door_sensor_contact.last_changed)
+      - data:
+          message: Garage Door is Open for {{ relative_time(states.binary_sensor.garage_door.last_changed)
             }}
           title: Security Message
+        action: script.notify_all
   mode: single
 - id: '1711769380993'
   alias: Night Check
@@ -721,17 +725,17 @@
 - id: '1718425424769'
   alias: Auto Disarm Security
   description: ''
-  trigger:
-  - platform: zone
-    entity_id: person.arleepta
+  triggers:
+  - entity_id: person.arleepta
     zone: zone.home
     event: enter
-  - platform: zone
-    entity_id: person.sooraj_chettada
+    trigger: zone
+  - entity_id: person.sooraj_chettada
     zone: zone.home
     event: enter
-  condition: []
-  action:
+    trigger: zone
+  conditions: []
+  actions:
   - sequence:
     - if:
       - condition: device
@@ -749,55 +753,55 @@
         entity_id: alarm_control_panel.home
         state: armed_away
       then:
-      - service: alarm_control_panel.alarm_disarm
-        metadata: {}
+      - metadata: {}
         data:
           code: '1985'
         target:
           entity_id: alarm_control_panel.home
+        action: alarm_control_panel.alarm_disarm
   mode: single
 - id: '1721442422593'
   alias: Turn Off Automations
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - input_boolean.turn_off_automations
     from: 'off'
     to: 'on'
     id: turnoff
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - input_boolean.turn_off_automations
     from: 'on'
     to: 'off'
     id: turnon
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
         id:
         - turnoff
       sequence:
-      - service: automation.turn_off
-        target:
+      - target:
           entity_id:
           - automation.door_lock_unlock_status
           - automation.doors_windows_open_close
         data:
           stop_actions: true
+        action: automation.turn_off
     - conditions:
       - condition: trigger
         id:
         - turnon
       sequence:
-      - service: automation.turn_on
-        target:
+      - target:
           entity_id:
           - automation.door_lock_unlock_status
           - automation.doors_windows_open_close
         data: {}
+        action: automation.turn_on
   mode: single
 - id: '1727806768707'
   alias: Power Status
@@ -895,21 +899,27 @@
   description: ''
   triggers:
   - entity_id:
-    - binary_sensor.basement_door_sensor_contact
-    from: 'off'
-    to: 'on'
+    - binary_sensor.basement_door
+    from:
+    - 'off'
+    to:
+    - 'on'
     id: open
     trigger: state
   - entity_id:
-    - binary_sensor.basement_door_sensor_contact
-    from: 'on'
-    to: 'off'
+    - binary_sensor.basement_door
+    from:
+    - 'on'
+    to:
+    - 'off'
     id: close
     trigger: state
   - entity_id:
-    - binary_sensor.basement_door_sensor_contact
-    from: 'off'
-    to: 'on'
+    - binary_sensor.basement_door
+    from:
+    - 'off'
+    to:
+    - 'on'
     for:
       hours: 0
       minutes: 15
@@ -1051,13 +1061,15 @@
   triggers:
   - trigger: state
     entity_id:
-    - binary_sensor.front_door_sensor_contact
+    - binary_sensor.front_door
     for:
       hours: 0
       minutes: 5
       seconds: 0
-    from: 'on'
-    to: 'off'
+    from:
+    - 'on'
+    to:
+    - 'off'
   conditions:
   - condition: state
     entity_id: lock.front_door
@@ -1067,64 +1079,6 @@
     domain: lock
     entity_id: b438392b34f145fed27c1ed5aaf709c7
     type: lock
-  mode: single
-- id: '1757901543651'
-  alias: Restart Wallpanel
-  description: ''
-  triggers:
-  - trigger: time
-    at: 00:30:00
-    weekday:
-    - sun
-  conditions: []
-  actions:
-  - action: button.press
-    metadata: {}
-    data: {}
-    target:
-      entity_id: button.wallpanel_restart_device
-  mode: single
-- id: '1758151114044'
-  alias: Wallpanel Charge Control
-  description: ''
-  triggers:
-  - type: battery_level
-    device_id: ffd9521a6949932a0138eaf05ddc1b2a
-    entity_id: d8fa970d9d196430a5d1806eb497c839
-    domain: sensor
-    trigger: device
-    above: 79
-    id: full
-  - type: battery_level
-    device_id: ffd9521a6949932a0138eaf05ddc1b2a
-    entity_id: d8fa970d9d196430a5d1806eb497c839
-    domain: sensor
-    trigger: device
-    id: depleted
-    below: 35
-  conditions: []
-  actions:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - full
-      sequence:
-      - action: switch.turn_off
-        metadata: {}
-        data: {}
-        target:
-          entity_id: switch.usw_pro_24_poe_arleepta_office_poe
-    - conditions:
-      - condition: trigger
-        id:
-        - depleted
-      sequence:
-      - action: switch.turn_on
-        metadata: {}
-        data: {}
-        target:
-          entity_id: switch.usw_pro_24_poe_arleepta_office_poe
   mode: single
 - id: '1767579592893'
   alias: Fireplace Monitoring
@@ -1149,4 +1103,114 @@
     data:
       message: '{{ trigger.to_state.attributes.friendly_name }} is {{ trigger.to_state.state
         }}'
+  mode: single
+- id: '1769925219628'
+  alias: Wall Panel Control
+  description: ''
+  triggers:
+  - trigger: time
+    at: '23:30:00'
+    id: Night
+  - trigger: time
+    at: 05:30:00
+    id: 'Morning '
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - Night
+      sequence:
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.usw_pro_24_poe_arleepta_office_poe
+    - conditions:
+      - condition: trigger
+        id:
+        - 'Morning '
+      sequence:
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.usw_pro_24_poe_arleepta_office_poe
+  mode: single
+- id: '1770871189882'
+  alias: Test Doors
+  description: ''
+  triggers:
+  - entity_id:
+    - binary_sensor.doors_windows
+    to:
+    - 'on'
+    id: doorwindowopen
+    trigger: state
+  - entity_id:
+    - binary_sensor.doors_windows
+    to:
+    - 'off'
+    id: doorwindowclose
+    trigger: state
+  conditions: []
+  actions:
+  - data: {}
+    action: script.door_alert
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: doorwindowopen
+      sequence:
+      - data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is Open'
+        action: script.notify_all
+    - conditions:
+      - condition: trigger
+        id: doorwindowclose
+      sequence:
+      - data:
+          message: '{{ trigger.to_state.attributes.friendly_name }} is Closed'
+          title: Security Message
+        action: script.notify_all
+  mode: single
+- id: '1775093597448'
+  alias: Pooja Room Lights
+  description: ''
+  triggers:
+  - type: occupied
+    device_id: 8eb24ac06958179d41b9e54f44553268
+    entity_id: f3b2a5ea13aad341b431767c21bad3ce
+    domain: binary_sensor
+    trigger: device
+    id: turnon
+  - type: not_occupied
+    device_id: 8eb24ac06958179d41b9e54f44553268
+    entity_id: f3b2a5ea13aad341b431767c21bad3ce
+    domain: binary_sensor
+    trigger: device
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+    id: turnoff
+  conditions: []
+  actions:
+  - if:
+    - condition: trigger
+      id:
+      - turnon
+    then:
+    - action: light.turn_on
+      metadata: {}
+      target:
+        entity_id: light.pooja_room
+      data: {}
+    else:
+    - action: light.turn_off
+      metadata: {}
+      target:
+        entity_id: light.pooja_room
+      data: {}
   mode: single

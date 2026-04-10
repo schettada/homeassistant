@@ -13,11 +13,10 @@ from .dreobasedevice import DreoBaseDeviceHA
 from .pydreo import PyDreoDehumidifier
 
 from .const import (
-    LOGGER,
-    DOMAIN
+    DOMAIN,
 )
 
-_LOGGER = logging.getLogger(LOGGER)
+_LOGGER = logging.getLogger(__name__)
 
 # Implementation of the Dehumidifier
 class DreoDehumidifierHA(DreoBaseDeviceHA, HumidifierEntity):
@@ -54,12 +53,12 @@ class DreoDehumidifierHA(DreoBaseDeviceHA, HumidifierEntity):
         return HumidifierDeviceClass.DEHUMIDIFIER
 
     @property
-    def supported_features(self) -> int:
+    def supported_features(self) -> HumidifierEntityFeature:
         """Return the list of supported features."""
-        supported_features = 0
+        supported_features = HumidifierEntityFeature(0)
         if self.device.modes is not None:
             supported_features |= HumidifierEntityFeature.MODES
-        
+
         return supported_features
     
     @property
@@ -97,15 +96,17 @@ class DreoDehumidifierHA(DreoBaseDeviceHA, HumidifierEntity):
         """Return the maximum humidity."""
         return 85
     
-    def turn_on(self, **kwargs: any) -> None:
+    def turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""
-        _LOGGER.debug("DreoDehumidifierHA:turn_on(%s)", self.device.name)
+        _LOGGER.debug("turn_on: turn_on(%s)", self.device.name)
         self.device.is_on = True
+        self.schedule_update_ha_state()
 
-    def turn_off(self, **kwargs: any) -> None:
+    def turn_off(self, **kwargs: Any) -> None:
         """Turn the device off."""
-        _LOGGER.debug("DreoDehumidifierHA:turn_off(%s)", self.device.name)
+        _LOGGER.debug("turn_off: turn_off(%s)", self.device.name)
         self.device.is_on = False
+        self.schedule_update_ha_state()
 
     def set_mode(self, mode: str) -> None:
         """Set the mode of the device."""
@@ -122,6 +123,7 @@ class DreoDehumidifierHA(DreoBaseDeviceHA, HumidifierEntity):
             )
 
         self.device.mode = mode
+        self.schedule_update_ha_state()
 
     def set_humidity(self, humidity: float) -> None:
         """Set the target humidity level."""
@@ -129,6 +131,7 @@ class DreoDehumidifierHA(DreoBaseDeviceHA, HumidifierEntity):
             "DreoDehumidifierHA:set_humidity(%s) --> %s", self.device.name, humidity
         )
         self.device.target_humidity = int(humidity)
+        self.schedule_update_ha_state()
 
 
     @property
